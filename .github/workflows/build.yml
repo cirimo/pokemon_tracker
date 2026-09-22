@@ -1,9 +1,12 @@
 name: build
 
+# Every push, on every branch. This repo is worked solo on feature branches that
+# are merged locally, so gating on pull_request would mean CI never ran.
+# pull_request is deliberately absent: push already covers the branch a PR would
+# be opened from, and having both runs the same commit twice.
 on:
   push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: build-${{ github.ref }}

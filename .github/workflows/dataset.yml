@@ -5,7 +5,7 @@ name: dataset
 # produce what is committed?
 on:
   workflow_dispatch:
-  pull_request:
+  push:
     paths:
       - 'tools/dataset-pipeline/**'
       - 'data/curated/**'

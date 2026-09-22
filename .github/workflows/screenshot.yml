@@ -1,7 +1,8 @@
 name: screenshot
 
 on:
-  pull_request:
+  workflow_dispatch:
+  push:
     paths:
       - 'design-system/**'
       - 'gradle/libs.versions.toml'
