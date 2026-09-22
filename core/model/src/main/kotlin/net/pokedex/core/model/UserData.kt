@@ -1,0 +1,51 @@
+package net.pokedex.core.model
+
+/**
+ * User-data domain types. Sacred: a dataset regeneration must never touch these, and
+ * nothing here carries a foreign key into reference data.
+ *
+ * [originGameId] is intentionally a plain id, not a validated reference. If a future
+ * dataset drops a game, the record still remembers where the Pokemon came from.
+ */
+data class CatchRecord(
+    val key: CatchKey,
+    val caught: Boolean,
+    val originGameId: GameId?,
+    val caughtAt: Long?,
+    val notes: String?,
+    val favourite: Boolean,
+    /** 0 means unprioritised. Higher sorts earlier in the hunt queue. */
+    val priority: Int,
+    val updatedAt: Long,
+) {
+    companion object {
+        fun empty(key: CatchKey, now: Long): CatchRecord = CatchRecord(
+            key = key,
+            caught = false,
+            originGameId = null,
+            caughtAt = null,
+            notes = null,
+            favourite = false,
+            priority = 0,
+            updatedAt = now,
+        )
+    }
+}
+
+data class UserSettings(
+    val activePresetId: PresetId,
+    val lastSeenPresetVersion: Int,
+    val lastSeenDatasetVersion: Int,
+    val autoBackupEnabled: Boolean,
+    val autoBackupKeepCount: Int,
+) {
+    companion object {
+        val DEFAULT = UserSettings(
+            activePresetId = PresetId("grouped-balanced"),
+            lastSeenPresetVersion = 0,
+            lastSeenDatasetVersion = 0,
+            autoBackupEnabled = true,
+            autoBackupKeepCount = 10,
+        )
+    }
+}
