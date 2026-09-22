@@ -1,35 +1,13 @@
-# Normalize line endings: LF in the repository, native in the working copy.
 * text=auto eol=lf
 
-# Windows scripts must keep CRLF or they break when executed.
-*.bat  text eol=crlf
-*.cmd  text eol=crlf
-*.ps1  text eol=crlf
-
-# The Gradle wrapper script must stay LF for CI.
+*.bat text eol=crlf
 gradlew text eol=lf
+*.jar binary
+*.webp binary
+*.db binary
+*.png binary
 
-# Binary assets — never touch these.
-*.png    binary
-*.jpg    binary
-*.jpeg   binary
-*.webp   binary
-*.gif    binary
-*.ico    binary
-*.ttf    binary
-*.otf    binary
-*.woff   binary
-*.woff2  binary
-*.jar    binary
-*.aar    binary
-*.apk    binary
-*.aab    binary
-*.so     binary
-*.keystore binary
-*.jks    binary
-*.db     binary
-*.sqlite binary
-*.sqlite3 binary
-
-# Generated wrapper files shouldn't clutter diffs or language stats.
-gradle/wrapper/gradle-wrapper.jar binary linguist-vendored
+# The shiny sprite set is ~1400 files and about 17 MB, regenerated as a unit by
+# tools/dataset-pipeline. LFS keeps that out of the git object history; reference.db is
+# under 1 MB and diffs are meaningless either way, so it stays a plain binary blob.
+core/data/src/main/assets/sprites/*.webp filter=lfs diff=lfs merge=lfs -text

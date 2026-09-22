@@ -1,0 +1,79 @@
+# Project detekt configuration, layered on top of the default rule set.
+#
+# The philosophy: fail on things that cause bugs or that make the code harder to come
+# back to after three months away. Do not fail on style opinions that a formatter
+# already settles, and do not fail on the length of a well-named function.
+
+build:
+  maxIssues: 0
+
+formatting:
+  active: true
+  MaximumLineLength:
+    active: true
+    maxLineLength: 120
+  # Wildcard imports hide where a symbol came from, which matters most in exactly the
+  # files you read least often.
+  NoWildcardImports:
+    active: true
+  Filename:
+    active: false
+
+complexity:
+  LongParameterList:
+    # Compose composables and Room entities legitimately have many parameters, and
+    # splitting them into holder classes to satisfy a counter makes them worse.
+    active: false
+  LongMethod:
+    active: true
+    threshold: 80
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: true
+    thresholdInInterfaces: 30
+    # A mapper file is a wall of one-line conversions on purpose -- that is what keeps
+    # Room entities from leaking out of :core:data. Counting them is not a signal.
+    thresholdInFiles: 40
+    ignoreAnnotated: ['Dao']
+
+style:
+  MagicNumber:
+    active: true
+    ignoreAnnotated: ['Composable', 'Preview']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+  MaxLineLength:
+    active: true
+    maxLineLength: 120
+  ReturnCount:
+    active: true
+    max: 4
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated: ['Preview']
+
+exceptions:
+  TooGenericExceptionCaught:
+    # Repository guards deliberately catch Exception to convert any failure into a
+    # typed AppError rather than letting it escape into the UI as a crash.
+    active: false
+  SwallowedException:
+    active: true
+
+naming:
+  # We name files after the concern they hold, not after whichever declaration happens
+  # to be first: CaseColors + future ramps live in one colour file, routes and their
+  # graph builder live in one navigation file. Both rules fight that deliberately.
+  MatchingDeclarationName:
+    active: false
+  FunctionNaming:
+    # Composables are PascalCase by convention.
+    ignoreAnnotated: ['Composable']
+  TopLevelPropertyNaming:
+    active: true
+
+comments:
+  UndocumentedPublicClass:
+    active: false
+  UndocumentedPublicFunction:
+    active: false

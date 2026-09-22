@@ -1,0 +1,130 @@
+# Version catalog. Every dependency version in the project lives here.
+#
+# Toolchain note (see docs/adr/0008-toolchain-baseline.md): we are deliberately on
+# AGP 8.13.x rather than 9.x. AGP 9 replaces the Kotlin Gradle plugin with built-in
+# Kotlin pinned to KGP 2.2.10 -- adopting it would *downgrade* Kotlin and
+# put six third-party Gradle plugins against AGP 9's new DSL. Revisit when AGP 9
+# ships with a 2.3+ KGP.
+
+[versions]
+# Toolchain, chosen as a SET. These four cannot be bumped independently:
+#   Kotlin 2.4.x needs Hilt >= 2.59, Hilt >= 2.59 needs AGP >= 9,
+#   AGP 9 replaces KGP with built-in Kotlin pinned at 2.2.10 -- a downgrade.
+# So: AGP 8.13.x + Kotlin 2.3.x + Hilt 2.58 is the newest coherent combination.
+# Full reasoning in docs/adr/0008-toolchain-baseline.md.
+agp = "8.13.2"
+kotlin = "2.3.21"
+ksp = "2.3.12"
+
+# Compose BOM 2026.09.00 resolves material3 to 1.4.0 STABLE.
+# Do not move to a BOM that pulls the 1.5.0-alpha Expressive line -- see docs/design-decisions.md.
+composeBom = "2026.06.01"
+
+# AndroidX is pinned to the last line that still supports AGP 8.13 / compileSdk 36.
+# Newer lifecycle, activity and core require AGP 9.1+ or compileSdk 37. Bumping any of
+# these means moving the whole toolchain -- see docs/adr/0008-toolchain-baseline.md.
+androidxCoreKtx = "1.17.0"
+androidxLifecycle = "2.9.4"
+androidxActivityCompose = "1.10.1"
+androidxNavigationCompose = "2.9.8"
+androidxDatastore = "1.1.7"
+androidxRoom = "2.8.5"
+androidxTestExtJunit = "1.2.1"
+androidxTestRunner = "1.6.2"
+androidxTestCore = "1.6.1"
+
+hilt = "2.58"
+hiltNavigationCompose = "1.2.0"
+coil = "3.3.0"
+kotlinxCoroutines = "1.11.0"
+kotlinxSerialization = "1.11.0"
+
+junit4 = "4.13.2"
+turbine = "1.2.1"
+robolectric = "4.17"
+roborazzi = "1.75.0"
+truth = "1.4.5"
+
+detekt = "1.23.8"
+desugarJdkLibs = "2.1.5"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCoreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivityCompose" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidxLifecycle" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "androidxNavigationCompose" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDatastore" }
+
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidxRoom" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "androidxRoom" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidxRoom" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "androidxRoom" }
+
+# Compose: versions come from the BOM, never declared here.
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+truth = { group = "com.google.truth", name = "truth", version.ref = "truth" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+
+# detekt-formatting wraps the ktlint rule set, so one plugin covers both formatting and
+# static analysis. A second Gradle plugin for ktlint would add a moving part for no
+# extra coverage -- see CLAUDE.md.
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+
+# Referenced by build-logic so convention plugins can apply them programmatically.
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", version.ref = "androidxRoom" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+room = { id = "androidx.room", version.ref = "androidxRoom" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+
+# Our own convention plugins.
+pokedex-android-application = { id = "pokedex.android.application" }
+pokedex-android-library = { id = "pokedex.android.library" }
+pokedex-android-compose = { id = "pokedex.android.compose" }
+pokedex-android-hilt = { id = "pokedex.android.hilt" }
+pokedex-android-room = { id = "pokedex.android.room" }
+pokedex-jvm-library = { id = "pokedex.jvm.library" }
+pokedex-android-feature = { id = "pokedex.android.feature" }

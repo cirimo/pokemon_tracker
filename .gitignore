@@ -1,0 +1,25 @@
+# Gradle / Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.cxx/
+
+# Signing -- never commit a keystore or its passwords
+*.jks
+*.keystore
+keystore.properties
+
+# Node (dataset pipeline)
+node_modules/
+tools/dataset-pipeline/.cache/
+tools/dataset-pipeline/dist/
+
+# Pipeline scratch. The upstream checkout is reproducible from the pinned tag.
+tools/dataset-pipeline/.upstream/
+
+# OS
+.DS_Store
+Thumbs.db
