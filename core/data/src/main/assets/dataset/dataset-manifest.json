@@ -1,0 +1,22 @@
+{
+  "datasetVersion": 1,
+  "presetVersion": 1,
+  "upstreamTag": "6.8.2",
+  "upstreamSha": "b58dc7cd81e541eb3ac2648d89a78304a6fd4c2a",
+  "spriteSet": "sprites/pokemon/other/home/shiny",
+  "spriteSize": 256,
+  "builtAt": "1970-01-01T00:00:00Z",
+  "contentHash": "a4c29a79eb2c904a934979b3c7e72c00f55db40b3551d1b652357bc0bf4ef298",
+  "tables": {
+    "box": "2156cd3e04ab02bd324a5b73cf5050a730b1d775d9aaaa26a6a904fc17ebca97",
+    "dex_preset": "16f5e53ad8ad95dbba10b2b53f2564e5db90728ce7eef50c843ed23e18150e8e",
+    "encounter": "5e5b95eda5e53e8033ae78f550c6bfe9b4dcd1a7b0ff56f735cad1b62e5d792a",
+    "encounter_method": "1cfe4db35ae9f3663e5eb48710fa96de764025085ed745f5ea632003730e8109",
+    "game": "a1c5ff0fcaf3feb6bd268107d660cfd0c4f720dee9e995e7a11aa91aef7d0daf",
+    "game_availability": "8bb6ef659b454740f5ef978d586f8bf4026a183648636f29ba18e1694f5e6a9c",
+    "odds_modifier": "90725772edccf5447ce1c88636d877b3e4ff745c55c22fe030591995fd967f0d",
+    "slot": "bde3e255fb3c9376b1e8e125ef59d055b57aebb579c5d0f23788b89ab3ae0c7e",
+    "species": "b243716f9c315962f8cd1a492c2aa69c5411dc97b52ba920c811783cadd419b8",
+    "variant": "22b69dd0434af9f1b724d68e7183bf4267c1a399d016bdbcf24c9ed7d5d79a02"
+  }
+}
