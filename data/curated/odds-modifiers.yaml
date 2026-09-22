@@ -1,0 +1,84 @@
+# Shiny odds, per (game, method).
+#
+# Two mechanics, so two shapes:
+#
+#   rollsAdded    the game rolls for shiny N extra times. The base rate is 1/4096 per
+#                 roll from generation 6 onward, so three rolls is roughly 1/1365.
+#                 Shiny Charm, Masuda, outbreak tiers and KO chains all work this way.
+#   denominator   the method replaces the rate outright. Dynamax Adventures are a flat
+#                 1/300 regardless of anything else, which no amount of reroll
+#                 arithmetic reproduces.
+#
+# A modifier must set exactly one of the two. The Zod schema enforces that; the
+# validators enforce that gameId and methodId resolve.
+#
+# Seeded, not complete. See docs/dataset-pipeline.md.
+
+modifiers:
+  # --- Scarlet / Violet -------------------------------------------------------
+  - gameId: sv-s
+    methodId: sandwich
+    id: shiny-charm
+    label: Shiny Charm
+    rollsAdded: 2
+    notes: Stacks with outbreak and Sparkling Power rerolls.
+  - gameId: sv-s
+    methodId: mass-outbreak
+    id: outbreak-60
+    label: Outbreak, 60+ defeated
+    rollsAdded: 1
+  - gameId: sv-s
+    methodId: mass-outbreak
+    id: outbreak-30
+    label: Outbreak, 30+ defeated
+    rollsAdded: 1
+  - gameId: sv-s
+    methodId: sandwich
+    id: sparkling-power-3
+    label: Sparkling Power Lv. 3
+    rollsAdded: 3
+
+  # --- Sword / Shield ---------------------------------------------------------
+  - gameId: swsh-sw
+    methodId: brilliant
+    id: shiny-charm
+    label: Shiny Charm
+    rollsAdded: 2
+  - gameId: swsh-sw
+    methodId: brilliant
+    id: ko-chain-500
+    label: KO chain of 500+
+    rollsAdded: 5
+  - gameId: swsh-sw
+    methodId: dynamax-adventure
+    id: base-rate
+    label: Dynamax Adventure base rate
+    denominator: 300
+    notes: >-
+      A flat rate that ignores the reroll model entirely. Shiny Charm raises it to
+      roughly 1/100 -- recorded separately rather than as added rolls.
+
+  # --- breeding, wherever it exists -------------------------------------------
+  - gameId: sv-s
+    methodId: breeding
+    id: masuda
+    label: Masuda method
+    rollsAdded: 5
+    notes: Parents from different-language save files.
+  - gameId: swsh-sw
+    methodId: breeding
+    id: masuda
+    label: Masuda method
+    rollsAdded: 5
+
+  # --- Legends Arceus ---------------------------------------------------------
+  - gameId: la
+    methodId: massive-mass-outbreak
+    id: perfect-dex-research
+    label: Perfect Pokedex research
+    rollsAdded: 2
+  - gameId: la
+    methodId: massive-mass-outbreak
+    id: shiny-charm
+    label: Shiny Charm
+    rollsAdded: 3

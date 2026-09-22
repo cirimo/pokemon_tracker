@@ -1,0 +1,72 @@
+# The catalogue of ways a shiny can be encountered.
+#
+# Kept generic across games on purpose. Per-game detail belongs in encounters/<game>.yaml
+# and the odds belong in odds-modifiers.yaml, so that adding a game does not mean
+# inventing a parallel vocabulary.
+
+methods:
+  - id: wild
+    name: Wild encounter
+    description: >-
+      An ordinary overworld or tall-grass encounter with no chaining mechanic applied.
+
+  - id: mass-outbreak
+    name: Mass outbreak
+    description: >-
+      A spawned cluster of one species. Legends Arceus and Scarlet/Violet both have
+      these but the odds mechanics differ, so each game carries its own modifiers.
+
+  - id: massive-mass-outbreak
+    name: Massive mass outbreak
+    description: >-
+      Legends Arceus only. Space-time distortion outbreaks with the highest shiny rate
+      available in that game.
+
+  - id: sandwich
+    name: Sandwich encounter power
+    description: >-
+      Scarlet/Violet. Sparkling Power raised on a type, combined with an outbreak,
+      is the standard SV shiny method.
+
+  - id: brilliant
+    name: Brilliant aura encounter
+    description: >-
+      Sword/Shield. A KO chain on a species raises both the brilliant rate and the
+      number of shiny rerolls.
+
+  - id: raid
+    name: Tera or Max raid
+    description: Raid dens and Tera raid crystals. Frequently shiny-locked.
+
+  - id: static
+    name: Static encounter
+    description: >-
+      A fixed, non-respawning encounter, usually reset-based. Most legendaries.
+
+  - id: gift
+    name: Gift
+    description: A Pokemon handed to you by an NPC. Almost always shiny-locked.
+
+  - id: breeding
+    name: Breeding
+    description: Egg hatching, where the Masuda method applies.
+
+  - id: fossil
+    name: Fossil revival
+    description: Revived from a fossil at a lab counter.
+
+  - id: fishing
+    name: Fishing
+    description: Rod encounters, including chain fishing where the game supports it.
+
+  - id: dynamax-adventure
+    name: Dynamax Adventure
+    description: >-
+      Sword/Shield Crown Tundra. A flat shiny rate that ignores the usual reroll model,
+      which is why it is modelled with a denominator rather than added rolls.
+
+  - id: transfer-only
+    name: Transfer only
+    description: >-
+      Not obtainable in this game at all -- it can only arrive through HOME. Present as
+      a method so the UI can say why a slot has no encounter.

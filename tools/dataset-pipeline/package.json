@@ -1,0 +1,25 @@
+{
+  "name": "@pokedex/dataset-pipeline",
+  "private": true,
+  "type": "module",
+  "description": "Turns the pinned PokePC dataset plus our curated layer into the prebuilt reference.db asset and the shiny sprite set.",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "build:dataset": "tsx src/index.ts build",
+    "build:sprites": "tsx src/index.ts sprites",
+    "validate": "tsx src/index.ts validate",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "sharp": "^0.34.4",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

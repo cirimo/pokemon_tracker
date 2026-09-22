@@ -1,0 +1,44 @@
+# The games this app covers, in the order they should appear in the UI.
+#
+# This is a SUBSET of upstream: PokePC knows about every game back to Red and Blue, but
+# the locked scope (docs/00-big-picture.md) is the Switch era plus HOME as the hub.
+# Listing them here rather than filtering by generation keeps the choice explicit --
+# adding Legends Z-A or Champions to the app is a one-line change with a visible diff.
+#
+# id must match an upstream data/games/<id>.json. Everything except name and sortOrder
+# is read from upstream, so there is nothing to keep in sync by hand.
+
+games:
+  - id: lgpe-lgp
+    name: "Let's Go, Pikachu!"
+    sortOrder: 10
+  - id: lgpe-lge
+    name: "Let's Go, Eevee!"
+    sortOrder: 20
+  - id: swsh-sw
+    name: Sword
+    sortOrder: 30
+  - id: swsh-sh
+    name: Shield
+    sortOrder: 40
+  - id: bdsp-bd
+    name: Brilliant Diamond
+    sortOrder: 50
+  - id: bdsp-sp
+    name: Shining Pearl
+    sortOrder: 60
+  - id: la
+    name: Legends Arceus
+    sortOrder: 70
+  - id: sv-s
+    name: Scarlet
+    sortOrder: 80
+  - id: sv-v
+    name: Violet
+    sortOrder: 90
+  - id: lza
+    name: Legends Z-A
+    sortOrder: 100
+  - id: home
+    name: HOME
+    sortOrder: 110

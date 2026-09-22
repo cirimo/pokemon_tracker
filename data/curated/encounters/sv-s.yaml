@@ -1,0 +1,37 @@
+# How to catch things in Scarlet.
+#
+# One file per game so a hunting session touches one file, and so a game can be added
+# without rewriting anything that exists. gameId is stated once at the top rather than
+# repeated on every row.
+#
+# Seeded, not complete.
+
+gameId: sv-s
+
+encounters:
+  - variantId: koraidon
+    methodId: static
+    location: Area Zero
+    notes: Story encounter. Shiny-locked -- see shiny-locks.yaml.
+    source: https://www.serebii.net/scarletviolet/
+
+  - variantId: gimmighoul-roaming
+    methodId: wild
+    location: Overworld, near towers and rocks
+    prerequisite: Roaming form only; the chest form is a static encounter.
+    notes: >-
+      Does not appear in outbreaks, so Sparkling Power is the only useful modifier.
+
+  - variantId: tauros-paldea
+    methodId: mass-outbreak
+    location: South Province
+    notes: Combat Breed. The Blaze and Aqua breeds are Violet-side or post-game.
+
+  - variantId: dudunsparce-three-segment
+    methodId: breeding
+    prerequisite: >-
+      Evolve Dunsparce with Hyper Drill. The three-segment form is a 1-in-100 roll at
+      evolution and is independent of shininess, so hunt the shiny first.
+    notes: >-
+      The most annoying slot in the Paldea boxes: two independent rolls, and the form
+      cannot be rerolled after evolving.

@@ -1,0 +1,71 @@
+# Shiny locks: (variant, game) pairs where a shiny is impossible.
+#
+# This is the single most valuable file in the repo, and the reason a curated layer
+# exists at all. PokeAPI does not carry shiny locks. PokePC does not carry shiny locks.
+# No machine-readable dataset of them exists -- this was checked, not assumed. Every row
+# here is transcribed by hand from Bulbapedia or Serebii, and every row carries the
+# source that justifies it so a future me can re-check it.
+#
+# Facts about a video game are not copyrightable; the wording here is ours. Cite anyway.
+#
+# SCOPE NOTE: this file is deliberately seeded, not complete. It holds enough rows to
+# exercise the schema and the validators. Filling it is M4 work, one game at a time,
+# and docs/dataset-pipeline.md explains how.
+#
+# variantId must be an upstream PokePC id. gameId must appear in games.yaml.
+# The validators reject any row that does not resolve, so a typo cannot ship.
+
+locks:
+  # --- Scarlet / Violet -------------------------------------------------------
+  - variantId: koraidon
+    gameId: sv-s
+    reason: Story-locked. The box legendary is never shiny in Scarlet.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: miraidon
+    gameId: sv-v
+    reason: Story-locked. The box legendary is never shiny in Violet.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+
+  # --- Sword / Shield ---------------------------------------------------------
+  - variantId: zacian
+    gameId: swsh-sw
+    reason: Story-locked at the Slumbering Weald encounter.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: zacian
+    gameId: swsh-sh
+    reason: Story-locked at the Slumbering Weald encounter.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: zamazenta
+    gameId: swsh-sw
+    reason: Story-locked at the Slumbering Weald encounter.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: zamazenta
+    gameId: swsh-sh
+    reason: Story-locked at the Slumbering Weald encounter.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: eternatus
+    gameId: swsh-sw
+    reason: Story-locked at the Tower Summit.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: eternatus
+    gameId: swsh-sh
+    reason: Story-locked at the Tower Summit.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+
+  # --- Legends Arceus ---------------------------------------------------------
+  # Worth knowing: PLA locks the story legendaries but NOT the overworld nobles,
+  # which is the kind of asymmetry that makes this file worth having.
+  - variantId: arceus
+    gameId: la
+    reason: Story-locked at the final encounter.
+    source: https://www.serebii.net/legendsarceus/shiny.shtml
+
+  # --- Let's Go ---------------------------------------------------------------
+  - variantId: meltan
+    gameId: lgpe-lgp
+    reason: Mystery Box transfers from GO are never shiny in Let's Go.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: melmetal
+    gameId: lgpe-lgp
+    reason: Evolved from a shiny-locked Meltan.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
