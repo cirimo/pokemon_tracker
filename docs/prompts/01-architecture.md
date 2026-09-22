@@ -2,6 +2,9 @@
 
 > Run this in a fresh Claude Code session at the repo root, in **plan mode**.
 > Read `docs/00-big-picture.md` first. Do not write feature code in this session.
+> Also read `docs/design-decisions.md` and satisfy the "Contract: what the architecture
+> session must provide" section — the design session has already locked the visual
+> direction and depends on this session scaffolding a home for it.
 
 ---
 
@@ -128,6 +131,10 @@ prebuilt SQLite asset. Requirements:
 5. The **skeleton**: Gradle setup, version catalog, convention plugins, module stubs,
    DI wiring, Room entities and DAOs, a placeholder dataset asset, and a single smoke-test
    screen proving the stack works end to end. It must build and its tests must pass.
+   It must also include the `:design-system` module, a debug-only gallery host, a Compose
+   convention plugin, and version catalog entries pinned to the **stable `material3` 1.4.0
+   line** (not the 1.5.0-alpha Expressive line) plus Roborazzi, Robolectric and
+   `compose-ui-test` — per the contract in `docs/design-decisions.md`.
 
 ## How to work
 
