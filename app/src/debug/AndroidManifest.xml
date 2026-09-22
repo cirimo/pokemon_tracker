@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!--
+          Second launcher icon, debug only. Merged into the debug manifest and simply
+          not present in release, which is why the M1 contract requirement needs no
+          build flag and cannot be shipped by accident.
+        -->
+        <activity
+            android:name=".gallery.GalleryActivity"
+            android:exported="true"
+            android:label="@string/gallery_name"
+            android:theme="@style/Theme.Pokedex">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
