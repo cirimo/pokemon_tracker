@@ -1,0 +1,30 @@
+name: screenshot
+
+on:
+  pull_request:
+    paths:
+      - 'design-system/**'
+      - 'gradle/libs.versions.toml'
+
+jobs:
+  roborazzi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+
+      # Roborazzi runs on Robolectric, so this needs no emulator and is fast enough to
+      # gate every design-system change.
+      - name: Verify screenshots
+        run: ./gradlew :design-system:verifyRoborazziDebug --stacktrace
+
+      - name: Upload diffs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshot-diffs
+          path: design-system/build/outputs/roborazzi/**

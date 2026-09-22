@@ -1,0 +1,60 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The sprite set is in LFS. Without this the dataset asset check compares
+          # against pointer files and passes for the wrong reason.
+          lfs: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Assemble
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Unit tests
+        run: ./gradlew test --stacktrace
+
+      - name: Static analysis
+        run: ./gradlew detekt lintDebug --stacktrace
+
+      # The dependency rule from CLAUDE.md, enforced rather than trusted. A feature
+      # module that reaches for another feature module fails here, not at review.
+      - name: Module boundaries
+        run: |
+          set -e
+          for module in feature/*/build.gradle.kts; do
+            if grep -Eq 'project\(":feature:' "$module"; then
+              echo "::error file=$module::a feature module depends on another feature module"
+              exit 1
+            fi
+          done
+          if grep -Eq 'project\(":(core|feature):' design-system/build.gradle.kts; then
+            echo "::error::design-system must not depend on core or feature modules"
+            exit 1
+          fi
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/**
