@@ -38,6 +38,12 @@ jobs:
       - name: Static analysis
         run: ./gradlew detekt lintDebug --stacktrace
 
+      # Contrast, type-colour ramps, 48dp touch targets, TalkBack sentences, and
+      # screenshots in both themes at 100% and 200% font scale. The accessibility
+      # promises in docs/design-system.md are gated here rather than trusted.
+      - name: Design system
+        run: ./gradlew :design-system:designCheck --stacktrace
+
       # The dependency rule from CLAUDE.md, enforced rather than trusted. A feature
       # module that reaches for another feature module fails here, not at review.
       - name: Module boundaries

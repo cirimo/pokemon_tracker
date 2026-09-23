@@ -37,3 +37,24 @@ dependencies {
     testImplementation(libs.androidx.compose.ui.test.junit4)
     testImplementation(libs.androidx.test.ext.junit)
 }
+
+/**
+ * The one command that checks the design system.
+ *
+ * `./gradlew :design-system:designCheck`
+ *
+ * The brief asked for a check that can be run rather than a claim in a document, and this
+ * is it. It covers, in order of how quietly each one breaks:
+ *
+ *  - ContrastTest      -- every declared token pair, both themes, against its WCAG bar
+ *  - ContrastTest      -- all 18 type badges, plus the uniformity of the OKLCH ramp
+ *  - AccessibilityTest -- 48dp touch targets and TalkBack sentences
+ *  - Roborazzi         -- both themes and 200% font scale, pinned to images
+ *
+ * Wired into CI in .github/workflows/build.yml so it gates every push.
+ */
+tasks.register("designCheck") {
+    group = "verification"
+    description = "Contrast, touch targets, semantics and screenshots, in both themes."
+    dependsOn("testDebugUnitTest", "verifyRoborazziDebug")
+}
