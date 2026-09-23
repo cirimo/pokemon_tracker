@@ -90,7 +90,11 @@ that survives dataset regeneration.
 Three prompts, run as separate Claude Code sessions, in order:
 
 1. [`prompts/01-architecture.md`](prompts/01-architecture.md) — produces the technical plan
-   and the skeleton, before any feature code exists.
+   and the skeleton, before any feature code exists. **Done (M0).**
 2. [`prompts/02-design.md`](prompts/02-design.md) — produces the design language and the
-   component library, before any screen is designed ad hoc.
-3. Feature prompts, one per milestone, written after 1 and 2 land.
+   component library, before any screen is designed ad hoc. **Done (M1)** — see
+   [`design-system.md`](design-system.md) for the result and
+   [`design-usage.md`](design-usage.md) for the rules it imposes on everything after.
+3. [`prompts/03-see-my-dex.md`](prompts/03-see-my-dex.md) — the box view, slot detail,
+   species reference, search and filter. **Next (M2).**
+4. Further feature prompts, one per milestone, written as each one comes up.
