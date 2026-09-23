@@ -39,22 +39,37 @@ dependencies {
 }
 
 /**
- * The one command that checks the design system.
+ * The one command that checks the design system, and that you can actually run.
  *
  * `./gradlew :design-system:designCheck`
  *
- * The brief asked for a check that can be run rather than a claim in a document, and this
- * is it. It covers, in order of how quietly each one breaks:
+ * Covers, in order of how quietly each one breaks:
  *
  *  - ContrastTest      -- every declared token pair, both themes, against its WCAG bar
  *  - ContrastTest      -- all 18 type badges, plus the uniformity of the OKLCH ramp
  *  - AccessibilityTest -- 48dp touch targets and TalkBack sentences
- *  - Roborazzi         -- both themes and 200% font scale, pinned to images
+ *  - BoxGridScrollingParentTest -- the container contracts a screenshot cannot see
  *
- * Wired into CI in .github/workflows/build.yml so it gates every push.
+ * ## Why screenshot verification is deliberately NOT in here
+ *
+ * It used to be, and that was wrong in a way that took a round trip through CI to see.
+ *
+ * Roborazzi compares pixels exactly and Robolectric does not render identically across
+ * operating systems, so a golden is only valid on the platform that recorded it. Goldens
+ * recorded on Windows failed on ubuntu-latest; once they were re-recorded on CI, they
+ * failed on Windows. A gate that cannot pass on a developer machine is not a gate, it is
+ * noise that people learn to ignore.
+ *
+ * So the split follows the actual property: everything above is platform-independent and
+ * runs anywhere, and `verifyRoborazziDebug` is a CI-only gate that build.yml runs
+ * alongside this one. Record goldens with the `record screenshots` workflow --
+ * docs/design-usage.md has the procedure.
+ *
+ * Running `verifyRoborazziDebug` locally is expected to fail, and that failure means
+ * nothing. Use `recordRoborazziDebug` to look at what a component renders.
  */
 tasks.register("designCheck") {
     group = "verification"
-    description = "Contrast, touch targets, semantics and screenshots, in both themes."
-    dependsOn("testDebugUnitTest", "verifyRoborazziDebug")
+    description = "Contrast, touch targets, semantics and container contracts, in both themes."
+    dependsOn("testDebugUnitTest")
 }

@@ -135,9 +135,12 @@ would commit away every regression this gate exists to catch.
 ## Before you open a PR
 
 ```bash
-./gradlew :design-system:designCheck   # contrast, targets, semantics, screenshots
+./gradlew :design-system:designCheck   # contrast, targets, semantics, container contracts
 ./gradlew detekt lintDebug             # includes the feature rules above
 ```
+
+Screenshot verification is not in there, and must not be run locally — see above. CI runs
+it for you.
 
 And install the debug build: the gallery is the second launcher icon. If you changed a
 design-system component, look at it there in both themes and at 200% text before believing

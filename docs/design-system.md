@@ -273,18 +273,26 @@ Established before anything was designed, so nothing was designed that cannot sh
 
 ## Accessibility
 
-Not a section of claims. A gate:
+Not a section of claims. A gate you can run:
 
 ```bash
 ./gradlew :design-system:designCheck
 ```
 
-| Check | What it enforces |
-|---|---|
-| `ContrastTest` | Every pair in `ContrastPairs`, both themes, against its WCAG bar |
-| `ContrastTest` | All 18 type badges, plus the *uniformity* of the OKLCH ramp |
-| `AccessibilityTest` | 48dp touch targets; TalkBack sentences, distinct per state |
-| `ComponentScreenshotTest` | Both themes, 100% and 200% font scale |
+| Check | What it enforces | Where |
+|---|---|---|
+| `ContrastTest` | Every pair in `ContrastPairs`, both themes, against its WCAG bar | anywhere |
+| `ContrastTest` | All 18 type badges, plus the *uniformity* of the OKLCH ramp | anywhere |
+| `AccessibilityTest` | 48dp touch targets; TalkBack sentences, distinct per state | anywhere |
+| `BoxGridScrollingParentTest` | Container contracts a screenshot cannot see | anywhere |
+| `ComponentScreenshotTest` | Both themes, 100% and 200% font scale | **CI only** |
+
+Screenshots are the one CI-only gate, and the split is not arbitrary. Roborazzi compares
+pixels exactly and Robolectric does not render identically across operating systems, so a
+golden is valid only on the platform that recorded it — goldens recorded on Windows failed
+on `ubuntu-latest`, and once recorded on CI they failed on Windows. Everything above the
+line is platform-independent and runs anywhere; `verifyRoborazziDebug` on a workstation is
+expected to fail and that failure means nothing.
 
 Screenshot goldens are recorded by the `record screenshots` workflow rather than locally,
 because Roborazzi compares pixels exactly and Robolectric does not render identically across

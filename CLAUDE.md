@@ -121,7 +121,9 @@ Commands:
 ```bash
 ./gradlew test                                  # JVM unit tests, debug variant only
 ./gradlew :core:data:connectedDebugAndroidTest  # Room tests, needs a device
-./gradlew :design-system:recordRoborazziDebug   # re-record screenshots LOCALLY, to look at
+./gradlew :design-system:recordRoborazziDebug   # render screenshots locally, to LOOK at only
+# Screenshot verification is CI-only. verifyRoborazziDebug fails on a workstation by
+# design -- the goldens are recorded on ubuntu-latest and pixels differ across platforms.
 ./gradlew detekt lintDebug                      # static analysis, both fail the build
 ```
 

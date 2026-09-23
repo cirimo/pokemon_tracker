@@ -38,11 +38,18 @@ jobs:
       - name: Static analysis
         run: ./gradlew detekt lintDebug --stacktrace
 
-      # Contrast, type-colour ramps, 48dp touch targets, TalkBack sentences, and
-      # screenshots in both themes at 100% and 200% font scale. The accessibility
-      # promises in docs/design-system.md are gated here rather than trusted.
+      # Contrast, type-colour ramps, 48dp touch targets, TalkBack sentences and container
+      # contracts. The accessibility promises in docs/design-system.md are gated here
+      # rather than trusted. This half runs anywhere, including on a workstation.
       - name: Design system
         run: ./gradlew :design-system:designCheck --stacktrace
+
+      # Screenshots are a CI-only gate: Roborazzi compares pixels exactly and Robolectric
+      # does not render identically across operating systems, so a golden is only valid on
+      # the platform that recorded it. Goldens come from the record-screenshots workflow,
+      # which runs on this same image.
+      - name: Screenshots
+        run: ./gradlew :design-system:verifyRoborazziDebug --stacktrace
 
       # The dependency rule from CLAUDE.md, enforced rather than trusted. A feature
       # module that reaches for another feature module fails here, not at review.
