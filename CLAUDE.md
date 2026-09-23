@@ -60,6 +60,11 @@ ceremonial ones.
   the reference/user boundary. They are separate database files precisely so that
   cannot happen.
 - **Never commit a keystore, a password, or `local.properties`.**
+- **Never commit locally-recorded screenshots.** Roborazzi comparison is pixel-exact and
+  Robolectric does not render identically across operating systems, so goldens recorded on
+  a workstation fail on CI. Record them with the `record screenshots` workflow, which runs
+  on the same image that verifies them, then pull. Running `recordRoborazziDebug` locally
+  to *look* at a component is fine; committing what it writes is not.
 - **Never bump one toolchain version alone.** AGP, Kotlin, Hilt and the Compose BOM are
   pinned as a set that only works together. `docs/adr/0008-toolchain-baseline.md`.
 
@@ -116,7 +121,7 @@ Commands:
 ```bash
 ./gradlew test                                  # JVM unit tests, debug variant only
 ./gradlew :core:data:connectedDebugAndroidTest  # Room tests, needs a device
-./gradlew :design-system:recordRoborazziDebug   # re-record screenshots after a change
+./gradlew :design-system:recordRoborazziDebug   # re-record screenshots LOCALLY, to look at
 ./gradlew detekt lintDebug                      # static analysis, both fail the build
 ```
 

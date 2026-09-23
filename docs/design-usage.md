@@ -109,6 +109,29 @@ key scheme — a shared element whose two sides disagree silently does nothing.
 
 ---
 
+## Screenshots come from CI, not from your machine
+
+Roborazzi compares pixels exactly, and Robolectric's rendering is not byte-identical across
+operating systems. A golden recorded on Windows or macOS fails on `ubuntu-latest` even when
+nothing about the component changed.
+
+So the committed goldens are produced by the `record screenshots` workflow, which runs on
+the same runner image that verifies them:
+
+1. Make the visual change and add or update the screenshot test.
+2. Push. CI will fail verification, which is correct -- the images no longer match.
+3. Run the **record screenshots** workflow by hand (Actions tab, or
+   `gh workflow run "record screenshots"`), on your branch.
+4. `git pull`. The recorded goldens arrive as a commit from `github-actions[bot]`.
+5. **Look at them** before you trust them. The workflow records whatever the component
+   currently renders, including a regression.
+
+`./gradlew :design-system:recordRoborazziDebug` locally is still the fastest way to see
+what a component draws. Just do not commit what it writes.
+
+The workflow is deliberately manual. One that re-recorded whenever verification failed
+would commit away every regression this gate exists to catch.
+
 ## Before you open a PR
 
 ```bash

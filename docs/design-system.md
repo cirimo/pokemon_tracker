@@ -286,6 +286,10 @@ Not a section of claims. A gate:
 | `AccessibilityTest` | 48dp touch targets; TalkBack sentences, distinct per state |
 | `ComponentScreenshotTest` | Both themes, 100% and 200% font scale |
 
+Screenshot goldens are recorded by the `record screenshots` workflow rather than locally,
+because Roborazzi compares pixels exactly and Robolectric does not render identically across
+operating systems. The procedure is in [`design-usage.md`](design-usage.md).
+
 `ContrastPairs` lives in **main** source, not in the test. A table only the tests can see is
 a table that silently stops describing the app; a component that starts using a new pair
 needs somewhere honest to declare it.
