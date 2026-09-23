@@ -244,8 +244,9 @@ actually ship).
 
 Reproducibility: the `.db` **is** byte-identical across runs today (verified), but that
 is a property of the SQLite build Node links, not of the pipeline. So the durable
-contract is a content manifest — SHA-256 per table over canonically sorted rows. CI
-checks the manifest first and byte-identity second.
+contract is a content manifest — SHA-256 per table over canonically sorted rows, and it
+is the only thing CI checks. Byte identity differs between the runner's SQLite and a
+workstation's (`docs/adr/0003-dataset-pipeline.md`).
 
 ---
 

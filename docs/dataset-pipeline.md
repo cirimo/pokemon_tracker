@@ -76,8 +76,9 @@ page size, sorted inserts, no `AUTOINCREMENT`, a frozen build timestamp and `VAC
 
 It also relies on the SQLite version Node links, which we do not control. So the
 **content manifest** is the durable contract: SHA-256 per table over canonically sorted
-rows. CI checks the manifest first, and byte-identity second as a stricter check that is
-allowed to fail loudly when SQLite moves.
+rows, and it is what CI checks. CI does not check byte identity: the runner links a
+different SQLite than a workstation does, so a correct dataset never matches byte for byte
+(`docs/adr/0003-dataset-pipeline.md`).
 
 Reproduce it:
 

@@ -45,6 +45,14 @@ canonically sorted rows, plus one hash over all of them. CI checks the manifest 
 byte-identity second, so a SQLite upgrade produces a loud, diagnosable failure rather
 than a silent divergence.
 
+**Amended 2026-09-23: CI no longer checks byte identity.** The workflow's first run, on
+`ubuntu-latest`, passed the manifest and failed byte identity against a `.db` built on
+Windows. That is not a SQLite *upgrade* but two SQLite builds side by side, permanently,
+so the check could never pass for a dataset committed from a workstation -- it would
+only ever report the platform, not a problem. The manifest check is unchanged and remains
+the contract. Byte identity across two runs on one machine still holds and is still worth
+knowing; it is just not something CI can assert.
+
 ## Consequences
 
 - Node and JVM toolchains both required to regenerate the dataset. Acceptable for a
