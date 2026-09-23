@@ -30,7 +30,8 @@ Each feature owns its destinations and exposes one `NavGraphBuilder` extension
 Two features can therefore link to each other through route types without a module
 dependency.
 
-Graph shape:
+Graph shape, as drawn at M0 (M2 made Search a mode of Boxes rather than a destination;
+see `0010-search-is-a-mode.md`):
 
 ```
 Boxes (start) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)

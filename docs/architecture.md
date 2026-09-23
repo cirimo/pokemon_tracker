@@ -201,11 +201,11 @@ Coil is given an explicit `Size` so a 256px asset decodes downsampled, and — p
 Navigation 3, which is still moving. Each feature contributes a `NavGraphBuilder`
 extension, so `:app` assembles the graph without knowing feature internals and two
 features can link to each other without depending on each other.
-`docs/adr/0006-navigation.md`. Target shape:
+`docs/adr/0006-navigation.md`. Shape, with search as a mode of the box screen rather
+than a destination (`docs/adr/0010-search-is-a-mode.md`):
 
 ```
-Boxes (start) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)
-Search
+Boxes (start; search is a mode) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)
 Settings ──→ BackupRestore
 ```
 
@@ -282,3 +282,17 @@ available to this app anyway.
 
 The APK budget accounts for ~15 MB of shiny sprites (1387 × ~11 KB measured at 256px
 q80), ~1 MB of `reference.db`, and the rest of the app.
+
+**Measured at M2** (2026-09-23): release build, **no** baseline profile yet, on the
+`Medium_Phone_API_36.1` emulator rather than a device, so read these as a floor on what
+is wrong rather than a pass on what is right:
+
+| Budget | Measured | |
+|---|---|---|
+| Cold start to first frame | median ~430 ms, worst 548 ms over 10 runs | within |
+| DB open + preset projection | 185–250 ms | over, but off the critical path: it starts in `Application.onCreate` and the data was ready before the first frame in every run |
+| Search over 1394 slots | 0.35–2.6 ms per keystroke; the worst is one letter matching 942 | within |
+| Pager, 20-box swipe run | 60 Hz display: P50 17 ms, P90 26 ms, 9.8% janky. 7 of 663 frames slow on the UI thread, 60 slow in issuing draw commands | not a verdict: the draw-command cost is the emulator's GPU translation |
+
+What the emulator cannot answer is the 120 Hz device budget. The first real-device run
+and a baseline profile are both still owed.
