@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The gallery's icon: the same slot, empty.
+
+  Debug builds put two launcher entries side by side, and two identical icons is a small
+  daily annoyance. This is the app's icon with the gold removed, which reads instantly as
+  "the same thing, not the real one" and needs no new visual idea.
+
+  No gold here on purpose. The gallery is a tool, not a collection.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#0E0C0D" android:pathData="M37,28h34a9,9 0 0 1 9,9v34a9,9 0 0 1 -9,9h-34a9,9 0 0 1 -9,-9v-34a9,9 0 0 1 9,-9z" />
+    <path
+        android:strokeColor="#807B78"
+        android:strokeWidth="4.5"
+        android:fillColor="#00000000"
+        android:pathData="M37,28h34a9,9 0 0 1 9,9v34a9,9 0 0 1 -9,9h-34a9,9 0 0 1 -9,-9v-34a9,9 0 0 1 9,-9z" />
+</vector>

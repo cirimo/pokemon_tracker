@@ -9,6 +9,7 @@
         <activity
             android:name=".gallery.GalleryActivity"
             android:exported="true"
+            android:icon="@mipmap/ic_gallery"
             android:label="@string/gallery_name"
             android:theme="@style/Theme.Pokedex">
             <intent-filter>
