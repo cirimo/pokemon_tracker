@@ -74,4 +74,14 @@ class DexTest {
         assertThat(dex.entry(key("zacian"))!!.shinyGameSets).isEmpty()
         assertThat(dex.entry(key("pikachu"))!!.shinyGameSets).containsExactly("sv", "swsh")
     }
+
+    @Test
+    fun `a duplicated variant is caught only when every copy is`() {
+        val copies = dex.copiesOf(VariantId("unown"))
+        val oneOfTwo = Fixtures.records(Fixtures.caught("unown", copy = 1))
+        val both = Fixtures.records(Fixtures.caught("unown", copy = 0), Fixtures.caught("unown", copy = 1))
+
+        assertThat(variantStatusOf(copies, oneOfTwo)).isEqualTo(SlotStatus.Needed)
+        assertThat(variantStatusOf(copies, both)).isEqualTo(SlotStatus.Caught)
+    }
 }

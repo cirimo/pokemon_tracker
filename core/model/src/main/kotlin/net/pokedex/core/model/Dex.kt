@@ -192,3 +192,20 @@ fun statusOf(entry: DexEntry, records: Map<CatchKey, CatchRecord>): SlotStatus =
     !entry.variant.shinyReleased -> SlotStatus.NoShinyExists
     else -> SlotStatus.Needed
 }
+
+/**
+ * The state of a variant across every slot demanding it -- what a species page or a form
+ * list shows, where there is one row per variant rather than one per slot.
+ *
+ * Caught only when EVERY copy is caught. For the seven duplicates, owning one Unown-A while
+ * the preset demands two is not done, and a form list that showed it in full colour would
+ * hide the one gap the living dex is for.
+ */
+fun variantStatusOf(copies: List<DexEntry>, records: Map<CatchKey, CatchRecord>): SlotStatus {
+    val statuses = copies.map { statusOf(it, records) }
+    return when {
+        statuses.isNotEmpty() && statuses.all { it == SlotStatus.Caught } -> SlotStatus.Caught
+        statuses.any { it == SlotStatus.NoShinyExists } -> SlotStatus.NoShinyExists
+        else -> SlotStatus.Needed
+    }
+}
