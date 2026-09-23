@@ -102,5 +102,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
      copies of their base form; give every form its own art and a validator that says so.
      **Done 2026-09-23**: see `docs/adr/0005-sprites.md`, "The id trap".
    - [`prompts/03b-baseline-profile.md`](prompts/03b-baseline-profile.md) — the pager misses
-     the 120 Hz budget until its code is compiled ahead of time.
-4. Further feature prompts, one per milestone, written as each one comes up.
+     the 120 Hz budget until its code is compiled ahead of time. **Done 2026-09-23**: the
+     profile reaches the fully compiled ceiling as installed; what remains is not JIT (see
+     `docs/architecture.md` §8).
+4. [`prompts/04-track-my-dex.md`](prompts/04-track-my-dex.md) — M3: backups that survive
+   an uninstall first, then the catch flow, dashboards and settings. **Next.**
+5. Further feature prompts, one per milestone, written as each one comes up.
