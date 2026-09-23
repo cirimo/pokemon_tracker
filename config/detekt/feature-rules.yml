@@ -1,0 +1,58 @@
+# The design-usage rules, as a detekt config.
+#
+# Applied ONLY to feature/ by the `detektFeatureRules` task in the root build file. This is
+# a standalone config, not a layer on the default rule set -- everything else about feature
+# code is already covered by config/detekt/detekt.yml, and running the full rule set twice
+# would just double the noise.
+#
+# What it enforces, from docs/design-usage.md:
+#
+#   A feature module composes the design system. It does not extend it.
+#
+# Concretely: no raw Color, no raw dp/sp, no hand-rolled TextStyle, and no reaching past
+# PokedexIcons into the icon library. If a screen needs something that is not in
+# :design-system, that is a design-system change, made in :design-system, with a gallery
+# entry and a screenshot -- not a one-off value in a feature file that nobody else can find.
+#
+# A genuine exception takes a @Suppress with a written reason. That is deliberate: it makes
+# the exception visible in review instead of invisible in a diff.
+
+build:
+  maxIssues: 0
+
+style:
+  ForbiddenImport:
+    active: true
+    imports:
+      - value: 'androidx.compose.ui.graphics.Color'
+        reason: >-
+          Feature code must not define colours. Use PokedexTheme.colors, or add a semantic
+          role to PokedexColors if the one you need does not exist. Raw Color also bypasses
+          ContrastTest, which only checks pairs declared in ContrastPairs.
+      - value: 'androidx.compose.ui.unit.dp'
+        reason: >-
+          Feature code must not define spacing or sizes. Use PokedexTheme.dimens. Ad-hoc dp
+          is how a 12dp gap and a 13dp gap end up on the same screen.
+      - value: 'androidx.compose.ui.unit.sp'
+        reason: >-
+          Feature code must not define type sizes. Use PokedexTheme.text or
+          MaterialTheme.typography. Raw sp also tends to come with a fixed line height, which
+          is what breaks at 200% font scale.
+      - value: 'androidx.compose.ui.text.TextStyle'
+        reason: >-
+          Feature code must not build text styles. Use PokedexTheme.text, or add a named
+          style to PokedexTextStyles. An ad-hoc style is a token nobody can find later.
+      - value: 'androidx.compose.material.icons.Icons'
+        reason: >-
+          Use PokedexIcons, which is the allowlist. Importing Icons directly is also how
+          material-icons-extended (a 20MB artifact) gets added to fix one missing glyph.
+      - value: 'androidx.compose.material3.darkColorScheme'
+        reason: 'There is one theme, and it lives in :design-system.'
+      - value: 'androidx.compose.material3.lightColorScheme'
+        reason: 'There is one theme, and it lives in :design-system.'
+      - value: 'androidx.compose.material3.dynamicDarkColorScheme'
+        reason: >-
+          Dynamic colour is off permanently. Gold has to keep meaning "shiny" -- see
+          docs/adr/0009-light-theme.md and docs/design-decisions.md.
+      - value: 'androidx.compose.material3.dynamicLightColorScheme'
+        reason: 'Dynamic colour is off permanently. See docs/design-decisions.md.'
