@@ -6,6 +6,7 @@ gradlew text eol=lf
 *.webp binary
 *.db binary
 *.png binary
+*.ttf binary
 
 # The shiny sprite set is ~1400 files and about 17 MB, regenerated as a unit by
 # tools/dataset-pipeline. LFS keeps that out of the git object history; reference.db is
