@@ -22,6 +22,12 @@ android {
  * the component is taking on knowledge that belongs in a feature.
  */
 dependencies {
+    // Icons are an implementation detail on purpose: PokedexIcons re-exports plain
+    // ImageVectors, so a feature module can use them without material-icons on its own
+    // classpath -- which is what makes "import from PokedexIcons, never from
+    // androidx.compose.material.icons" enforced by the compiler rather than by review.
+    implementation(libs.androidx.compose.material.icons.core)
+
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)

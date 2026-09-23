@@ -1,0 +1,12 @@
+<resources>
+    <!--
+      The one colour that has to exist as an Android resource rather than as a Kotlin
+      token: the launch theme's windowBackground and the adaptive icon background are
+      read by the platform before any Compose code runs.
+
+      It lives here, in :design-system, rather than in :app, because it is a design token
+      and a token with two homes drifts. PokedexColors.case is the authority;
+      LaunchColorTest asserts this value still matches it.
+    -->
+    <color name="pokedex_case_black">#FF121011</color>
+</resources>

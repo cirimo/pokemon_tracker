@@ -7,18 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.pokedex.designsystem.component.BoxSlot
+import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.ProgressReadout
-import net.pokedex.designsystem.component.SlotTile
+import net.pokedex.designsystem.component.SlotState
 import net.pokedex.designsystem.theme.PokedexTheme
 
 /**
@@ -49,7 +49,8 @@ fun SmokeScreen(
             Text("Shiny living dex", style = MaterialTheme.typography.headlineMedium)
 
             when (state) {
-                SmokeUiState.Loading -> CircularProgressIndicator()
+                // Skeleton, not spinner -- see States.kt.
+                SmokeUiState.Loading -> LoadingState()
 
                 is SmokeUiState.Broken -> {
                     Text(
@@ -85,8 +86,12 @@ fun SmokeScreen(
                     )
 
                     Row(horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm)) {
-                        SlotTile(caught = state.caughtCount > 0, modifier = Modifier.size(56.dp))
-                        SlotTile(caught = false, modifier = Modifier.size(56.dp))
+                        BoxSlot(
+                            state = if (state.caughtCount > 0) SlotState.Caught else SlotState.Needed,
+                            label = "First slot",
+                            modifier = Modifier.size(dimens.touchTargetMin),
+                        )
+                        BoxSlot(state = SlotState.Needed, label = "Second slot")
                     }
 
                     Button(onClick = { onEvent(SmokeEvent.ToggleFirstSlot) }) {
