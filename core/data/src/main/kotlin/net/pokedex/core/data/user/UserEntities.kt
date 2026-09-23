@@ -1,5 +1,6 @@
 package net.pokedex.core.data.user
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -39,6 +40,8 @@ data class UserSettingsEntity(
     val lastSeenDatasetVersion: Int,
     val autoBackupEnabled: Boolean,
     val autoBackupKeepCount: Int,
+    /** Added in version 2. The default is what MIGRATION_1_2 writes into existing rows. */
+    @ColumnInfo(defaultValue = "0") val lastBoxIndex: Int,
 )
 
 /** One row per rolling local backup written, so the UI can offer a restore list. */

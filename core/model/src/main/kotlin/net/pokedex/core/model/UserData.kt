@@ -38,6 +38,13 @@ data class UserSettings(
     val lastSeenDatasetVersion: Int,
     val autoBackupEnabled: Boolean,
     val autoBackupKeepCount: Int,
+    /**
+     * The box the pager was last on, so the app reopens where you left it -- mid-hunt, that
+     * is usually the box you are filling. A view preference, not a record: if a preset
+     * revision moves boxes this lands you somewhere slightly wrong, which costs a swipe.
+     * It is deliberately not part of a backup.
+     */
+    val lastBoxIndex: Int = 0,
 ) {
     companion object {
         val DEFAULT = UserSettings(

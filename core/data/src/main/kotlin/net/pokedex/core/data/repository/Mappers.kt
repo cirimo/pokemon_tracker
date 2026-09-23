@@ -153,6 +153,7 @@ internal fun UserSettingsEntity.toDomain() = UserSettings(
     lastSeenDatasetVersion = lastSeenDatasetVersion,
     autoBackupEnabled = autoBackupEnabled,
     autoBackupKeepCount = autoBackupKeepCount,
+    lastBoxIndex = lastBoxIndex,
 )
 
 internal fun UserSettings.toEntity() = UserSettingsEntity(
@@ -162,4 +163,5 @@ internal fun UserSettings.toEntity() = UserSettingsEntity(
     lastSeenDatasetVersion = lastSeenDatasetVersion,
     autoBackupEnabled = autoBackupEnabled,
     autoBackupKeepCount = autoBackupKeepCount,
+    lastBoxIndex = lastBoxIndex,
 )
