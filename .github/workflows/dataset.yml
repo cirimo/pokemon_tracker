@@ -11,12 +11,17 @@ on:
       - 'data/curated/**'
       - 'core/data/src/main/kotlin/**/reference/**'
       - 'core/data/schemas/**'
+      - 'core/data/src/main/assets/sprites/**'
 
 jobs:
   regenerate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # sprite-shared compares sprite bytes. Against LFS pointer files it would
+          # compare the pointers.
+          lfs: true
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
@@ -37,6 +42,13 @@ jobs:
       - name: Pipeline tests
         working-directory: tools/dataset-pipeline
         run: npm test
+
+      # Every variant has a sprite, and no two share one unless data/curated/sprites.yaml
+      # says the art really is identical. This is the check that would have caught 364
+      # base-form sprites shipped as form sprites (docs/adr/0005-sprites.md).
+      - name: Validate sprites
+        working-directory: tools/dataset-pipeline
+        run: npm run validate -- --sprites
 
       - name: Rebuild dataset
         working-directory: tools/dataset-pipeline

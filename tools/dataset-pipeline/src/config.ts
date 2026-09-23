@@ -34,13 +34,15 @@ export const PRESET = {
 } as const;
 
 export const SPRITES = {
-  repo: 'https://raw.githubusercontent.com/PokeAPI/sprites/master',
+  repo: 'PokeAPI/sprites',
+  /** Resolved to a commit at build time; the commit is recorded in sprite-sources.json. */
+  branch: 'master',
   /**
-   * Resolve by pkApiId FIRST. PokeAPI sprite files are keyed by *pokemon* id, not
-   * *pokemon-form* id: keying on pkApiFormId silently loses 128 of 1387 variants
-   * (all of Alcremie, the Hisuian forms, Paldean Tauros). pkApiId covers 1387/1387.
+   * Shiny art is shiny/<file>, gender forms shiny/female/<file>, and the normal-colour
+   * set sits at the root for the few variants with no shiny at all. Which file a variant
+   * gets is sprite-resolution.ts, and why is docs/adr/0005-sprites.md.
    */
-  set: 'sprites/pokemon/other/home/shiny',
+  home: 'sprites/pokemon/other/home',
   size: 256,
   quality: 80,
 } as const;
@@ -63,6 +65,8 @@ export const paths = {
   assetDb: path.join(repoRoot, 'core/data/src/main/assets/dataset/reference.db'),
   assetSprites: path.join(repoRoot, 'core/data/src/main/assets/sprites'),
   manifest: path.join(repoRoot, 'core/data/src/main/assets/dataset/dataset-manifest.json'),
+  /** Where each sprite came from. Pipeline state, not an asset: it must not ship in the APK. */
+  spriteSources: path.join(pipelineRoot, 'sprite-sources.json'),
 } as const;
 
 /** Bump when the emitted content changes in a way the app should notice. */

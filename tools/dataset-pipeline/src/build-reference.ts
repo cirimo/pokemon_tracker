@@ -65,6 +65,25 @@ export function spriteFileFor(p: { nid: string }): string {
   return "sprites/" + p.nid + ".webp";
 }
 
+/**
+ * The English display name, which search matches and TalkBack reads.
+ *
+ * Upstream's names.eng, except where upstream gives a non-default form the bare species
+ * name: at 6.8.2 that is Unown N, O, U and W and Eternal Flower Floette, whose
+ * names.eng is "Unown" / "Floette" while formNames.eng is correct. Those would otherwise
+ * be five search rows indistinguishable from the base form. The rule is general rather
+ * than a list of ids so the next such upstream slip is fixed too, and `display-name-unique`
+ * fails if one gets through anyway.
+ */
+export function displayNameFor(
+  p: { id: string; isDefault: boolean; names: Record<string, string>; formNames?: Record<string, string> },
+  speciesName: string,
+): string {
+  const name = p.names.eng ?? p.id;
+  const form = p.formNames?.eng;
+  return !p.isDefault && form && name === speciesName ? name + " (" + form + ")" : name;
+}
+
 function compareRows(a: unknown[], x: unknown[]): number {
   for (let i = 0; i < Math.min(a.length, x.length); i++) {
     const l = a[i];
@@ -139,7 +158,7 @@ export function buildReference(): void {
         p.nid,
         p.dexNum,
         p.formId ?? null,
-        p.names.eng ?? p.id,
+        displayNameFor(p, speciesRows.get(p.dexNum)![1] as string),
         p.formNames?.eng ?? null,
         p.type1,
         p.type2 ?? null,
@@ -309,7 +328,7 @@ export function buildReference(): void {
     presetVersion: PRESET_VERSION,
     upstreamTag: UPSTREAM.tag,
     upstreamSha: upstreamSha(),
-    spriteSet: SPRITES.set,
+    spriteSet: SPRITES.home,
     spriteSize: SPRITES.size,
     builtAt,
     contentHash: hashes.overall,

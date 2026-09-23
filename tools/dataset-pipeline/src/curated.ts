@@ -60,12 +60,38 @@ const oddsModifierSchema = z
     message: 'an odds modifier must set either rollsAdded or denominator',
   });
 
+const spriteOverrideSchema = z.object({
+  variantId: z.string(),
+  file: z.string().regex(/^[a-z0-9/-]+\.png$/, 'a path under PokeAPI other/home/, ending .png'),
+});
+
+const sharedSpriteSchema = z.object({
+  reason: z.string(),
+  variants: z.array(z.string()).min(2),
+});
+
 export const curatedSchemas = {
   games: z.object({ games: z.array(gameSchema) }),
   shinyLocks: z.object({ locks: z.array(shinyLockSchema) }),
   encounterMethods: z.object({ methods: z.array(encounterMethodSchema) }),
   encounters: z.object({ gameId: z.string(), encounters: z.array(encounterSchema) }),
   oddsModifiers: z.object({ modifiers: z.array(oddsModifierSchema) }),
+  sprites: z
+    .object({ overrides: z.array(spriteOverrideSchema), shared: z.array(sharedSpriteSchema) })
+    .superRefine((s, ctx) => {
+      for (const [kind, ids] of [
+        ['overrides', s.overrides.map((o) => o.variantId)],
+        ['shared', s.shared.flatMap((g) => g.variants)],
+      ] as const) {
+        const once = new Set<string>();
+        for (const id of ids) {
+          if (once.has(id)) {
+            ctx.addIssue({ code: 'custom', message: id + ' appears twice in ' + kind });
+          }
+          once.add(id);
+        }
+      }
+    }),
 };
 
 export type CuratedGame = z.infer<typeof gameSchema>;
@@ -73,6 +99,7 @@ export type CuratedShinyLock = z.infer<typeof shinyLockSchema>;
 export type CuratedEncounterMethod = z.infer<typeof encounterMethodSchema>;
 export type CuratedEncounter = z.infer<typeof encounterSchema> & { gameId: string };
 export type CuratedOddsModifier = z.infer<typeof oddsModifierSchema>;
+export type CuratedSprites = z.infer<typeof curatedSchemas.sprites>;
 
 export interface CuratedLayer {
   games: CuratedGame[];
@@ -80,6 +107,7 @@ export interface CuratedLayer {
   encounterMethods: CuratedEncounterMethod[];
   encounters: CuratedEncounter[];
   oddsModifiers: CuratedOddsModifier[];
+  sprites: CuratedSprites;
 }
 
 function readYaml<T>(file: string, schema: z.ZodType<T>): T {
@@ -104,6 +132,8 @@ export function loadCuratedLayer(): CuratedLayer {
   ).methods;
   const oddsModifiers = readYaml('odds-modifiers.yaml', curatedSchemas.oddsModifiers).modifiers;
 
+  const sprites = readYaml('sprites.yaml', curatedSchemas.sprites);
+
   const encounterDir = path.join(paths.curated, 'encounters');
   const encounters: CuratedEncounter[] = [];
   if (fs.existsSync(encounterDir)) {
@@ -117,5 +147,5 @@ export function loadCuratedLayer(): CuratedLayer {
     }
   }
 
-  return { games, shinyLocks, encounterMethods, encounters, oddsModifiers };
+  return { games, shinyLocks, encounterMethods, encounters, oddsModifiers, sprites };
 }

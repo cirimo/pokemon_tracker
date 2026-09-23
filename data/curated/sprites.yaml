@@ -1,0 +1,174 @@
+# Sprite exceptions: where the resolution order in
+# tools/dataset-pipeline/src/sprite-resolution.ts is not enough, and which variants
+# genuinely share art.
+#
+# Both lists exist because the `sprite-shared` validator refuses any two variants whose
+# sprite bytes are identical. That rule caught 364 sprites that were silently the base
+# form's art (docs/adr/0005-sprites.md, amended 2026-09-23). Everything below is a claim
+# that the rule is wrong for this case, and every claim carries its source.
+#
+# `file` is relative to PokeAPI's sprites/pokemon/other/home/. A path outside shiny/ is
+# normal-colour art; the pipeline accepts one only for a variant whose shiny was never
+# released.
+
+overrides:
+  # --- no shiny exists, so show the normal colours ------------------------------
+  # The cap Pikachu cannot be shiny (upstream shinyReleased: false), and PokeAPI has no
+  # shiny render of them. Their slot still needs a picture.
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Cap_Pikachu
+  - variantId: pikachu-original
+    file: 10094.png
+  - variantId: pikachu-hoenn
+    file: 10095.png
+  - variantId: pikachu-sinnoh
+    file: 10096.png
+  - variantId: pikachu-unova
+    file: 10097.png
+  - variantId: pikachu-kalos
+    file: 10098.png
+  - variantId: pikachu-alola
+    file: 10099.png
+  - variantId: pikachu-world
+    file: 10160.png
+
+  # --- upstream points at the wrong PokeAPI entry -------------------------------
+  # Upstream's refs for floette-eternal are Red Flower Floette's (pkApiId 670, slug
+  # floette-red). PokeAPI's own entry is pokemon 10061.
+  # Source: https://pokeapi.co/api/v2/pokemon/10061
+  - variantId: floette-eternal
+    file: shiny/10061.png
+
+  # Every Minior core shares one shiny appearance in current HOME: a black base with
+  # multicoloured flecks. PokeAPI's red core (10136) matches that description. Its other
+  # six cores (10137-10142) are one purple render that matches neither -- plausibly from
+  # the older HOME versions Bulbapedia says tinted each colour, but that is a guess.
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Minior_(Pok%C3%A9mon) (Forms, Trivia)
+  - variantId: minior-red
+    file: shiny/10136.png
+  - variantId: minior-orange
+    file: shiny/10136.png
+  - variantId: minior-yellow
+    file: shiny/10136.png
+  - variantId: minior-green
+    file: shiny/10136.png
+  - variantId: minior-blue
+    file: shiny/10136.png
+  - variantId: minior-indigo
+    file: shiny/10136.png
+  - variantId: minior-violet
+    file: shiny/10136.png
+
+shared:
+  # Shiny Alcremie is the same colour whatever its cream; only the sweet changes the
+  # model. So the 63 forms are seven pictures, one per sweet. PokeAPI and PokeSprite's
+  # shiny box icons independently agree.
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Alcremie_(Pok%C3%A9mon) (Forms)
+  - reason: Shiny Alcremie, Strawberry Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie
+      - alcremie-caramel-swirl-strawberry
+      - alcremie-lemon-cream-strawberry
+      - alcremie-matcha-cream-strawberry
+      - alcremie-mint-cream-strawberry
+      - alcremie-rainbow-swirl-strawberry
+      - alcremie-ruby-cream-strawberry
+      - alcremie-ruby-swirl-strawberry
+      - alcremie-salted-cream-strawberry
+  - reason: Shiny Alcremie, Berry Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-berry
+      - alcremie-lemon-cream-berry
+      - alcremie-matcha-cream-berry
+      - alcremie-mint-cream-berry
+      - alcremie-rainbow-swirl-berry
+      - alcremie-ruby-cream-berry
+      - alcremie-ruby-swirl-berry
+      - alcremie-salted-cream-berry
+      - alcremie-vanilla-cream-berry
+  - reason: Shiny Alcremie, Love Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-love
+      - alcremie-lemon-cream-love
+      - alcremie-matcha-cream-love
+      - alcremie-mint-cream-love
+      - alcremie-rainbow-swirl-love
+      - alcremie-ruby-cream-love
+      - alcremie-ruby-swirl-love
+      - alcremie-salted-cream-love
+      - alcremie-vanilla-cream-love
+  - reason: Shiny Alcremie, Star Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-star
+      - alcremie-lemon-cream-star
+      - alcremie-matcha-cream-star
+      - alcremie-mint-cream-star
+      - alcremie-rainbow-swirl-star
+      - alcremie-ruby-cream-star
+      - alcremie-ruby-swirl-star
+      - alcremie-salted-cream-star
+      - alcremie-vanilla-cream-star
+  - reason: Shiny Alcremie, Clover Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-clover
+      - alcremie-lemon-cream-clover
+      - alcremie-matcha-cream-clover
+      - alcremie-mint-cream-clover
+      - alcremie-rainbow-swirl-clover
+      - alcremie-ruby-cream-clover
+      - alcremie-ruby-swirl-clover
+      - alcremie-salted-cream-clover
+      - alcremie-vanilla-cream-clover
+  - reason: Shiny Alcremie, Flower Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-flower
+      - alcremie-lemon-cream-flower
+      - alcremie-matcha-cream-flower
+      - alcremie-mint-cream-flower
+      - alcremie-rainbow-swirl-flower
+      - alcremie-ruby-cream-flower
+      - alcremie-ruby-swirl-flower
+      - alcremie-salted-cream-flower
+      - alcremie-vanilla-cream-flower
+  - reason: Shiny Alcremie, Ribbon Sweet. Cream does not change a shiny.
+    variants:
+      - alcremie-caramel-swirl-ribbon
+      - alcremie-lemon-cream-ribbon
+      - alcremie-matcha-cream-ribbon
+      - alcremie-mint-cream-ribbon
+      - alcremie-rainbow-swirl-ribbon
+      - alcremie-ruby-cream-ribbon
+      - alcremie-ruby-swirl-ribbon
+      - alcremie-salted-cream-ribbon
+      - alcremie-vanilla-cream-ribbon
+
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Minior_(Pok%C3%A9mon) (Forms)
+  - reason: All seven shiny Minior cores look the same in current HOME. See overrides.
+    variants:
+      - minior-red
+      - minior-orange
+      - minior-yellow
+      - minior-green
+      - minior-blue
+      - minior-indigo
+      - minior-violet
+
+  # The authentic forms differ only by a stamp on the underside, which a front-facing
+  # render cannot show.
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Sinistea_(Pok%C3%A9mon) (Forms)
+  - reason: Phony and Antique Sinistea differ only by a stamp under the cup.
+    variants: [sinistea, sinistea-antique]
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Polteageist_(Pok%C3%A9mon) (Forms)
+  - reason: Phony and Antique Polteageist differ only by a stamp under the teapot.
+    variants: [polteageist, polteageist-antique]
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Poltchageist_(Pok%C3%A9mon) (Forms)
+  - reason: Counterfeit and Artisan Poltchageist differ only by a stamp on the caddy base.
+    variants: [poltchageist, poltchageist-artisan]
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Sinistcha_(Pok%C3%A9mon) (Forms)
+  - reason: Unremarkable and Masterpiece Sinistcha differ only by a stamp on the base.
+    variants: [sinistcha, sinistcha-masterpiece]
+
+  # The male's only difference is a speck on its rear. PokeAPI's female file is
+  # byte-identical to the male's.
+  # Source: https://bulbapedia.bulbagarden.net/wiki/Torchic_(Pok%C3%A9mon) (Biology)
+  - reason: Male and female Torchic differ only by a speck on the rear.
+    variants: [torchic, torchic-f]

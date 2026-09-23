@@ -1,8 +1,11 @@
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { PRESET, paths } from './config.js';
+import { loadCuratedLayer } from './curated.js';
 import { loadRoomSchema } from './room-schema.js';
+import { sharedSpriteFindings } from './sprite-resolution.js';
 
 /**
  * Output validation. Every check here has failed for real at least once in some
@@ -160,6 +163,29 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
       fail('lock-sanity', impossibleLocks + ' shiny locks apply to variants with no shiny released');
     }
 
+    // Search matches it and TalkBack reads it; two identical names are two rows nobody can
+    // tell apart. Upstream 6.8.2 named four Unown letters plain "Unown".
+    const sameNames = db
+      .prepare(
+        "SELECT displayName, GROUP_CONCAT(id, ', ') AS ids FROM variant " +
+          'GROUP BY displayName HAVING COUNT(*) > 1',
+      )
+      .all() as Row[];
+    for (const row of sameNames) {
+      fail('display-name-unique', '"' + String(row.displayName) + '" names ' + String(row.ids));
+    }
+
+    const spriteCuration = loadCuratedLayer().sprites;
+    const known = new Set(
+      (db.prepare('SELECT id FROM variant').all() as Row[]).map((r) => String(r.id)),
+    );
+    for (const id of [
+      ...spriteCuration.overrides.map((o) => o.variantId),
+      ...spriteCuration.shared.flatMap((g) => g.variants),
+    ]) {
+      if (!known.has(id)) fail('curated-orphan', 'sprites.yaml names ' + id + ', which is not a variant');
+    }
+
     const metaRows = count(db, 'SELECT COUNT(*) FROM dataset_meta');
     if (metaRows !== 1) fail('dataset-meta', 'expected exactly one row, got ' + metaRows);
 
@@ -173,6 +199,18 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
       }
       if (missing > 0) {
         fail('sprite-present', missing + ' of ' + variants.length + ' variants have no sprite file');
+      }
+
+      // Measures correctness where sprite-present measures coverage: a variant showing
+      // another variant's picture is found here, and nowhere else.
+      const hashes = new Map<string, string>();
+      for (const v of variants) {
+        const file = path.join(paths.assetSprites, path.basename(String(v.spriteFile)));
+        if (!fs.existsSync(file)) continue;
+        hashes.set(String(v.id), createHash('sha256').update(fs.readFileSync(file)).digest('hex'));
+      }
+      for (const f of sharedSpriteFindings(hashes, spriteCuration.shared)) {
+        fail('sprite-shared', f.variants.join(', ') + ' ' + f.detail);
       }
     }
   } finally {
