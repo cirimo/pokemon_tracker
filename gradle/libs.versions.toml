@@ -44,6 +44,11 @@ robolectric = "4.17"
 roborazzi = "1.75.0"
 truth = "1.4.5"
 
+# Baseline profile generation. 1.5.0 accepts AGP 8.0 up to (not including) 10.0, and its
+# AARs need only AGP 8.1.1 / compileSdk 34, so it fits the pinned set above without moving it.
+benchmark = "1.5.0"
+profileinstaller = "1.4.1"
+
 detekt = "1.23.8"
 desugarJdkLibs = "2.1.5"
 
@@ -94,6 +99,8 @@ roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "robora
 androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark" }
+androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 
 # detekt-formatting wraps the ktlint rule set, so one plugin covers both formatting and
 # static analysis. A second Gradle plugin for ktlint would add a moving part for no
@@ -120,6 +127,8 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 room = { id = "androidx.room", version.ref = "androidxRoom" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+androidx-baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 
 # Our own convention plugins.
 pokedex-android-application = { id = "pokedex.android.application" }
@@ -128,4 +137,5 @@ pokedex-android-compose = { id = "pokedex.android.compose" }
 pokedex-android-hilt = { id = "pokedex.android.hilt" }
 pokedex-android-room = { id = "pokedex.android.room" }
 pokedex-jvm-library = { id = "pokedex.jvm.library" }
+pokedex-android-test = { id = "pokedex.android.test" }
 pokedex-android-feature = { id = "pokedex.android.feature" }

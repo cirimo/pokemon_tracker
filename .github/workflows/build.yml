@@ -66,6 +66,19 @@ jobs:
             echo "::error::design-system must not depend on core or feature modules"
             exit 1
           fi
+          # :baselineprofile drives :app from outside through targetProjectPath. It must
+          # never take a project dependency, and only :app may reference it, so it can
+          # never become a route from one feature to another.
+          if grep -q 'project(' baselineprofile/build.gradle.kts; then
+            echo "::error file=baselineprofile/build.gradle.kts::baselineprofile must not depend on a project"
+            exit 1
+          fi
+          for module in $(git ls-files '*build.gradle.kts' | grep -v '^app/'); do
+            if grep -q ':baselineprofile"' "$module"; then
+              echo "::error file=$module::only :app may reference :baselineprofile"
+              exit 1
+            fi
+          done
 
       - name: Upload reports
         if: failure()

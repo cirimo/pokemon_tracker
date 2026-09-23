@@ -162,6 +162,7 @@ Entity definitions: `core/data/src/main/kotlin/net/pokedex/core/data/{reference,
 | `:core:data` | Android library | Both databases, DAOs, repositories, backup/restore, and the dataset asset. The only module that knows SQLite exists |
 | `:design-system` | Android library | Theme, tokens, components, gallery. Depends on nothing internal |
 | `:feature:dex` | Android library | The first feature. At M0 it holds only the smoke screen |
+| `:baselineprofile` | Android test (`com.android.test`) | Drives the release-like build on a phone to generate `:app`'s baseline profile. It exists because a device measurement put the pager over its frame budget under JIT (§8). It reaches `:app` through `targetProjectPath`, never a project dependency, and only `:app` may reference it; CI checks both, so it cannot become a path from one feature to another |
 
 Deliberately absent: `:core:database` (it would only hold the entity files `:core:data`
 already owns — split it out the day Room build time actually hurts), `:core:ui`,

@@ -11,6 +11,8 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.room) apply false
     alias(libs.plugins.roborazzi) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
     alias(libs.plugins.detekt)
 }
 
@@ -24,7 +26,7 @@ detekt {
     source.setFrom(
         files(
             "app/src", "core/model/src", "core/data/src",
-            "design-system/src", "feature/dex/src",
+            "design-system/src", "feature/dex/src", "baselineprofile/src",
             "build-logic/convention/src",
         ),
     )

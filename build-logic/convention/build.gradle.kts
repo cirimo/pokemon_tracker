@@ -48,6 +48,10 @@ gradlePlugin {
             id = "pokedex.android.feature"
             implementationClass = "net.pokedex.buildlogic.AndroidFeatureConventionPlugin"
         }
+        register("androidTest") {
+            id = "pokedex.android.test"
+            implementationClass = "net.pokedex.buildlogic.AndroidTestConventionPlugin"
+        }
         register("jvmLibrary") {
             id = "pokedex.jvm.library"
             implementationClass = "net.pokedex.buildlogic.JvmLibraryConventionPlugin"

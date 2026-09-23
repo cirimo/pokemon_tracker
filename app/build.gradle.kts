@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.pokedex.android.compose)
     alias(libs.plugins.pokedex.android.hilt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.androidx.baselineprofile)
 }
 
 android {
@@ -50,6 +51,48 @@ android {
 }
 
 /**
+ * The profile is generated on demand with a phone attached (see :baselineprofile), never
+ * as part of a build, and checked in under src/main/generated/baselineProfiles/.
+ * mergeIntoMain puts it where every non-debuggable variant picks it up.
+ */
+baselineProfile {
+    mergeIntoMain = true
+    automaticGenerationDuringBuild = false
+}
+
+/**
+ * Works around a baseline profile plugin (1.5.0) bug that breaks the build on Windows.
+ *
+ * The plugin copies `release`'s Kotlin source dirs into the build types it synthesises
+ * (nonMinifiedRelease, benchmarkRelease) by calling getSrcDirs() during finalizeDsl. On AGP
+ * 8.13 that set is still one lazy Provider at that point, which resolves to a directory
+ * literally named "provider(?)". On Linux that is merely a directory that does not exist;
+ * on Windows `?` is illegal in a path and KSP fails every task of those variants with
+ * "Illegal char <?>". The real release dirs are copied alongside it, so dropping the bogus
+ * entry loses nothing. This callback is registered after the plugin's, so it runs after
+ * the copy. Delete it once the plugin copies lazily.
+ */
+androidComponents {
+    finalizeDsl { android ->
+        // The synthetic build types get their own application id. Generating a profile
+        // installs the build under test and uninstalls it afterwards; under the release id
+        // that replaced the real install and deleted its catch records with it. A profile
+        // records classes and methods, not the package, so it applies to net.pokedex
+        // unchanged.
+        android.buildTypes
+            .matching { it.name.startsWith("nonMinified") || it.name.startsWith("benchmark") }
+            .configureEach { applicationIdSuffix = ".profiling" }
+
+        android.sourceSets
+            .matching { it.name.startsWith("nonMinified") || it.name.startsWith("benchmark") }
+            .configureEach {
+                val dirs = kotlin as com.android.build.gradle.api.AndroidSourceDirectorySet
+                dirs.setSrcDirs(dirs.srcDirs.filterNot { it.name == "provider(?)" })
+            }
+    }
+}
+
+/**
  * Release signing, from ~/.gradle/gradle.properties -- never from the repo.
  *
  * Set pokedexKeystorePath / pokedexKeystorePassword / pokedexKeyAlias /
@@ -80,6 +123,13 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.coil.compose)
+    // Already on the classpath through AndroidX, declared so it cannot quietly leave. It
+    // matters only for an install without the .dm: `./gradlew installRelease` pushes the
+    // .dm and ART compiles at install, while a bare `adb install` relies on this writing
+    // the profile at first launch for the next background dexopt. docs/architecture.md §8.
+    implementation(libs.androidx.profileinstaller)
+
+    baselineProfile(project(":baselineprofile"))
 
     testImplementation(libs.junit4)
     testImplementation(libs.truth)
