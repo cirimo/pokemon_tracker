@@ -3,6 +3,7 @@ package net.pokedex.core.data.repository
 import net.pokedex.core.data.reference.BoxEntity
 import net.pokedex.core.data.reference.DatasetMetaEntity
 import net.pokedex.core.data.reference.DexPresetEntity
+import net.pokedex.core.data.reference.GameAvailabilityEntity
 import net.pokedex.core.data.reference.GameEntity
 import net.pokedex.core.data.reference.SlotEntity
 import net.pokedex.core.data.reference.SpeciesEntity
@@ -15,6 +16,7 @@ import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.DatasetMeta
 import net.pokedex.core.model.DexPreset
 import net.pokedex.core.model.Game
+import net.pokedex.core.model.GameAvailability
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.PresetId
 import net.pokedex.core.model.Slot
@@ -101,6 +103,17 @@ internal fun GameEntity.toDomain() = Game(
     originMark = originMark,
     supportsShiny = supportsShiny,
     sortOrder = sortOrder,
+)
+
+internal fun GameAvailabilityEntity.toDomain() = GameAvailability(
+    variantId = VariantId(variantId),
+    gameId = GameId(gameId),
+    obtainable = obtainable,
+    eventOnly = eventOnly,
+    storable = storable,
+    transferOnly = transferOnly,
+    shinyLocked = shinyLocked,
+    shinyLockReason = shinyLockReason,
 )
 
 internal fun DatasetMetaEntity.toDomain() = DatasetMeta(

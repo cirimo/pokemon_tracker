@@ -37,6 +37,10 @@ interface ReferenceDao {
     @Query("SELECT * FROM game ORDER BY sortOrder")
     suspend fun games(): List<GameEntity>
 
+    /** All 7580 rows. Read once, for the in-memory game filter; see DexRepository. */
+    @Query("SELECT * FROM game_availability")
+    suspend fun allAvailability(): List<GameAvailabilityEntity>
+
     @Query("SELECT * FROM game_availability WHERE variantId = :variantId")
     suspend fun availability(variantId: String): List<GameAvailabilityEntity>
 
