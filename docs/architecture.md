@@ -305,8 +305,75 @@ is wrong rather than a pass on what is right:
 | Pager, 25-box swipe run, as installed | 4.6–5.8% janky, P99 14–17 ms | **over** |
 | The same, after `cmd package compile -m speed` | 0.8–1.4% janky, P90 8 ms | near |
 
-The gap between the last two rows is JIT, not the grid: code that has not been compiled
-ahead of time is what misses the 8.3 ms frame. A baseline profile is how an installed app
-gets that compilation, so it is the next performance step, not a change to the tiles. (Tried
-and rejected on the numbers: taking `BoxSlot`'s per-tile scale layer off at rest measured
-the same as leaving it on.)
+The M2 pager rows above are not trustworthy, and the ones below replace them. The app
+reopens on the last box it showed (`user_settings.lastBoxIndex`), and the M2 runs did not
+reset it, so later runs spent their swipes against the end of the pager and recorded idle
+frames. `tools/perf/measure-pager.sh` now rewinds to box 1 and restarts the process before
+every run. (Also tried and rejected at M2: taking `BoxSlot`'s per-tile scale layer off at
+rest measured the same as leaving it on.)
+
+**With a baseline profile** (2026-09-23): same phone, same protocol, three pager runs and ten
+cold starts per state, reported as the spread. The state column is `dumpsys package dexopt`
+read immediately before each run.
+
+| State | dexopt | Cold start | Pager janky | P90 | P99 |
+|---|---|---|---|---|---|
+| 0. No AOT (`cmd package compile --reset`) | verify | 252–293 ms | 6.6–6.8% | 8–9 ms | 24 ms |
+| 1. `installRelease` before the app profile (library rules only) | speed-profile, install-dm | 262–355 ms | 5.9–6.5% | 8–9 ms | 19–22 ms |
+| 2. `installRelease` with the app profile | speed-profile, install-dm | 231–289 ms | 4.5–5.3% | 7 ms | 13–14 ms |
+| 3. State 2 after background dexopt | speed-profile, install-dm | 233–282 ms | 5.1–5.3% | 7–9 ms | 14–16 ms |
+| Ceiling: state 1 after `compile -m speed` | speed, cmdline | 198–248 ms | 5.1–5.4% | 8 ms | 14 ms |
+
+The profile brings an installed app to the fully compiled ceiling on its first launch. It
+does not bring the pager inside 8.3 ms P99, and nothing that compiles code can, because the
+ceiling itself is 14 ms. In state 3 the forced background dexopt found nothing worth
+recompiling, which is why the reason stays `install-dm`.
+
+*What the remaining jank is.* A Perfetto trace of the 25-swipe run on state 2, with
+SurfaceFlinger's frame timeline, shows 93 of 1517 frames missing the app deadline. Only one of
+them is main-thread bound, so JIT is no longer the problem. They fall in two clusters:
+
+- **The first frames of a swipe (38).** The main thread's work is small (about 3 ms).
+  RenderThread's `flush commands` runs twice its usual 2 ms while the mid cores run at about
+  1.4 GHz rather than 1.9 GHz, which is the CPU governor ramping up again after the protocol's
+  idle 0.5 s gap. That is a property of the device and of the test's pacing, not of app code.
+- **The frame where the page settles (38).** Its `doFrame` starts 10–17 ms late because the
+  main thread is busy outside a frame with Compose lazy-layout work. It prefetches the next
+  page (`PausedComposition:applyChanges → Compose:onRemembered` about 5–6 ms,
+  `measureAndLayout` about 5.7 ms) and deactivates the page that left
+  (`Compose:deactivate → Compose:onForgotten` about 9.4 ms). That is remember and forget work
+  for 30 tiles per page. Sprite decoding is not a contributor: it runs on a background
+  dispatcher, and it does not appear among the threads holding RenderThread's CPU.
+
+The settle frame is the next thing to investigate, and it is a grid-level question. Which
+remembered object makes `onRemembered`/`onForgotten` cost about 0.3 ms per tile is not visible
+at this trace's depth. Answer it with a method trace or a sampling trace before changing
+anything.
+
+### Baseline profile: how it reaches the compiler, and regenerating it
+
+This app is sideloaded, so the profile reaches ART without a store:
+
+- `./gradlew installRelease` pushes the `.dm` that AGP builds next to the APK, and ART
+  compiles it at install time (`speed-profile`, `install-dm`). This is the path in daily use,
+  and it is compiled sooner than a Play install would be.
+- A bare `adb install` of the APK gets no `.dm`, so the app starts under JIT.
+  `profileinstaller`, declared in `:app`, writes the profile at first launch, and the next
+  background dexopt compiles it. That job runs roughly daily, only while idle and charging.
+- Background dexopt later adds rules for what JIT recorded in real use, so the installed app
+  can only get better.
+
+The profile is `app/src/main/generated/baselineProfiles/baseline-prof.txt`, checked in like
+`reference.db`. Regenerate it on demand, with the phone connected, when the screens or
+navigation it covers change: after M3's screens land, and after any change to the pager,
+slot detail, search or the "All boxes" sheet.
+
+```
+./gradlew :app:generateBaselineProfile     # ANDROID_SERIAL=<serial from adb devices>
+```
+
+It runs against `net.pokedex.profiling`, a separate application id, because the run
+uninstalls the build it tested. Under the release id that deleted the real install and its
+catch records. A normal build never generates, and neither does CI (it has no device).
+Commit the regenerated profile on its own. Then re-measure with
+`tools/perf/measure-pager.sh <serial>` for each state above and update the table.
