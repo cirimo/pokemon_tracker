@@ -97,4 +97,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    [`design-usage.md`](design-usage.md) for the rules it imposes on everything after.
 3. [`prompts/03-see-my-dex.md`](prompts/03-see-my-dex.md) — the box view, slot detail,
    species reference, search and filter. **Next (M2).**
+   Two follow-ups M2 found, to run before M3:
+   - [`prompts/03a-sprites.md`](prompts/03a-sprites.md) — 364 cosmetic-form sprites are
+     copies of their base form; give every form its own art and a validator that says so.
+   - [`prompts/03b-baseline-profile.md`](prompts/03b-baseline-profile.md) — the pager misses
+     the 120 Hz budget until its code is compiled ahead of time.
 4. Further feature prompts, one per milestone, written as each one comes up.
