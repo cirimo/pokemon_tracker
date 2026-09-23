@@ -68,19 +68,28 @@ ceremonial ones.
 `:design-system` owns theme, tokens and components. Features compose them; they do not
 define their own colours, spacing or shapes.
 
-The locked visual direction is "Display case" — see `docs/design-decisions.md`, and
-`docs/design-usage.md` once the design-build session writes it. Three rules that outlive
-any token value:
+The locked visual direction is "Display case" — `docs/design-system.md` is the built
+language and its rationale, and **`docs/design-usage.md` is the one to read before writing
+any feature UI**. It is enforced, not advisory: raw `Color(...)`, raw dp/sp and ad-hoc
+`TextStyle` in `feature/` fail the build via `config/detekt/feature-rules.yml`.
+
+Four rules that outlive any token value:
 
 - **Gold means shiny, and nothing else.** It earns exactly three places: the caught-slot
   rim/pip, progress numerals and arcs, and the catch celebration. Never backgrounds,
   navigation, headers or badges.
-- **No dynamic colour.** `PokedexTheme` takes no `dynamicColor` parameter on purpose.
+- **No dynamic colour.** `PokedexTheme` takes no `dynamicColor` parameter on purpose. It
+  does take `darkTheme`: there are two real themes, and light is authored rather than
+  tinted. `docs/adr/0009-light-theme.md` records why that reverses the M0 position.
+- **An uncaught sprite is a flat silhouette; a caught one is in full colour.** This is what
+  keeps 1394 slots from reading as a contact sheet, and it is why the grid needs no other
+  decoration.
 - **Borders, not elevation, inside the grid.** No per-tile shadow, no ripple on tiles,
   and no shader anywhere in the grid (AGSL needs API 33; minSdk is 26).
 
 Run the gallery with the debug build — it installs a second launcher icon. It is absent
-from release because it lives in `app/src/debug`.
+from release because it lives in `app/src/debug`. Toggle theme and font scale at the top of
+the screen; those are the two axes where the system breaks quietly.
 
 ## Testing
 
@@ -96,6 +105,8 @@ guarantees.
 | `UserDatabase` migrations | |
 | That the shipped `reference.db` opens and has 52/1394/1387 | |
 | Design-system components, via Roborazzi | |
+| Contrast of every token pair, both themes | |
+| Touch targets and TalkBack sentences | |
 
 JVM tests in `:core:model` are the ones that carry real confidence, and they run in
 milliseconds. Prefer moving logic there over testing it through a ViewModel.

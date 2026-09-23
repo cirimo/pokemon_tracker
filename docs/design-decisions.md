@@ -1,5 +1,10 @@
 # Design decisions — locked (M1 handoff)
 
+> **Superseded on one point.** This document says the app has a single dark scheme. M1 ships
+> a real light theme as well; see `docs/adr/0009-light-theme.md` for why, and
+> `docs/design-system.md` for the built language. Everything else below stands: Monet off,
+> borders not elevation, gold's three places, no shader.
+
 > Produced by the design session (`prompts/02-design.md`) **before** the architecture session ran.
 > No code was written. This file exists so prompt 01 and the later design-build session inherit
 > these decisions instead of re-litigating them.
