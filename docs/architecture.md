@@ -294,5 +294,17 @@ is wrong rather than a pass on what is right:
 | Search over 1394 slots | 0.35–2.6 ms per keystroke; the worst is one letter matching 942 | within |
 | Pager, 20-box swipe run | 60 Hz display: P50 17 ms, P90 26 ms, 9.8% janky. 7 of 663 frames slow on the UI thread, 60 slow in issuing draw commands | not a verdict: the draw-command cost is the emulator's GPU translation |
 
-What the emulator cannot answer is the 120 Hz device budget. The first real-device run
-and a baseline profile are both still owed.
+**On a device** (same day): Galaxy S21 Ultra, Android 15, 120 Hz, release build.
+
+| Budget | Measured | |
+|---|---|---|
+| Cold start to first frame | 235–276 ms over 10 runs | within |
+| DB open + preset projection | 43–86 ms | within |
+| Pager, 25-box swipe run, as installed | 4.6–5.8% janky, P99 14–17 ms | **over** |
+| The same, after `cmd package compile -m speed` | 0.8–1.4% janky, P90 8 ms | near |
+
+The gap between the last two rows is JIT, not the grid: code that has not been compiled
+ahead of time is what misses the 8.3 ms frame. A baseline profile is how an installed app
+gets that compilation, so it is the next performance step, not a change to the tiles. (Tried
+and rejected on the numbers: taking `BoxSlot`'s per-tile scale layer off at rest measured
+the same as leaving it on.)
