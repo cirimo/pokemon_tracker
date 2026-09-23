@@ -100,6 +100,7 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    Two follow-ups M2 found, to run before M3:
    - [`prompts/03a-sprites.md`](prompts/03a-sprites.md) — 364 cosmetic-form sprites are
      copies of their base form; give every form its own art and a validator that says so.
+     **Done 2026-09-23**: see `docs/adr/0005-sprites.md`, "The id trap".
    - [`prompts/03b-baseline-profile.md`](prompts/03b-baseline-profile.md) — the pager misses
      the 120 Hz budget until its code is compiled ahead of time.
 4. Further feature prompts, one per milestone, written as each one comes up.

@@ -18,7 +18,7 @@ npm install                    # once
 npm run build:dataset          # rebuild reference.db + the manifest, then validate
 npm run build:sprites          # download and encode the shiny set (needs network)
 npm run validate               # validate the checked-in asset
-npm run validate -- --sprites  # also check every variant has a sprite file
+npm run validate -- --sprites  # also check every sprite is present and none is shared
 npm test                       # pipeline unit tests
 ```
 
@@ -29,6 +29,9 @@ dataset/reference.db            ~1 MB, plain git
 dataset/dataset-manifest.json   content hashes + provenance
 sprites/<nid>.webp              ~1400 files, ~15 MB, Git LFS
 ```
+
+plus `tools/dataset-pipeline/sprite-sources.json`, which records where every sprite came
+from. It is pipeline state, not an asset, so it stays out of the APK.
 
 ---
 
@@ -185,10 +188,12 @@ is worse than one that refuses to ship.
 | `copy-index-gap` | A variant has non-contiguous copy indices, so a slot resolves to a key nothing can fill |
 | `slot-resolves` | A slot references a variant that is not in the dataset |
 | `variant-species` | A variant has no species row |
-| `curated-orphan` | A curated row references a variant, game or method that does not exist |
+| `curated-orphan` | A curated row references a variant, game or method that does not exist (including `sprites.yaml`) |
 | `lock-sanity` | A shiny lock on a variant that has no shiny released at all |
 | `dataset-meta` | The metadata row is missing or duplicated |
+| `display-name-unique` | Two variants share a display name, so search shows rows nobody can tell apart |
 | `sprite-present` | A variant has no sprite file (only with `--sprites`) |
+| `sprite-shared` | Two variants share sprite bytes without a cited group in `sprites.yaml` (only with `--sprites`) |
 
 **If a validator fails, the dataset is wrong. Fix the data, not the validator.**
 
@@ -201,29 +206,45 @@ they cannot drift apart.
 
 ## Sprites
 
-Source: `PokeAPI/sprites`, `sprites/pokemon/other/home/shiny/<id>.png`. Encoded to WebP
-at 256px q80, about 11 KB each, ~15 MB for the full set.
+Source: `PokeAPI/sprites`, `sprites/pokemon/other/home/`, resolved against one git tree
+listing at the current commit. Encoded to WebP at 256px q80, about 10 KB each, ~15 MB for
+the full set. Why this order, and how the first one went wrong:
+`docs/adr/0005-sprites.md`, "The id trap".
 
-**Resolve by `refs.pkApiId`, not `refs.pkApiFormId`.** PokéAPI sprite files are keyed by
-*pokemon* id, not *pokemon-form* id. Measured on the 1387 slot variants:
+First hit wins (`src/sprite-resolution.ts`):
 
-| Key | Coverage |
-|---|---|
-| `refs.pkApiFormId` | 1259 / 1387 (91%) |
-| `refs.pkApiId` | **1387 / 1387 (100%)** |
+| Step | File | For |
+|---|---|---|
+| 1 | whatever `data/curated/sprites.yaml` overrides say | the few cases below |
+| 2 | `shiny/female/<pkApiId>.png` | gender forms |
+| 3 | `shiny/<dex>-<form>.png` | cosmetic forms: Unown letters, Vivillon patterns, Alcremie sweets... |
+| 4 | `shiny/<pkApiId>.png` | species, regional forms, forms with their own pokemon id |
 
-The 128 failures under `pkApiFormId` are all of Alcremie's 63 combinations, every Hisuian
-form, Paldean Tauros, the `-f` gender forms and the Galarian birds — and no fallback set
-closes the gap. The pipeline tries `pkApiId` first, `pkApiFormId` second, and fails the
-build on anything unresolved.
+`refs.pkApiFormId` is never used: it is a pokemon-*form* id, and the sprite repository is
+keyed by pokemon id, so it resolves to a different Pokémon.
+
+`tools/dataset-pipeline/sprite-sources.json` records, for every variant, the rule, the
+path and the git blob hash it came from, plus the PokéAPI commit. Commit it with the
+sprites. A rebuild re-encodes only the sprites whose source changed, so a resolution fix
+reaches the set without deleting anything by hand.
 
 Filenames are keyed on upstream's `nid` (`0003-f.webp`), so they survive an upstream remap
 of its PokéAPI references.
 
-A small placeholder set is checked in. Build the full set with `npm run build:sprites` —
-it takes a while and needs `git lfs` configured.
+### `sprites.yaml` -- overrides and shared art
 
----
+Two lists, each row cited:
+
+- **`overrides`** pin a variant to one file. Use one when upstream links the wrong
+  PokéAPI entry, or when a variant has no shiny at all and should show normal colours.
+  A path outside `shiny/` is refused for any variant whose shiny was released.
+- **`shared`** are groups whose art really is identical, such as a shiny Alcremie's nine
+  creams. `sprite-shared` refuses any other two variants with the same bytes, and also
+  refuses a listed group whose sprites no longer match.
+
+When `sprite-shared` fails after a rebuild, the answer is almost never a new `shared`
+row. Look at the two pictures first. A shared row is a claim about the game, so it needs
+a source that says the art is the same.
 
 ## Bumping the upstream tag
 

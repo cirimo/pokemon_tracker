@@ -40,7 +40,7 @@ Upstream carries much more than assumed: types, base stats, `evolvesFrom`, local
 names, the full form taxonomy, and critically `obtainableIn` / `eventOnlyIn` /
 `storableIn` / `transferOnlyIn` / `shinyReleased` plus `refs.pkApiId`. **HOME transfer
 legality is therefore not curated work** — upstream answers it. PokéAPI is not a
-pipeline dependency at all; see `docs/adr/0005-sprites.md`.
+pipeline dependency at all; only its sprite repository is, see `docs/adr/0005-sprites.md`.
 
 ---
 
