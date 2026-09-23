@@ -102,4 +102,13 @@ class DexSearchTest {
         assertThat(restored).isEqualTo(filter)
         assertThat(restored.refinementCount).isEqualTo(5)
     }
+
+    @Test
+    fun `normalising folds case, accents and punctuation the way a phone keyboard types`() {
+        assertThat(normalizeForSearch("Flabébé")).isEqualTo("flabebe")
+        assertThat(normalizeForSearch("Mr. Mime")).isEqualTo("mr mime")
+        assertThat(normalizeForSearch("Farfetch’d")).isEqualTo("farfetch d")
+        assertThat(normalizeForSearch("Nidoran♀")).isEqualTo("nidoran")
+        assertThat(normalizeForSearch("  Porygon-Z  ")).isEqualTo("porygon z")
+    }
 }

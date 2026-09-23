@@ -95,17 +95,36 @@ internal fun matchesRefinements(
  * Flabébé is the reason this exists: nobody types the accents, and a search that cannot find
  * three of the seven duplicated variants from a phone keyboard is broken.
  */
-fun normalizeForSearch(text: String): String =
-    Normalizer.normalize(text, Normalizer.Form.NFD)
-        .replace(COMBINING_MARKS, "")
-        .lowercase()
-        .replace(NON_ALPHANUMERIC, " ")
-        .trim()
-        .replace(WHITESPACE, " ")
+fun normalizeForSearch(text: String): String {
+    // Decomposing is only needed for the handful of names with a non-ASCII letter, and it
+    // is the expensive step, so the common case never pays for it. This runs 2788 times
+    // while the dex assembles on a cold start, which is why it is a loop and not a chain
+    // of regexes.
+    val source = if (text.any { it.code > ASCII_MAX }) Normalizer.normalize(text, Normalizer.Form.NFD) else text
+    val out = StringBuilder(source.length)
+    var pendingSpace = false
+    for (c in source) {
+        val folded = when (c) {
+            in 'a'..'z', in '0'..'9' -> c
+            in 'A'..'Z' -> c + ('a' - 'A')
+            else -> null
+        }
+        when {
+            folded != null -> {
+                if (pendingSpace && out.isNotEmpty()) out.append(' ')
+                pendingSpace = false
+                out.append(folded)
+            }
+            // A combining mark left behind by decomposition is part of the letter before
+            // it, not a word break: "Flabébé" must become "flabebe", not "flabe be".
+            Character.getType(c) == Character.NON_SPACING_MARK.toInt() -> Unit
+            else -> pendingSpace = true
+        }
+    }
+    return out.toString()
+}
 
-private val COMBINING_MARKS = Regex("\\p{M}+")
-private val NON_ALPHANUMERIC = Regex("[^a-z0-9]+")
-private val WHITESPACE = Regex("\\s+")
+private const val ASCII_MAX = 127
 
 internal sealed interface Query {
     fun matches(entry: DexEntry): Boolean
