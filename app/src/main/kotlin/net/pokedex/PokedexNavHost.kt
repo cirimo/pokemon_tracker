@@ -1,9 +1,14 @@
 package net.pokedex
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import net.pokedex.feature.dex.SmokeRouteKey
+import net.pokedex.designsystem.theme.PokedexTheme
+import net.pokedex.feature.dex.BoxesRoute
 import net.pokedex.feature.dex.dexGraph
 
 /**
@@ -13,15 +18,31 @@ import net.pokedex.feature.dex.dexGraph
  * destinations through a NavGraphBuilder extension, which is what lets two features
  * link to each other without depending on each other.
  *
- * The shape this grows into (docs/architecture.md):
- *   Boxes (start) -> SlotDetail(key) -> VariantDetail(variantId)
- *   Search
- *   Settings -> BackupRestore
+ * Shape (docs/architecture.md):
+ *   Boxes (start, with search as a mode) -> SlotDetail(key) -> VariantDetail(variantId)
+ *   Settings -> BackupRestore   (M3)
+ *
+ * The SharedTransitionLayout is here because both sides of the slot-to-detail shared
+ * element must sit inside the same one, and the NavHost is the only thing both are inside.
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun PokedexNavHost() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = SmokeRouteKey) {
-        dexGraph()
+    // The NavHost's own default is a 700ms tween, which ignores the system's animation
+    // setting. PokedexTheme.motion is already resolved for reduce-motion, so routing the
+    // screen fade through it is what makes navigation obey that setting too.
+    val fade = PokedexTheme.motion.container
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = BoxesRoute,
+            enterTransition = { fadeIn(fade) },
+            exitTransition = { fadeOut(fade) },
+            popEnterTransition = { fadeIn(fade) },
+            popExitTransition = { fadeOut(fade) },
+        ) {
+            dexGraph(navController, this@SharedTransitionLayout)
+        }
     }
 }
