@@ -105,6 +105,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
      the 120 Hz budget until its code is compiled ahead of time. **Done 2026-09-23**: the
      profile reaches the fully compiled ceiling as installed; what remains is not JIT (see
      `docs/architecture.md` §8).
+   - [`prompts/03c-settle-frame.md`](prompts/03c-settle-frame.md) — the frame where a page
+     settles starts 10–17 ms late behind Compose prefetch and page teardown; find out which
+     per-tile object costs that before changing anything. Independent of M3.
 4. [`prompts/04-track-my-dex.md`](prompts/04-track-my-dex.md) — M3: backups that survive
    an uninstall first, then the catch flow, dashboards and settings. **Next.**
 5. Further feature prompts, one per milestone, written as each one comes up.
