@@ -6,9 +6,31 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.memory.MemoryCache
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import net.pokedex.core.data.repository.DexRepository
+import javax.inject.Inject
 
 @HiltAndroidApp
 class PokedexApplication : Application(), SingletonImageLoader.Factory {
+
+    @Inject lateinit var dexRepository: DexRepository
+
+    /**
+     * Starts reading the dex before the first Activity exists.
+     *
+     * Both database opens and the join take ~200ms in a release build on the emulator, and
+     * the Activity plus the first Compose frame take about as long again. Started here, the
+     * two overlap and the box view has its data the moment it asks, instead of the load
+     * queueing behind the UI. DexRepository caches, so the ViewModel's own call is then a
+     * hit rather than a second load.
+     */
+    override fun onCreate() {
+        super.onCreate()
+        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch { dexRepository.dex() }
+    }
 
     /**
      * The one image loader, tuned for 1387 small local sprites and nothing else.

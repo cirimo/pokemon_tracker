@@ -2,13 +2,22 @@ package net.pokedex.core.data.repository
 
 import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.model.AppError
+import net.pokedex.core.model.Box
 import net.pokedex.core.model.Dex
+import net.pokedex.core.model.DexPreset
+import net.pokedex.core.model.Game
+import net.pokedex.core.model.GameAvailability
 import net.pokedex.core.model.Outcome
+import net.pokedex.core.model.Slot
+import net.pokedex.core.model.Species
+import net.pokedex.core.model.Variant
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,31 +48,42 @@ class DexRepository @Inject constructor(
 
     private suspend fun load(): Outcome<Dex> {
         val started = System.nanoTime()
-        val presetId = settings.get().activePresetId
+        // Concurrent, because on a cold start these are mostly waiting: the first touch of
+        // user.db (for the preset id) and the first touch of reference.db each pay for a
+        // database open, and the reference queries do not depend on each other. Measured
+        // serially on the emulator, the open of user.db alone was half the load.
+        val reads = coroutineScope {
+            val variants = async { reference.variants() }
+            val species = async { reference.species() }
+            val games = async { reference.games() }
+            val availability = async { reference.availability() }
+            val presetId = settings.get().activePresetId
+            val preset = async { reference.preset(presetId) }
+            val boxes = async { reference.boxes(presetId) }
+            val slots = async { reference.slots(presetId) }
+            Reads(
+                preset = preset.await(),
+                boxes = boxes.await(),
+                slots = slots.await(),
+                variants = variants.await(),
+                species = species.await(),
+                games = games.await(),
+                availability = availability.await(),
+            )
+        }
 
-        val preset = reference.preset(presetId)
-        val boxes = reference.boxes(presetId)
-        val slots = reference.slots(presetId)
-        val variants = reference.variants()
-        val species = reference.species()
-        val games = reference.games()
-        val availability = reference.availability()
-
-        listOf(preset, boxes, slots, variants, species, games, availability)
-            .filterIsInstance<Outcome.Err>()
-            .firstOrNull()
-            ?.let { return it }
+        reads.failure()?.let { return it }
 
         val assembled = withContext(default) {
             runCatching {
                 Dex.assemble(
-                    preset = (preset as Outcome.Ok).value,
-                    boxes = (boxes as Outcome.Ok).value,
-                    slots = (slots as Outcome.Ok).value,
-                    variants = (variants as Outcome.Ok).value,
-                    species = (species as Outcome.Ok).value,
-                    games = (games as Outcome.Ok).value,
-                    availability = (availability as Outcome.Ok).value,
+                    preset = reads.preset.okValue(),
+                    boxes = reads.boxes.okValue(),
+                    slots = reads.slots.okValue(),
+                    variants = reads.variants.okValue(),
+                    species = reads.species.okValue(),
+                    games = reads.games.okValue(),
+                    availability = reads.availability.okValue(),
                 )
             }
         }
@@ -85,6 +105,24 @@ class DexRepository @Inject constructor(
         Log.i(TAG, "dex loaded: ${dex.entries.size} slots in ${(System.nanoTime() - started) / NANOS_PER_MS} ms")
         return Outcome.Ok(dex)
     }
+
+    private data class Reads(
+        val preset: Outcome<DexPreset>,
+        val boxes: Outcome<List<Box>>,
+        val slots: Outcome<List<Slot>>,
+        val variants: Outcome<List<Variant>>,
+        val species: Outcome<List<Species>>,
+        val games: Outcome<List<Game>>,
+        val availability: Outcome<List<GameAvailability>>,
+    ) {
+        fun failure(): Outcome.Err? =
+            listOf(preset, boxes, slots, variants, species, games, availability)
+                .filterIsInstance<Outcome.Err>()
+                .firstOrNull()
+    }
+
+    /** Only called after [Reads.failure] has returned null. */
+    private fun <T> Outcome<T>.okValue(): T = (this as Outcome.Ok).value
 
     private companion object {
         const val TAG = "DexRepository"
