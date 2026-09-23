@@ -113,7 +113,7 @@ class AccessibilityTest {
      * The compound state names must not leak into speech.
      *
      * "ShinyLocked" and "Unavailable" are things the codebase calls them; "shiny locked in
-     * every game you have" and "not available in your games" are what they mean. Those two
+     * every game" and "not available in your games" are what they mean. Those two
      * are the ones worth asserting -- "Empty slot" legitimately contains the word Empty,
      * and pretending otherwise would be a test written to be passed rather than to be true.
      */
@@ -136,7 +136,7 @@ class AccessibilityTest {
             }
         }
         composeRule.onNodeWithContentDescription("Charizard, shiny caught").assertExists()
-        composeRule.onNodeWithContentDescription("Zacian, shiny locked in every game you have")
+        composeRule.onNodeWithContentDescription("Zacian, shiny locked in every game")
             .assertExists()
         composeRule.onNodeWithContentDescription("Empty slot").assertExists()
     }

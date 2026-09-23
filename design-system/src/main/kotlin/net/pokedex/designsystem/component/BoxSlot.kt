@@ -67,7 +67,10 @@ enum class SlotState {
     /** Owned. The only state with gold in it. */
     Caught,
 
-    /** Exists, but no game you can reach lets you get it shiny. Not your fault. */
+    /**
+     * No game lets you get it shiny -- in the M2 data, a variant whose shiny has not been
+     * released anywhere. Not your fault, and not something a filter of "your games" decides.
+     */
     ShinyLocked,
 
     /** Obtainable, but not in a game you own. */
@@ -350,7 +353,7 @@ internal fun SlotState.describe(label: String?): String {
         SlotState.Empty -> "Empty slot"
         SlotState.Needed -> "$name, not yet caught"
         SlotState.Caught -> "$name, shiny caught"
-        SlotState.ShinyLocked -> "$name, shiny locked in every game you have"
+        SlotState.ShinyLocked -> "$name, shiny locked in every game"
         SlotState.Unavailable -> "$name, not available in your games"
     }
 }

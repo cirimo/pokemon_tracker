@@ -138,7 +138,10 @@ fun SpeciesCard(
             .padding(dimens.spaceMd)
             .clearAndSetSemantics {
                 val typeNames = types.filterNotNull().joinToString(" ") { it.name }
-                contentDescription = "${state.describe(name)}. Number $dexNumber. $typeNames"
+                // The secondary line is spoken too. It is what tells two rows with the same
+                // name apart -- the two Unown-A slots in a search list differ only there.
+                val secondary = formName?.let { " $it." }.orEmpty()
+                contentDescription = "${state.describe(name)}.$secondary Number $dexNumber. $typeNames"
             },
         horizontalArrangement = Arrangement.spacedBy(dimens.spaceMd),
         verticalAlignment = Alignment.CenterVertically,

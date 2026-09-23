@@ -16,7 +16,15 @@ import net.pokedex.designsystem.theme.PokedexTheme
  * invented its own key format, the transition would silently do nothing the first time two
  * screens disagreed -- and "silently does nothing" is the worst possible failure mode for
  * an animation, because it looks like it was never built. So the key scheme is owned here,
- * takes a variant id, and there is no other way to spell it.
+ * takes a slot key, and there is no other way to spell it.
+ *
+ * ## Why a slot key and not a variant id
+ *
+ * It took a variant id until M2 wired it to a real screen. Seven variants are demanded
+ * twice in grouped-balanced, so a search listing both Unown-A slots put two sprites with
+ * the same key in one transition scope -- which the API does not reject, it just animates
+ * the wrong one. The key is now `:core:model`'s `CatchKey.toString()`, which is unique per
+ * slot by construction (`"unown"` and `"unown#1"`).
  *
  * ## Exactly one
  *
@@ -32,26 +40,26 @@ import net.pokedex.designsystem.theme.PokedexTheme
  * ignores the system setting is worse than no shared element.
  */
 
-/** The one key format. `variantId` is `:core:model`'s `VariantId.value`. */
-fun slotSharedElementKey(variantId: String): String = "slot-sprite-$variantId"
+/** The one key format. [slotKey] is `:core:model`'s `CatchKey.toString()`. */
+fun slotSharedElementKey(slotKey: String): String = "slot-sprite-$slotKey"
 
 /**
  * The origin: a sprite inside a [BoxSlot] in the grid.
  *
- * Call with the slot's variant id. Both sides must be inside the same
+ * Call with the slot's key -- `CatchKey.toString()`, never the bare variant id. Both sides must be inside the same
  * `SharedTransitionLayout`, which the app's `NavHost` provides.
  */
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.slotSpriteOrigin(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    variantId: String,
+    slotKey: String,
     modifier: Modifier = Modifier,
 ): Modifier = if (PokedexTheme.motion.reduced) {
     modifier
 } else {
     modifier.sharedElement(
-        sharedContentState = rememberSharedContentState(key = slotSharedElementKey(variantId)),
+        sharedContentState = rememberSharedContentState(key = slotSharedElementKey(slotKey)),
         animatedVisibilityScope = animatedVisibilityScope,
     )
 }
@@ -61,6 +69,6 @@ fun SharedTransitionScope.slotSpriteOrigin(
 @Composable
 fun SharedTransitionScope.slotSpriteDestination(
     animatedVisibilityScope: AnimatedVisibilityScope,
-    variantId: String,
+    slotKey: String,
     modifier: Modifier = Modifier,
-): Modifier = slotSpriteOrigin(animatedVisibilityScope, variantId, modifier)
+): Modifier = slotSpriteOrigin(animatedVisibilityScope, slotKey, modifier)
