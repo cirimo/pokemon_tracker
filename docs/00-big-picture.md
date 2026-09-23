@@ -87,7 +87,7 @@ that survives dataset regeneration.
 
 ## How this gets built
 
-Three prompts, run as separate Claude Code sessions, in order:
+One prompt per milestone, each run as its own Claude Code session, in order:
 
 1. [`prompts/01-architecture.md`](prompts/01-architecture.md) — produces the technical plan
    and the skeleton, before any feature code exists. **Done (M0).**
