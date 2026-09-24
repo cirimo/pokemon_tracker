@@ -374,6 +374,7 @@ read immediately before each run.
 | Ceiling: state 1 after `compile -m speed` | speed, cmdline | 198–248 ms | 5.1–5.4% | 8 ms | 14 ms |
 | 4. After M3: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 215–238 ms | 5.3–6.1% | 7 ms | 15–17 ms |
 | 5. After the settle-frame fix: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 231–293 ms | 3.1–3.5% | 7–9 ms | 11–13 ms |
+| 6. After M4: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 197–247 ms | 3.0–3.5% | 9 ms | 12–13 ms |
 
 State 4 is the M3 build after regenerating the profile with the journey extended to the catch
 sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
@@ -510,6 +511,29 @@ is the swipe-start cluster, which the default run's slow-draw count shows and th
 largely removes, and the sprites' own cost. A2 bounds the sprites at about 3 ms of P99, mostly
 RenderThread. Neither of these is settle-frame work, and neither is a change to make without
 its own trace.
+
+### Measured at M4 (2026-09-24)
+
+State 6 above: the M4 build, profile regenerated with the journey extended to My games, the
+hunt list and a hunt's slot detail, installed over the real install with `installRelease`.
+Same phone and protocol; the tight run immediately after the default one.
+
+| `net.pokedex`, state 6 | Cold start | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| Default run | 197–247 ms | 3.0–3.5% | 9 ms | 12–13 ms | 19–25 | 22–24 |
+| Tight run (`TIGHT=1`) | 216–252 ms | 3.8–4.0% | 8 ms | 14–15 ms | 25–29 | 6–15 |
+
+The default run is state 5 again: janky frames, P99 and slow-UI counts all fall inside state
+5's spread, and cold start is a little faster. M4 put nothing on the pager's tiles; the next
+hunt sits below the pager on a StateFlow of its own, and the hunt guide loads after the dex.
+
+The tight run is slightly worse than state 5's (2.9–3.5%, P99 12–13 ms, slow draw 4–7), mostly
+in slow-draw frames, which are RenderThread rather than the main thread. It is not
+attributed. The phone reported thermal status 0 throughout, but its battery rose from 33 °C
+to 34.6 °C across the default run, and the tight run followed it with no cool-down. Re-run
+`TIGHT=1` alone on a cool phone before reading it as a regression.
+
+The pager is still over the 8.3 ms P99 budget, for the reasons state 5 gives.
 
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
