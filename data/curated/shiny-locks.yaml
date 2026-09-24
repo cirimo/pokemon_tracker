@@ -59,6 +59,97 @@ locks:
     gameId: la
     reason: Story-locked at the final encounter.
     source: https://www.serebii.net/legendsarceus/shiny.shtml
+  # Bulbapedia: "all Legendary, Mythical, and Gift Pokemon are prevented from being Shiny"
+  # in Legends Arceus. Gifts are locked per encounter in encounters/la.yaml, because the
+  # first partners can also be found in distortions and outbreaks.
+  - variantId: azelf
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: cresselia
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: darkrai
+    gameId: la
+    reason: Mythical Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: dialga
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: enamorus
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: enamorus-therian
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: giratina
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: heatran
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: landorus
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: landorus-therian
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: manaphy
+    gameId: la
+    reason: Mythical Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: mesprit
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: palkia
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: phione
+    gameId: la
+    reason: Mythical Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: regigigas
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: shaymin
+    gameId: la
+    reason: Mythical Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: shaymin-sky
+    gameId: la
+    reason: Mythical Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: thundurus
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: thundurus-therian
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: tornadus
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: tornadus-therian
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: uxie
+    gameId: la
+    reason: Legendary Pokemon are never shiny in Legends Arceus.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 
   # --- Let's Go ---------------------------------------------------------------
   - variantId: meltan

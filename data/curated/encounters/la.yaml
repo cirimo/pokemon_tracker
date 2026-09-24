@@ -1,0 +1,4277 @@
+# How to catch things in Legends Arceus.
+#
+# Curated 2026-09-24, for the game being played. Drafted from four Bulbapedia sources and
+# then read through by hand:
+#
+#   Mass_outbreak           the Legends Arceus table of which Pokemon appear in mass and
+#                           massive mass outbreaks, per area. The page's own rule is that an
+#                           outbreak species also spawns in the overworld there, so each
+#                           outbreak row has a wild row beside it.
+#   Space-time_distortion   the common and rare spawns of each area's distortions.
+#   <area> pages            where the wild rows' areas come from.
+#   Shiny_Pokemon           gifts are never shiny; so the first partners' gift is locked.
+#   pokepc/dataset          evolution conditions, for variants reached only by evolving.
+#
+# Forms are matched on Bulbapedia's menu-sprite codes (058H is Hisuian Growlithe, 201QU is
+# Unown ?, 412G is Sandy Cloak Burmy), never on names.
+#
+# Not curated, on purpose, because no source above places them: the three Burmy cloaks and
+# the Wormadam and Mothim that evolve from them (Burmy comes from shaking trees), Rotom's
+# five appliance forms (changed, not caught), and Alolan Vulpix and Ninetales (a request
+# reward). The app says "no method recorded yet" for them. Legendary and Mythical Pokemon
+# are locked in shiny-locks.yaml. `npm run coverage -- la --list` shows what is left.
+#
+# Odds for mass outbreaks, massive mass outbreaks and wild spawns are in odds-modifiers.yaml.
+# Distortions have none recorded: the rate tables do not cover them.
+
+gameId: la
+
+encounters:
+  - variantId: pikachu
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pikachu
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pikachu
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: pikachu
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: pikachu-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pikachu-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pikachu-f
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: pikachu-f
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: raichu
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: raichu
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: raichu-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: raichu-f
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: clefairy
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: clefairy
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Cobalt Coastlands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: clefairy
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: clefable
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: vulpix
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: vulpix
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: vulpix
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: ninetales
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zubat
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zubat
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zubat
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: zubat-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zubat-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zubat-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: golbat
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golbat
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golbat
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: golbat-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golbat-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golbat-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: paras
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: paras
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: paras
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: parasect
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: parasect
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: parasect
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: psyduck
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: psyduck
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: psyduck
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: golduck
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golduck
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Cobalt Coastlands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: golduck
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: growlithe-hisui
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: growlithe-hisui
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: growlithe-hisui
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: arcanine-hisui
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abra
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abra
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abra
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kadabra
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kadabra
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kadabra
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: kadabra
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kadabra-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kadabra-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kadabra-f
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: kadabra-f
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: alakazam
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: alakazam
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: alakazam-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: alakazam-f
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: machop
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: machop
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: machop
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: machoke
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: machoke
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: machoke
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: machamp
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tentacool
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tentacool
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tentacool
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: tentacruel
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tentacruel
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tentacruel
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: geodude
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: geodude
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands, Cobalt Coastlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: geodude
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: graveler
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: graveler
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands, Cobalt Coastlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: graveler
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: golem
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands, Cobalt Coastlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ponyta
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ponyta
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ponyta
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: rapidash
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rapidash
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rapidash
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rapidash
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: magnemite
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: magneton
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: gastly
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastly
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands, Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastly
+    methodId: wild
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: haunter
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: haunter
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands, Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: haunter
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: haunter
+    methodId: wild
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: gengar
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands, Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gengar
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: onix
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: onix
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: onix
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: onix
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: voltorb-hisui
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: voltorb-hisui
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: voltorb-hisui
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: electrode-hisui
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lickitung
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lickitung
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lickitung
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: lickitung
+    methodId: wild
+    location: Crimson Mirelands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: rhyhorn
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyhorn
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyhorn
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: rhyhorn-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyhorn-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyhorn-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: rhydon
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhydon
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhydon
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rhydon
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: rhydon-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhydon-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhydon-f
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rhydon-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: chansey
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chansey
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chansey
+    methodId: wild
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: tangela
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangela
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangela
+    methodId: wild
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: mrmime
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mrmime
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mrmime
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: mrmime
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: scyther
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: scyther
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: scyther
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: scyther
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: scyther-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: scyther-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: scyther-f
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: scyther-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: electabuzz
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: electabuzz
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: electabuzz
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: electabuzz
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: magmar
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magmar
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Alabaster Icelands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magmar
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: magmar
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: magikarp
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magikarp
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magikarp
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: magikarp-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magikarp-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magikarp-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: gyarados
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gyarados
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gyarados
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: gyarados-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gyarados-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gyarados-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: eevee
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: eevee
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: eevee
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: eevee-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: eevee-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: eevee-f
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: vaporeon
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: jolteon
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: flareon
+    methodId: space-time-distortion
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: porygon
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: snorlax
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snorlax
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: cyndaquil
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cyndaquil
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: cyndaquil
+    methodId: gift
+    location: Jubilife Village
+    shinyLocked: true
+    notes: The first partner from Professor Laventon. Gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+
+  - variantId: quilava
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: quilava
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: typhlosion-hisui
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: typhlosion-hisui
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: crobat
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pichu
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pichu
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pichu
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: cleffa
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cleffa
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cleffa
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: togepi
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: togepi
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: togepi
+    methodId: wild
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: togetic
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sudowoodo
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sudowoodo
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sudowoodo
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: sudowoodo-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sudowoodo-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sudowoodo-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: aipom
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: aipom
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: aipom
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: aipom-f
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: aipom-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: aipom-f
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: yanma
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: yanma
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: yanma
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: espeon
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: umbreon
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: murkrow
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: murkrow
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: murkrow
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: murkrow-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: murkrow-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: murkrow-f
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: misdreavus
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: misdreavus
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: misdreavus
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: unown
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-b
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-c
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-d
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-e
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-exclamation
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-g
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-h
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-i
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-j
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-k
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-l
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-m
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-n
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-o
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-p
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-q
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-question
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-r
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-s
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-t
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-u
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-v
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-w
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-x
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-y
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: unown-z
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 28 Unown forms are in the Unown Research Notes.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gligar
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gligar
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gligar
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: gligar-f
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gligar-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gligar-f
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: steelix
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: steelix
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: steelix-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: steelix-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: qwilfish-hisui
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: qwilfish-hisui
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: qwilfish-hisui
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: scizor
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: scizor-f
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: heracross
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: heracross
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: heracross
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: heracross
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: heracross-f
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: heracross-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: heracross-f
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: heracross-f
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: sneasel
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: sneasel-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: sneasel-hisui
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sneasel-hisui
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sneasel-hisui
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: sneasel-hisui-f
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sneasel-hisui-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sneasel-hisui-f
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: teddiursa
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: teddiursa
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: teddiursa
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: ursaring
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ursaring
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ursaring
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: ursaring
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: ursaring-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ursaring-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ursaring-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: ursaring-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: swinub
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: swinub
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: swinub
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: piloswine
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piloswine
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Crimson Mirelands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piloswine
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: piloswine-f
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piloswine-f
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Crimson Mirelands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piloswine-f
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: remoraid
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: remoraid
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: octillery
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: octillery
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: octillery
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: octillery-f
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: octillery-f
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: octillery-f
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: mantine
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mantine
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mantine
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: porygon2
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: stantler
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: stantler
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: stantler
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: elekid
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: elekid
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: elekid
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: magby
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magby
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magby
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: blissey
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: wurmple
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: wurmple
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: wurmple
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: silcoon
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: silcoon
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: silcoon
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: beautifly
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: beautifly
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: beautifly
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: beautifly-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: beautifly-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: beautifly-f
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: cascoon
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cascoon
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cascoon
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: dustox
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dustox
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dustox
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: dustox-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dustox-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dustox-f
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: ralts
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ralts
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ralts
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: kirlia
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kirlia
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kirlia
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: gardevoir
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gardevoir
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gardevoir
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: nosepass
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: nosepass
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: nosepass
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: roselia
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: roselia
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: roselia
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: roselia-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: roselia-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: roselia-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: barboach
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: barboach
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: whiscash
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: whiscash
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: duskull
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: duskull
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: duskull
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: dusclops
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dusclops
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dusclops
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: dusclops
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: chimecho
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chimecho
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chimecho
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: snorunt
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snorunt
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snorunt
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: glalie
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: glalie
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: glalie
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: spheal
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: spheal
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: spheal
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: sealeo
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sealeo
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: In Obsidian Fieldlands, only in the second wave of its pre-evolution's outbreak.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sealeo
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: sealeo
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: walrein
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: walrein
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: walrein
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: walrein
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: turtwig
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: turtwig
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: turtwig
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: grotle
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: grotle
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: grotle
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: torterra
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chimchar
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chimchar
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chimchar
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: monferno
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: monferno
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: monferno
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: infernape
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piplup
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piplup
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: piplup
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: prinplup
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: prinplup
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: prinplup
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: empoleon
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: starly
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: starly
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: starly
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: starly-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: starly-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: starly-f
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: staravia
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staravia
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staravia
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: staravia-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staravia-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staravia-f
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: staraptor
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staraptor
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staraptor
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: staraptor-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staraptor-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: staraptor-f
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: bidoof
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bidoof
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bidoof
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: bidoof-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bidoof-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bidoof-f
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: bibarel
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bibarel
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bibarel
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: bibarel-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bibarel-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bibarel-f
+    methodId: wild
+    location: Obsidian Fieldlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kricketot
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketot
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketot
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kricketot-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketot-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketot-f
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kricketune
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketune
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketune
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: kricketune-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketune-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kricketune-f
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: shinx
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shinx
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shinx
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: shinx-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shinx-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shinx-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: luxio
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxio
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxio
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: luxio
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: luxio-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxio-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxio-f
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: luxio-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: luxray
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxray
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxray
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: luxray
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: luxray-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxray-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: luxray-f
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: luxray-f
+    methodId: wild
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: budew
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: budew
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: budew
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: roserade
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: roserade-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cranidos
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rampardos
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: shieldon
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: bastiodon
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: combee
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: combee
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: combee-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: combee-f
+    methodId: wild
+    location: Obsidian Fieldlands and Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: vespiquen
+    methodId: evolution
+    from: combee
+    prerequisite: Evolves level 21.
+    source: https://github.com/pokepc/dataset/tree/6.8.2
+
+  - variantId: pachirisu
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pachirisu
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pachirisu
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: pachirisu-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pachirisu-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: pachirisu-f
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: buizel
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buizel
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buizel
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: buizel-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buizel-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buizel-f
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: floatzel
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: floatzel
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: floatzel
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: floatzel
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: floatzel-f
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: floatzel-f
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: floatzel-f
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: floatzel-f
+    methodId: wild
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: cherubi
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: cherubi
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: cherrim
+    methodId: evolution
+    from: cherubi
+    prerequisite: Evolves level 25.
+    source: https://github.com/pokepc/dataset/tree/6.8.2
+
+  - variantId: shellos
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shellos
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shellos
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: shellos-east
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shellos-east
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: shellos-east
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: gastrodon
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastrodon
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastrodon
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: gastrodon-east
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastrodon-east
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gastrodon-east
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: ambipom
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ambipom
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ambipom
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: ambipom
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: ambipom-f
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ambipom-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ambipom-f
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: ambipom-f
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: drifloon
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drifloon
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drifloon
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: drifblim
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drifblim
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drifblim
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: drifblim
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: buneary
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buneary
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: buneary
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: lopunny
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lopunny
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: mismagius
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: honchkrow
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: glameow
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: glameow
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: glameow
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: purugly
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: purugly
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: purugly
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: chingling
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chingling
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chingling
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: stunky
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: stunky
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: stunky
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: skuntank
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: skuntank
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: skuntank
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: skuntank
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: bronzor
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bronzor
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands, Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bronzor
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: bronzong
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bronzong
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands, Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bronzong
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: bonsly
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bonsly
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bonsly
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: mimejr
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mimejr
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mimejr
+    methodId: wild
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: happiny
+    methodId: mass-outbreak
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: happiny
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: happiny
+    methodId: wild
+    location: Obsidian Fieldlands, Crimson Mirelands, Cobalt Coastlands, Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Obsidian_Fieldlands
+
+  - variantId: chatot
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chatot
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: chatot
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: spiritomb
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later. Appears only once all 108 wisps are found and Request 22, "Eerie Apparitions in the Night", is complete.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gible
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gible
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gible
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: gible-f
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gible-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gible-f
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: gabite
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gabite
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gabite
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: gabite-f
+    methodId: mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gabite-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: gabite-f
+    methodId: wild
+    location: Coronet Highlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: garchomp
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: garchomp-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: munchlax
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: munchlax
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: munchlax
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: riolu
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: riolu
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: riolu
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: lucario
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippopotas
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippopotas
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippopotas
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: hippopotas-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippopotas-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippopotas-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: hippowdon
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippowdon
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippowdon
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: hippowdon-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippowdon-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: hippowdon-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: skorupi
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: skorupi
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: skorupi
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: drapion
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drapion
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: drapion
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: drapion
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: croagunk
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: croagunk
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: croagunk
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: croagunk-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: croagunk-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: croagunk-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: toxicroak
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: toxicroak
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: toxicroak
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: toxicroak
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: toxicroak-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: toxicroak-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: toxicroak-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: toxicroak-f
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: carnivine
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: carnivine
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: carnivine
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: carnivine
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: finneon
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: finneon
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: finneon
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: finneon-f
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: finneon-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: finneon-f
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: lumineon
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lumineon
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lumineon
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: lumineon-f
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lumineon-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lumineon-f
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: mantyke
+    methodId: mass-outbreak
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mantyke
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mantyke
+    methodId: wild
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: snover
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snover
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snover
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: snover-f
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snover-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: snover-f
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: abomasnow
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abomasnow
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abomasnow
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: abomasnow-f
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abomasnow-f
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: abomasnow-f
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: weavile
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: weavile-f
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: magnezone
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: lickilicky
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lickilicky
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: lickilicky
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: lickilicky
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: rhyperior
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyperior
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rhyperior-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rhyperior-f
+    methodId: space-time-distortion
+    location: Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: tangrowth
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangrowth
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangrowth
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: tangrowth
+    methodId: wild
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: tangrowth-f
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangrowth-f
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: tangrowth-f
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: tangrowth-f
+    methodId: wild
+    location: Crimson Mirelands and Cobalt Coastlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: electivire
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: electivire
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: magmortar
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: magmortar
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: togekiss
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: yanmega
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: yanmega
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: yanmega
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: leafeon
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: glaceon
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: gliscor
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mamoswine
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mamoswine
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mamoswine
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: mamoswine-f
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mamoswine-f
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: mamoswine-f
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: porygonz
+    methodId: space-time-distortion
+    location: Crimson Mirelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: gallade
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: probopass
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dusknoir
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dusknoir
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: froslass
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rotom
+    methodId: mass-outbreak
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rotom
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rotom
+    methodId: wild
+    location: Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Coronet_Highlands
+
+  - variantId: oshawott
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: oshawott
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: oshawott
+    methodId: gift
+    location: Jubilife Village
+    shinyLocked: true
+    notes: The first partner from Professor Laventon. Gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+
+  - variantId: dewott
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dewott
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: samurott-hisui
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: samurott-hisui
+    methodId: space-time-distortion
+    location: Alabaster Icelands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: petilil
+    methodId: mass-outbreak
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: petilil
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: petilil
+    methodId: wild
+    location: Crimson Mirelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: lilligant-hisui
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: basculin-white-striped
+    methodId: mass-outbreak
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: basculin-white-striped
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: basculin-white-striped
+    methodId: wild
+    location: Cobalt Coastlands and Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Cobalt_Coastlands
+
+  - variantId: zorua-hisui
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zorua-hisui
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zorua-hisui
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: zoroark-hisui
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zoroark-hisui
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands and Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: zoroark-hisui
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: rufflet
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rufflet
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rufflet
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: braviary-hisui
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: braviary-hisui
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: braviary-hisui
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: sylveon
+    methodId: space-time-distortion
+    location: Obsidian Fieldlands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: goomy
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: goomy
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: goomy
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: sliggoo-hisui
+    methodId: mass-outbreak
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sliggoo-hisui
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sliggoo-hisui
+    methodId: wild
+    location: Crimson Mirelands and Coronet Highlands
+    source: https://bulbapedia.bulbagarden.net/wiki/Crimson_Mirelands
+
+  - variantId: goodra-hisui
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bergmite
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bergmite
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: bergmite
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: avalugg-hisui
+    methodId: mass-outbreak
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: avalugg-hisui
+    methodId: massive-mass-outbreak
+    location: Alabaster Icelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: avalugg-hisui
+    methodId: wild
+    location: Alabaster Icelands
+    source: https://bulbapedia.bulbagarden.net/wiki/Alabaster_Icelands
+
+  - variantId: rowlet
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: rowlet
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: rowlet
+    methodId: gift
+    location: Jubilife Village
+    shinyLocked: true
+    notes: The first partner from Professor Laventon. Gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+
+  - variantId: dartrix
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: dartrix
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: decidueye-hisui
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: decidueye-hisui
+    methodId: space-time-distortion
+    location: Coronet Highlands
+    notes: A rare spawn in the distortion.
+    source: https://bulbapedia.bulbagarden.net/wiki/Space-time_distortion
+
+  - variantId: wyrdeer
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: kleavor
+    methodId: massive-mass-outbreak
+    location: Obsidian Fieldlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: ursaluna
+    methodId: massive-mass-outbreak
+    location: Crimson Mirelands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: basculegion
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: basculegion-f
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: sneasler
+    methodId: massive-mass-outbreak
+    location: Coronet Highlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak
+
+  - variantId: overqwil
+    methodId: massive-mass-outbreak
+    location: Cobalt Coastlands
+    prerequisite: Version 1.1.0 or later.
+    notes: "Not an outbreak of its own: it comes in the second wave of its pre-evolution's."
+    source: https://bulbapedia.bulbagarden.net/wiki/Mass_outbreak

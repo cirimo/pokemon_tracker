@@ -28,6 +28,12 @@ methods:
       Sword/Shield. A KO chain on a species raises both the brilliant rate and the
       number of shiny rerolls.
 
+  - id: space-time-distortion
+    name: Space-time distortion
+    description: >-
+      Legends Arceus. A temporary zone that forms after time spent in an area, with its own
+      spawn list: the only overworld home of several species.
+
   - id: raid
     name: Tera or Max raid
     description: Raid dens and Tera raid crystals. Frequently shiny-locked.
