@@ -42,9 +42,6 @@ abstract class ReferenceDatabase : RoomDatabase() {
     companion object {
         const val VERSION = 1
 
-        /** On-device filename. Distinct from the asset path so the two never confuse. */
-        const val FILE_NAME = "reference.db"
-
         /** Path inside assets/, produced by tools/dataset-pipeline. */
         const val ASSET_PATH = "dataset/reference.db"
     }

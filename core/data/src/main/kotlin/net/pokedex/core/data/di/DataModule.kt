@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import net.pokedex.core.data.reference.ReferenceDatabase
+import net.pokedex.core.data.reference.ReferenceFile
 import net.pokedex.core.data.user.UserDatabase
 import javax.inject.Singleton
 
@@ -29,12 +30,17 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun referenceDatabase(@ApplicationContext context: Context): ReferenceDatabase =
-        Room.databaseBuilder(context, ReferenceDatabase::class.java, ReferenceDatabase.FILE_NAME)
+    fun referenceDatabase(@ApplicationContext context: Context): ReferenceDatabase {
+        // Keyed on the asset's content hash, so a regenerated dataset is a new file even
+        // when the schema version did not move. See ReferenceFile.
+        val fileName = ReferenceFile.name(context)
+        ReferenceFile.deleteStale(context, keep = fileName)
+        return Room.databaseBuilder(context, ReferenceDatabase::class.java, fileName)
             .createFromAsset(ReferenceDatabase.ASSET_PATH)
             // Safe here and only here: a dataset bump replaces this file wholesale.
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
+    }
 
     // Room takes migrations as a vararg, so the spread is forced on us. It happens
     // once, at startup, over an array that is empty today.
