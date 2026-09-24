@@ -295,6 +295,15 @@ private fun Species() {
             state = SlotState.ShinyLocked,
             sprite = { DemoSprite(it) },
         )
+        SpeciesCard(
+            name = "Unown",
+            dexNumber = 201,
+            types = listOf(PokemonType.Psychic),
+            state = SlotState.Needed,
+            formName = "Want",
+            details = listOf("Fills 28 slots", "Massive mass outbreak in Legends Arceus, 1 in 216"),
+            sprite = { DemoSprite(it) },
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm),

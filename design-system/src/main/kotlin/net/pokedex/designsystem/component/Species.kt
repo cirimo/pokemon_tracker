@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -112,6 +113,10 @@ private const val DEX_DIGITS = 4
  * Deliberately not a Material `Card`: a card brings elevation, and elevation is reserved
  * for sheets and dialogs (see [net.pokedex.designsystem.theme.PokedexElevation]). A border
  * and a surface do the same job with no render node.
+ *
+ * [details] are short lines under the types, for a list that has to say why a row is there
+ * (the hunt list: "Fills 2 slots", "Mass outbreak in Legends Arceus, 1 in 128"). Plain text,
+ * never gold -- a top pick is not a shiny -- and spoken after everything else.
  */
 @Composable
 fun SpeciesCard(
@@ -121,6 +126,7 @@ fun SpeciesCard(
     state: SlotState,
     modifier: Modifier = Modifier,
     formName: String? = null,
+    details: List<String> = emptyList(),
     onClick: (() -> Unit)? = null,
     sprite: @Composable (SlotSpriteRendering) -> Unit = {},
 ) {
@@ -141,7 +147,8 @@ fun SpeciesCard(
                 // The secondary line is spoken too. It is what tells two rows with the same
                 // name apart -- the two Unown-A slots in a search list differ only there.
                 val secondary = formName?.let { " $it." }.orEmpty()
-                contentDescription = "${state.describe(name)}.$secondary Number $dexNumber. $typeNames"
+                val more = if (details.isEmpty()) "" else "." + details.joinToString("") { " $it." }
+                contentDescription = "${state.describe(name)}.$secondary Number $dexNumber. $typeNames$more"
             },
         horizontalArrangement = Arrangement.spacedBy(dimens.spaceMd),
         verticalAlignment = Alignment.CenterVertically,
@@ -162,6 +169,9 @@ fun SpeciesCard(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(dimens.spaceXs)) {
                 types.forEach { TypeBadge(it) }
+            }
+            details.forEach { line ->
+                Text(text = line, style = MaterialTheme.typography.bodySmall, color = colors.onCase)
             }
         }
     }
@@ -237,6 +247,16 @@ private fun SpeciesSamples() {
             dexNumber = 888,
             types = listOf(PokemonType.Fairy),
             state = SlotState.ShinyLocked,
+            onClick = {},
+            sprite = { DemoSprite(it) },
+        )
+        SpeciesCard(
+            name = "Unown",
+            dexNumber = 201,
+            types = listOf(PokemonType.Psychic),
+            state = SlotState.Needed,
+            formName = "Want",
+            details = listOf("Fills 28 slots", "Massive mass outbreak in Legends Arceus, 1 in 216"),
             onClick = {},
             sprite = { DemoSprite(it) },
         )

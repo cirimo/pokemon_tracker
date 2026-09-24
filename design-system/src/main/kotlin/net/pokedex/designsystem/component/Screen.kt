@@ -42,6 +42,11 @@ fun ScreenScaffold(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
+    /**
+     * False for a screen whose body is its own lazy list. A list of hundreds of rows inside
+     * a scrolling Column composes every row at once; the list has to own the scrolling.
+     */
+    scrollable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
@@ -69,8 +74,14 @@ fun ScreenScaffold(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(start = dimens.spaceLg, end = dimens.spaceLg, bottom = dimens.spaceXl),
+                .then(
+                    if (scrollable) {
+                        Modifier.verticalScroll(rememberScrollState()).padding(bottom = dimens.spaceXl)
+                    } else {
+                        Modifier
+                    },
+                )
+                .padding(start = dimens.spaceLg, end = dimens.spaceLg),
             verticalArrangement = Arrangement.spacedBy(dimens.spaceLg),
             content = content,
         )

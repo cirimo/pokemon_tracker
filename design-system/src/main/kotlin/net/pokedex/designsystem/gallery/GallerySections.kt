@@ -345,6 +345,16 @@ private fun SpeciesSection() {
             onClick = {},
             sprite = { DemoSprite(it) },
         )
+        SpeciesCard(
+            name = "Unown",
+            dexNumber = 201,
+            types = listOf(PokemonType.Psychic),
+            state = SlotState.Needed,
+            formName = "Want",
+            details = listOf("Fills 28 slots", "Massive mass outbreak in Legends Arceus, 1 in 216"),
+            onClick = {},
+            sprite = { DemoSprite(it) },
+        )
     }
 }
 
