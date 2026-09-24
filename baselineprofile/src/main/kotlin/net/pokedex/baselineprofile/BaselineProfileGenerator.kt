@@ -37,9 +37,12 @@ class BaselineProfileGenerator {
         // mostly paging and search. A copy of all of it there would buy nothing.
         includeInStartupProfile = false,
     ) {
-        // 1. Cold start to the box view.
+        // 1. Cold start to the box view. The build under test is a fresh install with no
+        // records, so the first launch offers a restore; turn it down, or the sheet covers
+        // everything below. Later iterations do not see it.
         pressHome()
         startActivityAndWait()
+        device.wait(Until.findObject(By.text(START_FRESH)), OFFER_TIMEOUT_MS)?.click()
         await(BOX_COUNTER)
 
         // The app reopens on the last box it showed, so reach box 1 through the sheet.
@@ -68,7 +71,32 @@ class BaselineProfileGenerator {
         await(By.desc(CLOSE_SEARCH)).click()
         await(BOX_COUNTER)
 
-        // 5. The "All boxes" sheet again, to the far end.
+        // 5. Catch and record (M3): tick a slot, open the catch sheet, cancel it, untick.
+        // The build under test is uninstalled afterwards, so nothing it records survives.
+        await(By.text(FIRST_BOX))
+        onScreen(SLOT).click()
+        await(By.text(MARK_CAUGHT)).click()
+        await(By.text(WHERE_CAUGHT)).click()
+        await(By.text(CATCH_DETAILS))
+        await(By.text(CANCEL)).click()
+        await(By.text(CAUGHT)).click()
+        device.pressBack()
+        await(BOX_COUNTER)
+
+        // 6. Progress, scrolled to the bottom, and back.
+        onScreen(PROGRESS_ENTRY).click()
+        await(By.text(PROGRESS_TITLE))
+        device.findObject(By.scrollable(true))?.let { list -> repeat(SHEET_FLINGS) { list.fling(Direction.DOWN) } }
+        device.pressBack()
+        await(BOX_COUNTER)
+
+        // 7. Settings and back.
+        await(By.desc(SETTINGS)).click()
+        await(By.text(BACKUPS))
+        device.pressBack()
+        await(BOX_COUNTER)
+
+        // 8. The "All boxes" sheet again, to the far end.
         jumpViaAllBoxes { rows ->
             val list = device.findObject(By.scrollable(true))
             repeat(SHEET_FLINGS) { list?.fling(Direction.DOWN) }
@@ -154,6 +182,19 @@ private const val SEARCH_QUERY = "pika"
 private const val EDIT_TEXT = "android.widget.EditText"
 private const val CLOSE_SEARCH = "Close search"
 private const val ALL_BOXES = "All boxes"
+private const val START_FRESH = "Start fresh"
+private const val OFFER_TIMEOUT_MS = 2_000L
+private const val MARK_CAUGHT = "Mark caught"
+private const val CAUGHT = "Caught"
+private const val WHERE_CAUGHT = "Where was it caught?"
+private const val CATCH_DETAILS = "Catch details"
+private const val CANCEL = "Cancel"
+private const val PROGRESS_TITLE = "Progress"
+private const val SETTINGS = "Settings and backups"
+private const val BACKUPS = "Backups"
+
+/** The headline readout, which opens Progress. Its sentence starts with the label. */
+private val PROGRESS_ENTRY = By.desc(Pattern.compile("shiny: .*"))
 
 private val BOX_COUNTER = By.text(Pattern.compile("Box \\d+ of \\d+"))
 private const val FIRST_BOX = "Box 1 of 52"
