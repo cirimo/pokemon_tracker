@@ -25,7 +25,8 @@ copyIndex)` so two exports of the same data are byte-identical and diffable.
   "records": [
     { "variantId": "venusaur-f", "copyIndex": 0, "caught": true,
       "originGameId": "sv-s", "caughtAt": "2026-03-04T21:10:00Z",
-      "notes": "sandwich, 412 resets", "favourite": false, "priority": 0 }
+      "notes": "sandwich, 412 resets", "favourite": false, "priority": 0,
+      "updatedAt": "2026-03-04T21:10:00Z" }
   ]
 }
 ```
@@ -42,6 +43,11 @@ copyIndex)` so two exports of the same data are byte-identical and diffable.
   where it is always zero.
 - Timestamps are ISO-8601 UTC strings rather than epoch millis, because a backup you may
   have to trust in five years should be readable in a text editor.
+
+- `updatedAt` per record was added in M3, additively, so `schema` stayed 1. A merge keeps,
+  per key, whichever side changed the record last; a record without it counts as older
+  than anything local. Without it, restoring last week's file would untick tonight's
+  catches.
 
 Import is one transaction, merge by default with an explicit replace option, and always
 writes a pre-import snapshot to the rolling backup directory first.

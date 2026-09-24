@@ -63,6 +63,10 @@ data class SettingsInfo(
  *
  * [copyIndex] defaults to 0 so a hand-written file can omit it for the 1387 variants
  * where it is always zero. Only the seven duplicated variants ever need it.
+ *
+ * [updatedAt] was added in M3 without a schema bump (it is additive, and older builds
+ * ignore it). A merge import compares it per record; without it, restoring an old file
+ * would overwrite newer catches. Missing means "older than anything local".
  */
 @Serializable
 data class RecordInfo(
@@ -74,4 +78,5 @@ data class RecordInfo(
     val notes: String? = null,
     val favourite: Boolean = false,
     val priority: Int = 0,
+    val updatedAt: String? = null,
 )
