@@ -93,6 +93,22 @@ androidComponents {
 }
 
 /**
+ * Composition tracing, for the profiling build and nothing else.
+ *
+ * runtime-tracing names every composable in a Perfetto trace, which is how the pager's
+ * settle frame was attributed (docs/architecture.md §8). It hooks the composer, so it must
+ * never reach the release APK's runtime: benchmarkRelease is net.pokedex.profiling, a
+ * separate install. The binary is bundled so a trace needs only a broadcast, not a
+ * sideloaded .so. The configuration exists only once the baseline profile plugin has
+ * synthesised the build type, hence the lazy match.
+ */
+configurations.matching { it.name == "benchmarkReleaseImplementation" }.configureEach {
+    dependencies.add(project.dependencies.platform(libs.androidx.compose.bom.get()))
+    dependencies.add(project.dependencies.create(libs.androidx.compose.runtime.tracing.get()))
+    dependencies.add(project.dependencies.create(libs.androidx.tracing.perfetto.binary.get()))
+}
+
+/**
  * Release signing, from ~/.gradle/gradle.properties -- never from the repo.
  *
  * Set pokedexKeystorePath / pokedexKeystorePassword / pokedexKeyAlias /

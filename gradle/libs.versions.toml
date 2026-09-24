@@ -53,6 +53,9 @@ truth = "1.4.5"
 # AARs need only AGP 8.1.1 / compileSdk 34, so it fits the pinned set above without moving it.
 benchmark = "1.5.0"
 profileinstaller = "1.4.1"
+# Must equal the tracing-perfetto that the BOM's runtime-tracing resolves to: the library
+# refuses to load a binary of any other version.
+tracingPerfetto = "1.0.1"
 
 detekt = "1.23.8"
 desugarJdkLibs = "2.1.5"
@@ -84,6 +87,9 @@ androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+# Names each composable in a Perfetto trace. benchmarkRelease only -- see app/build.gradle.kts.
+androidx-compose-runtime-tracing = { group = "androidx.compose.runtime", name = "runtime-tracing" }
+androidx-tracing-perfetto-binary = { group = "androidx.tracing", name = "tracing-perfetto-binary", version.ref = "tracingPerfetto" }
 
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
