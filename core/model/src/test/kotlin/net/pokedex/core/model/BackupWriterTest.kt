@@ -73,6 +73,17 @@ class BackupWriterTest {
     }
 
     @Test
+    fun `a change to my games alone is still written`() {
+        val folder = folder()
+        writer.writeAuto(folder, file(caught = 3), at(0), keep = 10)
+        val withGames = file(caught = 3).let { it.copy(settings = it.settings.copy(myGames = listOf("la"))) }
+
+        val again = writer.writeAuto(folder, withGames, at(5), keep = 10)
+
+        assertThat(again).isInstanceOf(BackupWriter.AutoResult.Written::class.java)
+    }
+
+    @Test
     fun `the rolling set keeps the newest n`() {
         val folder = folder()
         for (i in 1..5) writer.writeAuto(folder, file(caught = i), at(i.toLong()), keep = 3)

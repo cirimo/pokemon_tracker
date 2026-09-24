@@ -63,6 +63,9 @@ object DataModule {
     fun backupLogDao(db: UserDatabase) = db.backupLogDao()
 
     @Provides
+    fun myGameDao(db: UserDatabase) = db.myGameDao()
+
+    @Provides
     @IoDispatcher
     fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 

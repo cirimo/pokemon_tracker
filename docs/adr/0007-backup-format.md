@@ -50,6 +50,10 @@ copyIndex)` so two exports of the same data are byte-identical and diffable.
   per key, whichever side changed the record last; a record without it counts as older
   than anything local. Without it, restoring last week's file would untick tonight's
   catches.
+- `settings.myGames` (the games I own and play, sorted) was added in M4, additively, so
+  `schema` stayed 1. A file without it says nothing about games and leaves the local set
+  alone; otherwise replace takes the file's set and merge takes the union. An automatic
+  backup counts a change of games as a change, not only a change of records.
 
 Import is one transaction, merge by default with an explicit replace option, and always
 writes a pre-import snapshot to the rolling backup directory first.

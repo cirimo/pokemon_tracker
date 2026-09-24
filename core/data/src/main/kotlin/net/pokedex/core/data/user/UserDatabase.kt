@@ -18,6 +18,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         CatchRecordEntity::class,
         UserSettingsEntity::class,
         BackupLogEntity::class,
+        MyGameEntity::class,
     ],
     version = UserDatabase.VERSION,
     exportSchema = true,
@@ -27,9 +28,10 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun catchRecordDao(): CatchRecordDao
     abstract fun userSettingsDao(): UserSettingsDao
     abstract fun backupLogDao(): BackupLogDao
+    abstract fun myGameDao(): MyGameDao
 
     companion object {
-        const val VERSION = 3
+        const val VERSION = 4
         const val FILE_NAME = "user.db"
 
         /**
@@ -62,11 +64,22 @@ abstract class UserDatabase : RoomDatabase() {
         }
 
         /**
+         * 3 -> 4: my_game, the games the user owns and plays. A new, empty table: nothing
+         * existing is read or rewritten, and an empty set means "not chosen yet", which the
+         * app treats as no game being unavailable rather than every game.
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `my_game` (`gameId` TEXT NOT NULL, PRIMARY KEY(`gameId`))")
+            }
+        }
+
+        /**
          * Migrations, in order.
          *
          * When you add one, add a MigrationTestHelper test alongside it. An untested
          * migration on this database is a data-loss bug waiting for a release.
          */
-        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
+        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
     }
 }

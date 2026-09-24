@@ -48,6 +48,18 @@ data class UserSettingsEntity(
     @ColumnInfo(defaultValue = "0") val restoreOfferDismissed: Boolean,
 )
 
+/**
+ * A game the user owns and plays: one row each, added in version 4.
+ *
+ * A table rather than a column of joined ids so that ticking one game is one insert, and
+ * so the set has a primary key that cannot hold the same game twice. gameId is a plain
+ * id with no foreign key, like originGameId: the game list lives in the other database.
+ */
+@Entity(tableName = "my_game")
+data class MyGameEntity(
+    @PrimaryKey val gameId: String,
+)
+
 /** One row per rolling local backup written, so the UI can offer a restore list. */
 @Entity(tableName = "backup_log")
 data class BackupLogEntity(

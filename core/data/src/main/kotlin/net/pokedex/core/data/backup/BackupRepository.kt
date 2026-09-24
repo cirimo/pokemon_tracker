@@ -15,6 +15,7 @@ import net.pokedex.core.data.repository.ReferenceRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.data.user.BackupLogDao
 import net.pokedex.core.data.user.BackupLogEntity
+import net.pokedex.core.data.user.MyGameDao
 import net.pokedex.core.data.user.UserDatabase
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.backup.AppInfo
@@ -52,6 +53,7 @@ class BackupRepository @Inject constructor(
     private val dexRepository: DexRepository,
     private val location: BackupLocation,
     private val log: BackupLogDao,
+    private val myGames: MyGameDao,
     private val appInfo: AppInfo,
     @IoDispatcher private val io: CoroutineDispatcher,
 ) {
@@ -79,6 +81,7 @@ class BackupRepository @Inject constructor(
                 activePresetId = settings.activePresetId.value,
                 autoBackupEnabled = settings.autoBackupEnabled,
                 autoBackupKeepCount = settings.autoBackupKeepCount,
+                myGames = settingsRepository.myGames().map { it.value }.sorted(),
             ),
             // Sorted so two exports of the same data are byte-identical and diffable.
             records = catchRepository.allRecords()
@@ -145,7 +148,7 @@ class BackupRepository @Inject constructor(
                     val folder = location.current()
                     db.withTransaction {
                         val local = catchRepository.allRecords().associateBy { it.key }
-                        val plan = ImportPlan.of(local, parsed.value, mode)
+                        val plan = ImportPlan.of(local, settingsRepository.myGames(), parsed.value, mode)
                         val snapshot = if (plan.snapshotFirst) {
                             val current = currentFile(now)
                             writer.writeSnapshot(folder, current, now).also { record(it, current, "pre-import") }
@@ -157,6 +160,7 @@ class BackupRepository @Inject constructor(
                         } else {
                             catchRepository.merge(plan.write)
                         }
+                        plan.myGames?.let { games -> myGames.replaceAll(games.map { it.value }) }
                         ImportResult(written = plan.write.size, snapshot = snapshot)
                     }
                 }

@@ -50,6 +50,7 @@ class BackupRepositoryTest {
     private lateinit var user: UserDatabase
     private lateinit var reference: ReferenceDatabase
     private lateinit var catches: CatchRepository
+    private lateinit var settings: SettingsRepository
     private lateinit var location: BackupLocation
     private lateinit var backups: BackupRepository
     private val backupDir get() = File(context.filesDir, "backups")
@@ -62,7 +63,7 @@ class BackupRepositoryTest {
             .createFromAsset(ReferenceDatabase.ASSET_PATH)
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
-        val settings = SettingsRepository(user.userSettingsDao(), io)
+        settings = SettingsRepository(user.userSettingsDao(), user.myGameDao(), io)
         val referenceRepository = ReferenceRepository(reference, io)
         catches = CatchRepository(user.catchRecordDao(), io)
         location = BackupLocation(context, settings, io)
@@ -75,6 +76,7 @@ class BackupRepositoryTest {
             dexRepository = DexRepository(referenceRepository, settings, Dispatchers.Default),
             location = location,
             log = user.backupLogDao(),
+            myGames = user.myGameDao(),
             appInfo = AppInfo("test", 1),
             io = io,
         )
@@ -130,6 +132,20 @@ class BackupRepositoryTest {
         backups.import(exported, ImportMode.REPLACE, now)
 
         assertThat(catches.allRecords()).containsExactlyElementsIn(original)
+    }
+
+    @Test
+    fun myGamesTravelWithAnExportAndAReplaceRestoresThem() = runTest {
+        catches.merge(listOf(record("bulbasaur", true, tonight)))
+        settings.setMyGame(GameId("la"), owned = true)
+        settings.setMyGame(GameId("sv-s"), owned = true)
+        val exported = BackupCodec.encode(backups.currentFile(now))
+        settings.setMyGame(GameId("la"), owned = false)
+        settings.setMyGame(GameId("sv-s"), owned = false)
+
+        backups.import(exported, ImportMode.REPLACE, now)
+
+        assertThat(settings.myGames()).containsExactly(GameId("la"), GameId("sv-s"))
     }
 
     @Test

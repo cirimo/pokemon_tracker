@@ -51,11 +51,17 @@ data class DatasetInfo(
     val datasetVersion: Int,
 )
 
+/**
+ * [myGames] was added in M4 without a schema bump, like `updatedAt`: it is additive, an
+ * older build ignores it, and a file without it restores as "says nothing about games".
+ * Sorted, so two exports of the same choice are byte-identical.
+ */
 @Serializable
 data class SettingsInfo(
     val activePresetId: String,
     val autoBackupEnabled: Boolean = true,
     val autoBackupKeepCount: Int = 10,
+    val myGames: List<String> = emptyList(),
 )
 
 /**

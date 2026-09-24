@@ -116,6 +116,50 @@ class UserDatabaseMigrationTest {
     }
 
     @Test
+    fun migration3To4KeepsRecordsAndSettingsAndStartsWithNoGames() {
+        helper.createDatabase(TEST_DB, 3).apply {
+            insertSecondUnown(this)
+            execSQL(
+                "INSERT INTO user_settings " +
+                    "(id, activePresetId, lastSeenPresetVersion, lastSeenDatasetVersion, " +
+                    "autoBackupEnabled, autoBackupKeepCount, lastBoxIndex, backupTreeUri, " +
+                    "lastOriginGameId, restoreOfferDismissed) " +
+                    "VALUES (1, 'grouped-balanced', 3, 7, 1, 4, 12, 'content://tree', 'sv-s', 1)",
+            )
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, 4, true, UserDatabase.MIGRATION_3_4)
+
+        migrated.query("SELECT variantId, copyIndex, caught, notes FROM catch_record").use { cursor ->
+            assertThat(cursor.count).isEqualTo(1)
+            cursor.moveToFirst()
+            assertThat(cursor.getString(0)).isEqualTo("unown")
+            assertThat(cursor.getInt(1)).isEqualTo(1)
+            assertThat(cursor.getInt(2)).isEqualTo(1)
+            assertThat(cursor.getString(3)).isEqualTo("the second copy")
+        }
+        migrated.query("SELECT backupTreeUri, lastOriginGameId, lastBoxIndex FROM user_settings").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getString(0)).isEqualTo("content://tree")
+            assertThat(cursor.getString(1)).isEqualTo("sv-s")
+            assertThat(cursor.getInt(2)).isEqualTo(12)
+        }
+        migrated.query("SELECT COUNT(*) FROM my_game").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(0)
+        }
+        // The primary key is what stops a game being owned twice.
+        migrated.execSQL("INSERT INTO my_game (gameId) VALUES ('la')")
+        migrated.execSQL("INSERT OR IGNORE INTO my_game (gameId) VALUES ('la')")
+        migrated.query("SELECT COUNT(*) FROM my_game").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(1)
+        }
+        migrated.close()
+    }
+
+    @Test
     fun everyMigrationInOrderTakesVersion1ToCurrent() {
         helper.createDatabase(TEST_DB, 1).apply {
             insertSecondUnown(this)

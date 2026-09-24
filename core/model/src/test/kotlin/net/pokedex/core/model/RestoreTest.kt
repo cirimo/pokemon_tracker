@@ -33,7 +33,7 @@ class RestoreTest {
     fun `restoring into an empty database writes everything and takes no snapshot`() {
         val file = fileOf(Fixtures.caught("bulbasaur"), Fixtures.caught("ivysaur"))
 
-        val plan = ImportPlan.of(emptyMap(), file, ImportMode.MERGE)
+        val plan = ImportPlan.of(emptyMap(), emptySet(), file, ImportMode.MERGE)
 
         assertThat(plan.snapshotFirst).isFalse()
         assertThat(plan.write.map { it.key.variantId.value }).containsExactly("bulbasaur", "ivysaur")
@@ -44,8 +44,8 @@ class RestoreTest {
         val local = Fixtures.records(Fixtures.caught("bulbasaur"))
         val file = fileOf(Fixtures.caught("ivysaur"))
 
-        assertThat(ImportPlan.of(local, file, ImportMode.MERGE).snapshotFirst).isTrue()
-        assertThat(ImportPlan.of(local, file, ImportMode.REPLACE).snapshotFirst).isTrue()
+        assertThat(ImportPlan.of(local, emptySet(), file, ImportMode.MERGE).snapshotFirst).isTrue()
+        assertThat(ImportPlan.of(local, emptySet(), file, ImportMode.REPLACE).snapshotFirst).isTrue()
     }
 
     @Test
@@ -53,8 +53,8 @@ class RestoreTest {
         val local = Fixtures.records(Fixtures.caught("bulbasaur").copy(updatedAt = tonight))
         val file = fileOf(Fixtures.caught("bulbasaur").copy(caught = false, updatedAt = lastWeek))
 
-        val merge = ImportPlan.of(local, file, ImportMode.MERGE)
-        val replace = ImportPlan.of(local, file, ImportMode.REPLACE)
+        val merge = ImportPlan.of(local, emptySet(), file, ImportMode.MERGE)
+        val replace = ImportPlan.of(local, emptySet(), file, ImportMode.REPLACE)
 
         assertThat(merge.clearFirst).isFalse()
         assertThat(merge.write).isEmpty()
@@ -89,7 +89,7 @@ class RestoreTest {
         val file = fileOf(Fixtures.caught("bulbasaur"), Fixtures.caught("pikachu-cosplay"))
 
         val preview = RestorePreview.of(file, emptyMap(), preset)
-        val plan = ImportPlan.of(emptyMap(), file, ImportMode.REPLACE)
+        val plan = ImportPlan.of(emptyMap(), emptySet(), file, ImportMode.REPLACE)
 
         assertThat(preview.orphanCount).isEqualTo(1)
         assertThat(plan.write.map { it.key.variantId.value }).contains("pikachu-cosplay")
@@ -103,8 +103,54 @@ class RestoreTest {
         )
         val decoded = (BackupCodec.decode(BackupCodec.encode(fileOf(*records.toTypedArray()))) as Outcome.Ok).value
 
-        val plan = ImportPlan.of(emptyMap(), decoded, ImportMode.MERGE)
+        val plan = ImportPlan.of(emptyMap(), emptySet(), decoded, ImportMode.MERGE)
 
         assertThat(plan.write).containsExactlyElementsIn(records)
+    }
+
+    private fun withGames(file: BackupFile, vararg games: String) =
+        file.copy(settings = file.settings.copy(myGames = games.toList()))
+
+    private fun games(vararg ids: String) = ids.mapTo(HashSet()) { GameId(it) }
+
+    @Test
+    fun `a file from before my games leaves the games here alone, in either mode`() {
+        val file = fileOf(Fixtures.caught("bulbasaur"))
+
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.MERGE).myGames).isNull()
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.REPLACE).myGames).isNull()
+    }
+
+    @Test
+    fun `replace takes the file's games and merge keeps both`() {
+        val file = withGames(fileOf(), "sv-s", "sv-v")
+
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.REPLACE).myGames)
+            .containsExactlyElementsIn(games("sv-s", "sv-v"))
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.MERGE).myGames)
+            .containsExactlyElementsIn(games("la", "sv-s", "sv-v"))
+    }
+
+    @Test
+    fun `games the same on both sides are not rewritten`() {
+        val file = withGames(fileOf(), "la")
+
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.MERGE).myGames).isNull()
+    }
+
+    @Test
+    fun `games alone are worth a snapshot, since a replace can change them`() {
+        val file = withGames(fileOf(), "sv-s")
+
+        assertThat(ImportPlan.of(emptyMap(), games("la"), file, ImportMode.REPLACE).snapshotFirst).isTrue()
+    }
+
+    @Test
+    fun `my games survive encode and decode`() {
+        val file = withGames(fileOf(Fixtures.caught("bulbasaur")), "la", "sv-s")
+
+        val decoded = (BackupCodec.decode(BackupCodec.encode(file)) as Outcome.Ok).value
+
+        assertThat(decoded.settings.myGames).containsExactly("la", "sv-s").inOrder()
     }
 }

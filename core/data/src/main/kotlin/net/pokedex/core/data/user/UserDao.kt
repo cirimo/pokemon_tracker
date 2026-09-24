@@ -67,6 +67,32 @@ interface UserSettingsDao {
 }
 
 @Dao
+interface MyGameDao {
+
+    @Query("SELECT gameId FROM my_game ORDER BY gameId")
+    fun observe(): Flow<List<String>>
+
+    @Query("SELECT gameId FROM my_game ORDER BY gameId")
+    suspend fun all(): List<String>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(game: MyGameEntity)
+
+    @Query("DELETE FROM my_game WHERE gameId = :gameId")
+    suspend fun delete(gameId: String)
+
+    /** A restore that brings a set of games: one transaction, so no half-applied set. */
+    @Transaction
+    suspend fun replaceAll(gameIds: Collection<String>) {
+        deleteAll()
+        gameIds.forEach { insert(MyGameEntity(it)) }
+    }
+
+    @Query("DELETE FROM my_game")
+    suspend fun deleteAll()
+}
+
+@Dao
 interface BackupLogDao {
 
     @Query("SELECT * FROM backup_log ORDER BY createdAt DESC")

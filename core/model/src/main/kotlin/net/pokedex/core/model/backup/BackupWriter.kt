@@ -32,7 +32,7 @@ class BackupWriter(private val prefix: String) {
     fun writeAuto(folder: BackupFolder, file: BackupFile, now: Instant, keep: Int): AutoResult {
         if (file.records.isEmpty()) return AutoResult.SkippedEmpty
         val newest = own(folder, BackupName.Kind.AUTO).maxByOrNull { it.createdAt }
-        if (newest != null && sameRecords(folder, newest, file)) return AutoResult.SkippedUnchanged
+        if (newest != null && sameContent(folder, newest, file)) return AutoResult.SkippedUnchanged
 
         val name = write(folder, BackupName.Kind.AUTO, file, now)
         prune(folder, keepAuto = keep)
@@ -65,9 +65,15 @@ class BackupWriter(private val prefix: String) {
         return name
     }
 
-    private fun sameRecords(folder: BackupFolder, name: BackupName, file: BackupFile): Boolean {
+    /**
+     * Records and games, the two things a user chooses. The rest of the file (the export
+     * time, the app version) changes on every write and says nothing new.
+     */
+    private fun sameContent(folder: BackupFolder, name: BackupName, file: BackupFile): Boolean {
         val existing = runCatching { BackupCodec.decode(folder.read(name.fileName)) }.getOrNull()
-        return existing is Outcome.Ok && existing.value.records == file.records
+        return existing is Outcome.Ok &&
+            existing.value.records == file.records &&
+            existing.value.settings.myGames == file.settings.myGames
     }
 
     private fun prune(folder: BackupFolder, keepAuto: Int?) {
