@@ -12,8 +12,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.pokedex.core.data.di.IoDispatcher
 import net.pokedex.core.data.repository.SettingsRepository
+import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.backup.BackupDestination
 import net.pokedex.core.model.backup.BackupFolder
+import net.pokedex.core.model.backup.BackupName
 import net.pokedex.core.model.backup.FileBackupFolder
 import java.io.File
 import javax.inject.Inject
@@ -68,6 +70,26 @@ class BackupLocation @Inject constructor(
 
     /** A folder picked for one look (the first-launch offer lists it before adopting it). */
     fun folderAt(tree: Uri): BackupFolder = SafBackupFolder(context.contentResolver, tree)
+
+    /**
+     * Backups in the current folder, or in [tree] if given, newest first, whichever build
+     * wrote them. After a reinstall this is the restore list: nothing inside the app
+     * remembers what was written.
+     */
+    suspend fun restorable(tree: Uri? = null): Outcome<List<BackupName>> = storage(io, "could not list backups") {
+        folder(tree).list().mapNotNull(BackupName::parse).sortedByDescending { it.createdAt }
+    }
+
+    suspend fun read(name: BackupName, tree: Uri? = null): Outcome<String> =
+        storage(io, "could not read ${name.fileName}") { folder(tree).read(name.fileName) }
+
+    /** A file the user picked with the system picker, as text. Parsing is the preview's job. */
+    suspend fun readDocument(uri: Uri): Outcome<String> = storage(io, "could not read the file") {
+        context.contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+            ?: error("could not open the file")
+    }
+
+    private suspend fun folder(tree: Uri?): BackupFolder = tree?.let(::folderAt) ?: current()
 
     private fun grantedTree(uri: String?): Uri? {
         val tree = uri?.let(Uri::parse) ?: return null

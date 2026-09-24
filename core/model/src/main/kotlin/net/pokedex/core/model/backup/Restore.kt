@@ -1,0 +1,80 @@
+package net.pokedex.core.model.backup
+
+import net.pokedex.core.model.CatchKey
+import net.pokedex.core.model.CatchRecord
+import java.time.Instant
+
+enum class ImportMode { MERGE, REPLACE }
+
+/**
+ * What a backup file holds and what restoring it would do, shown before anything is touched.
+ *
+ * The counts that matter are the consequences, not the file: how many records a merge
+ * would change, and how many a replace would throw away. A restore screen that shows only
+ * "1394 records" invites a replace that deletes last night's catches.
+ */
+data class RestorePreview(
+    val schema: Int,
+    val exportedAt: Instant?,
+    val appVersionName: String,
+    val recordCount: Int,
+    val caughtCount: Int,
+    /** Records a merge would write: new here, or changed in the file after this device. */
+    val mergeWrites: Int,
+    /** Records on this device that are absent from the file, which replace would delete. */
+    val replaceRemoves: Int,
+    /** Caught here, and a replace would leave them uncaught or gone. */
+    val replaceUncatches: Int,
+    /** Records the active preset has no slot for. Kept, never dropped (ADR 0001). */
+    val orphanCount: Int,
+    /** Nothing here yet, so there is nothing to merge into or snapshot. */
+    val localIsEmpty: Boolean,
+) {
+    companion object {
+        fun of(
+            file: BackupFile,
+            local: Map<CatchKey, CatchRecord>,
+            presetKeys: Set<CatchKey>,
+        ): RestorePreview {
+            val incoming = file.records.map { it.toCatchRecord() }
+            val incomingByKey = incoming.associateBy { it.key }
+            return RestorePreview(
+                schema = file.schema,
+                exportedAt = runCatching { Instant.parse(file.exportedAt) }.getOrNull(),
+                appVersionName = file.app.versionName,
+                recordCount = incoming.size,
+                caughtCount = incoming.count { it.caught },
+                mergeWrites = mergeRecords(local, incoming).size,
+                replaceRemoves = local.keys.count { it !in incomingByKey },
+                replaceUncatches = local.values.count { it.caught && incomingByKey[it.key]?.caught != true },
+                orphanCount = incoming.count { it.key !in presetKeys },
+                localIsEmpty = local.isEmpty(),
+            )
+        }
+    }
+}
+
+/**
+ * What an import does, decided before it does it.
+ *
+ * @property snapshotFirst whether the current records must be written to a pre-import
+ *   snapshot first. Always, unless there are none: an empty database has nothing to lose,
+ *   and after a reinstall there may be no folder to write to yet.
+ * @property write the records to upsert.
+ * @property clearFirst replace mode: the table is emptied in the same transaction.
+ */
+data class ImportPlan(
+    val snapshotFirst: Boolean,
+    val write: List<CatchRecord>,
+    val clearFirst: Boolean,
+) {
+    companion object {
+        fun of(local: Map<CatchKey, CatchRecord>, file: BackupFile, mode: ImportMode): ImportPlan {
+            val incoming = file.records.map { it.toCatchRecord() }
+            return when (mode) {
+                ImportMode.MERGE -> ImportPlan(local.isNotEmpty(), mergeRecords(local, incoming), clearFirst = false)
+                ImportMode.REPLACE -> ImportPlan(local.isNotEmpty(), incoming, clearFirst = true)
+            }
+        }
+    }
+}

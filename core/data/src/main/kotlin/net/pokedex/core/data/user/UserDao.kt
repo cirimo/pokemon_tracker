@@ -77,4 +77,10 @@ interface BackupLogDao {
 
     @Query("DELETE FROM backup_log WHERE fileName = :fileName")
     suspend fun delete(fileName: String)
+
+    @Query(
+        "DELETE FROM backup_log WHERE fileName NOT IN " +
+            "(SELECT fileName FROM backup_log ORDER BY createdAt DESC LIMIT :keep)",
+    )
+    suspend fun trim(keep: Int)
 }
