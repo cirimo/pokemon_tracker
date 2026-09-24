@@ -114,6 +114,13 @@ private fun SlotDetailContent(
     }
 
     CaughtToggle(caught = caught, onCaughtChange = { onEvent(SlotDetailEvent.SetCaught(it)) })
+    CatchDetails(
+        caught = caught,
+        record = state.record,
+        origins = state.origins,
+        onSave = { origin, at, notes -> onEvent(SlotDetailEvent.SaveDetails(origin, at, notes)) },
+        onForget = { onEvent(SlotDetailEvent.Forget) },
+    )
 
     if (state.copies.size > 1) {
         ScreenSection(

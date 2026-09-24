@@ -14,14 +14,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
+import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.core.model.VariantId
+import net.pokedex.core.model.hasDetails
+import net.pokedex.core.model.prefillOrigin
 import net.pokedex.core.model.statusOf
 import net.pokedex.feature.dex.SlotDetailRoute
 import net.pokedex.feature.dex.locationOf
@@ -38,7 +42,28 @@ data class SlotDetailUiState(
     val copies: List<CopyUi> = emptyList(),
     val games: List<GameUi> = emptyList(),
     val shinyReleased: Boolean = true,
+    /** What is recorded for this slot, caught or not. Null when nothing ever was. */
+    val record: RecordUi? = null,
+    /** Every game the origin can be set to, shiny-obtainable ones first. */
+    val origins: List<OriginUi> = emptyList(),
 )
+
+/**
+ * The record's details as the catch row and sheet show them. [caughtAt] stays an instant;
+ * the screen formats it, because only the screen knows the locale.
+ */
+@Immutable
+data class RecordUi(
+    val originGameId: String?,
+    val originName: String?,
+    val caughtAt: Long?,
+    val notes: String?,
+    val hasDetails: Boolean,
+)
+
+/** A game the origin can be set to. [shinyHere] sorts it first and marks it in the picker. */
+@Immutable
+data class OriginUi(val id: String, val name: String, val shinyHere: Boolean)
 
 /** The slot being shown. */
 @Immutable
@@ -81,6 +106,8 @@ data class GameUi(
 
 sealed interface SlotDetailEvent {
     data class SetCaught(val caught: Boolean) : SlotDetailEvent
+    data class SaveDetails(val originGameId: String?, val caughtAt: Long?, val notes: String?) : SlotDetailEvent
+    data object Forget : SlotDetailEvent
     data object Retry : SlotDetailEvent
 }
 
@@ -95,6 +122,7 @@ sealed interface SlotDetailEvent {
 class SlotDetailViewModel @Inject constructor(
     private val dexRepository: DexRepository,
     private val catches: CatchRepository,
+    private val settings: SettingsRepository,
     savedState: SavedStateHandle,
 ) : ViewModel() {
 
@@ -115,7 +143,20 @@ class SlotDetailViewModel @Inject constructor(
 
     fun onEvent(event: SlotDetailEvent) {
         when (event) {
-            is SlotDetailEvent.SetCaught -> viewModelScope.launch { catches.setCaught(key, event.caught) }
+            is SlotDetailEvent.SetCaught -> viewModelScope.launch {
+                // The prefill is decided here, where the dex is loaded, and only offered: the
+                // record keeps an origin it already has (see withCaught).
+                val availability = (dex.value as? Outcome.Ok)?.value?.availability(key.variantId).orEmpty()
+                val prefill = if (event.caught) prefillOrigin(settings.get().lastOriginGameId, availability) else null
+                catches.setCaught(key, event.caught, prefill)
+            }
+            is SlotDetailEvent.SaveDetails -> viewModelScope.launch {
+                val origin = event.originGameId?.let(::GameId)
+                catches.setDetails(key, origin, event.caughtAt, event.notes)
+                // A game chosen by hand is what the next catch prefills.
+                if (origin != null) settings.edit { it.copy(lastOriginGameId = origin) }
+            }
+            SlotDetailEvent.Forget -> viewModelScope.launch { catches.forget(key) }
             SlotDetailEvent.Retry -> load()
         }
     }
@@ -163,7 +204,25 @@ class SlotDetailViewModel @Inject constructor(
                     )
                 },
             shinyReleased = variant.shinyReleased,
+            record = records[key]?.let { record ->
+                RecordUi(
+                    originGameId = record.originGameId?.value,
+                    // A game a later dataset dropped still shows, by its id.
+                    originName = record.originGameId?.let { gameNames[it] ?: it.value },
+                    caughtAt = record.caughtAt,
+                    notes = record.notes,
+                    hasDetails = record.hasDetails,
+                )
+            },
+            origins = originsFor(dex, variant.id),
         )
+    }
+
+    private fun originsFor(dex: Dex, variant: VariantId): List<OriginUi> {
+        val shiny = dex.availability(variant).filter { it.obtainable && !it.shinyLocked }.mapTo(HashSet()) { it.gameId }
+        return dex.games
+            .map { OriginUi(id = it.id.value, name = it.name, shinyHere = it.id in shiny) }
+            .sortedByDescending { it.shinyHere } // stable, so release order holds within each group
     }
 
     private companion object {

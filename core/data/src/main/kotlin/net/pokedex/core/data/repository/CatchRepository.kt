@@ -9,6 +9,8 @@ import net.pokedex.core.data.user.CatchRecordDao
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.withCaught
+import net.pokedex.core.model.withDetails
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -31,26 +33,37 @@ class CatchRepository @Inject constructor(
     }
 
     /**
-     * Marks a slot caught or not.
-     *
-     * Unmarking keeps the row rather than deleting it, so notes and origin survive an
-     * accidental tap. Deleting a record is a separate, explicit action.
+     * Marks a slot caught or not. See [withCaught] for what is kept: unticking loses
+     * nothing, and [prefill] never overrides an origin already recorded.
      */
     suspend fun setCaught(
         key: CatchKey,
         caught: Boolean,
-        originGameId: GameId? = null,
+        prefill: GameId? = null,
         now: Long = System.currentTimeMillis(),
     ) = withContext(io) {
-        val existing = dao.find(key.variantId.value, key.copyIndex)?.toDomain()
-            ?: CatchRecord.empty(key, now)
-        val updated = existing.copy(
-            caught = caught,
-            originGameId = originGameId ?: existing.originGameId,
-            caughtAt = if (caught) existing.caughtAt ?: now else existing.caughtAt,
-            updatedAt = now,
-        )
-        dao.upsert(updated.toEntity())
+        val existing = dao.find(key.variantId.value, key.copyIndex)?.toDomain() ?: CatchRecord.empty(key, now)
+        dao.upsert(existing.withCaught(caught, now, prefill).toEntity())
+    }
+
+    /** The catch sheet's save: origin, date and notes, written as one change. */
+    suspend fun setDetails(
+        key: CatchKey,
+        origin: GameId?,
+        caughtAt: Long?,
+        notes: String?,
+        now: Long = System.currentTimeMillis(),
+    ) = withContext(io) {
+        val existing = dao.find(key.variantId.value, key.copyIndex)?.toDomain() ?: CatchRecord.empty(key, now)
+        dao.upsert(existing.withDetails(origin, caughtAt, notes, now).toEntity())
+    }
+
+    /**
+     * Deletes a record outright. The explicit action behind "Forget", never a side effect of
+     * unticking, and the rolling backups still hold it.
+     */
+    suspend fun forget(key: CatchKey) = withContext(io) {
+        dao.delete(key.variantId.value, key.copyIndex)
     }
 
     suspend fun update(record: CatchRecord) = withContext(io) {
