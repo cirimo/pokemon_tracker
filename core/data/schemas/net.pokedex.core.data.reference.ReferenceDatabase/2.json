@@ -1,0 +1,785 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "d4fd7293d07d42efa8bb54caa27a6b49",
+    "entities": [
+      {
+        "tableName": "species",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dexNum` INTEGER NOT NULL, `name` TEXT NOT NULL, `generation` INTEGER NOT NULL, `region` TEXT NOT NULL, `isLegendary` INTEGER NOT NULL, `isMythical` INTEGER NOT NULL, `isBaby` INTEGER NOT NULL, `isUltraBeast` INTEGER NOT NULL, `isParadox` INTEGER NOT NULL, PRIMARY KEY(`dexNum`))",
+        "fields": [
+          {
+            "fieldPath": "dexNum",
+            "columnName": "dexNum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generation",
+            "columnName": "generation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "region",
+            "columnName": "region",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isLegendary",
+            "columnName": "isLegendary",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMythical",
+            "columnName": "isMythical",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isBaby",
+            "columnName": "isBaby",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isUltraBeast",
+            "columnName": "isUltraBeast",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isParadox",
+            "columnName": "isParadox",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "dexNum"
+          ]
+        }
+      },
+      {
+        "tableName": "variant",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `nid` TEXT NOT NULL, `dexNum` INTEGER NOT NULL, `formId` TEXT, `displayName` TEXT NOT NULL, `formName` TEXT, `type1` TEXT NOT NULL, `type2` TEXT, `isDefault` INTEGER NOT NULL, `isForm` INTEGER NOT NULL, `isCosmeticForm` INTEGER NOT NULL, `isFemaleForm` INTEGER NOT NULL, `isRegional` INTEGER NOT NULL, `isBattleOnlyForm` INTEGER NOT NULL, `baseSpeciesId` TEXT, `evolvesFromId` TEXT, `evolveCondition` TEXT, `shinyReleased` INTEGER NOT NULL, `spriteFile` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`dexNum`) REFERENCES `species`(`dexNum`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nid",
+            "columnName": "nid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dexNum",
+            "columnName": "dexNum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "formId",
+            "columnName": "formId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "formName",
+            "columnName": "formName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "type1",
+            "columnName": "type1",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type2",
+            "columnName": "type2",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isDefault",
+            "columnName": "isDefault",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isForm",
+            "columnName": "isForm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isCosmeticForm",
+            "columnName": "isCosmeticForm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isFemaleForm",
+            "columnName": "isFemaleForm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRegional",
+            "columnName": "isRegional",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isBattleOnlyForm",
+            "columnName": "isBattleOnlyForm",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseSpeciesId",
+            "columnName": "baseSpeciesId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "evolvesFromId",
+            "columnName": "evolvesFromId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "evolveCondition",
+            "columnName": "evolveCondition",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shinyReleased",
+            "columnName": "shinyReleased",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spriteFile",
+            "columnName": "spriteFile",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_variant_dexNum",
+            "unique": false,
+            "columnNames": [
+              "dexNum"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_variant_dexNum` ON `${TABLE_NAME}` (`dexNum`)"
+          },
+          {
+            "name": "index_variant_nid",
+            "unique": true,
+            "columnNames": [
+              "nid"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_variant_nid` ON `${TABLE_NAME}` (`nid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "species",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "dexNum"
+            ],
+            "referencedColumns": [
+              "dexNum"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "dex_preset",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `sourceVersion` INTEGER NOT NULL, `presetVersion` INTEGER NOT NULL, `boxCount` INTEGER NOT NULL, `filledSlotCount` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceVersion",
+            "columnName": "sourceVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "presetVersion",
+            "columnName": "presetVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxCount",
+            "columnName": "boxCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filledSlotCount",
+            "columnName": "filledSlotCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "box",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`presetId` TEXT NOT NULL, `boxIndex` INTEGER NOT NULL, `name` TEXT NOT NULL, `slotCount` INTEGER NOT NULL, `filledSlotCount` INTEGER NOT NULL, PRIMARY KEY(`presetId`, `boxIndex`), FOREIGN KEY(`presetId`) REFERENCES `dex_preset`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "presetId",
+            "columnName": "presetId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxIndex",
+            "columnName": "boxIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "slotCount",
+            "columnName": "slotCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filledSlotCount",
+            "columnName": "filledSlotCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "presetId",
+            "boxIndex"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "dex_preset",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "presetId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "slot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`presetId` TEXT NOT NULL, `boxIndex` INTEGER NOT NULL, `slotIndex` INTEGER NOT NULL, `variantId` TEXT NOT NULL, `copyIndex` INTEGER NOT NULL, PRIMARY KEY(`presetId`, `boxIndex`, `slotIndex`), FOREIGN KEY(`variantId`) REFERENCES `variant`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "presetId",
+            "columnName": "presetId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boxIndex",
+            "columnName": "boxIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "slotIndex",
+            "columnName": "slotIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variantId",
+            "columnName": "variantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "copyIndex",
+            "columnName": "copyIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "presetId",
+            "boxIndex",
+            "slotIndex"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_slot_variantId_copyIndex",
+            "unique": false,
+            "columnNames": [
+              "variantId",
+              "copyIndex"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_slot_variantId_copyIndex` ON `${TABLE_NAME}` (`variantId`, `copyIndex`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "variant",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "variantId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "game",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `gameSet` TEXT NOT NULL, `generation` INTEGER NOT NULL, `releaseDate` TEXT NOT NULL, `region` TEXT NOT NULL, `originMark` TEXT NOT NULL, `supportsShiny` INTEGER NOT NULL, `sortOrder` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameSet",
+            "columnName": "gameSet",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "generation",
+            "columnName": "generation",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "releaseDate",
+            "columnName": "releaseDate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "region",
+            "columnName": "region",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originMark",
+            "columnName": "originMark",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "supportsShiny",
+            "columnName": "supportsShiny",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "game_availability",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`variantId` TEXT NOT NULL, `gameId` TEXT NOT NULL, `obtainable` INTEGER NOT NULL, `eventOnly` INTEGER NOT NULL, `storable` INTEGER NOT NULL, `transferOnly` INTEGER NOT NULL, `shinyLocked` INTEGER NOT NULL, `shinyLockReason` TEXT, PRIMARY KEY(`variantId`, `gameId`))",
+        "fields": [
+          {
+            "fieldPath": "variantId",
+            "columnName": "variantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "obtainable",
+            "columnName": "obtainable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "eventOnly",
+            "columnName": "eventOnly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "storable",
+            "columnName": "storable",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "transferOnly",
+            "columnName": "transferOnly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shinyLocked",
+            "columnName": "shinyLocked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shinyLockReason",
+            "columnName": "shinyLockReason",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "variantId",
+            "gameId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_game_availability_gameId",
+            "unique": false,
+            "columnNames": [
+              "gameId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_game_availability_gameId` ON `${TABLE_NAME}` (`gameId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "encounter_method",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "encounter",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `variantId` TEXT NOT NULL, `gameId` TEXT NOT NULL, `methodId` TEXT NOT NULL, `location` TEXT, `prerequisite` TEXT, `notes` TEXT, `shinyLocked` INTEGER NOT NULL, `fromVariantId` TEXT, `sourceUrl` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "variantId",
+            "columnName": "variantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "methodId",
+            "columnName": "methodId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "location",
+            "columnName": "location",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "prerequisite",
+            "columnName": "prerequisite",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "shinyLocked",
+            "columnName": "shinyLocked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromVariantId",
+            "columnName": "fromVariantId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceUrl",
+            "columnName": "sourceUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_encounter_variantId_gameId",
+            "unique": false,
+            "columnNames": [
+              "variantId",
+              "gameId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encounter_variantId_gameId` ON `${TABLE_NAME}` (`variantId`, `gameId`)"
+          },
+          {
+            "name": "index_encounter_gameId",
+            "unique": false,
+            "columnNames": [
+              "gameId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_encounter_gameId` ON `${TABLE_NAME}` (`gameId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "odds_modifier",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`gameId` TEXT NOT NULL, `methodId` TEXT NOT NULL, `id` TEXT NOT NULL, `label` TEXT NOT NULL, `rollsAdded` INTEGER, `denominator` INTEGER, `tier` TEXT, `inherent` INTEGER NOT NULL, `notes` TEXT, `sourceUrl` TEXT NOT NULL, PRIMARY KEY(`gameId`, `methodId`, `id`))",
+        "fields": [
+          {
+            "fieldPath": "gameId",
+            "columnName": "gameId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "methodId",
+            "columnName": "methodId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rollsAdded",
+            "columnName": "rollsAdded",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "denominator",
+            "columnName": "denominator",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tier",
+            "columnName": "tier",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "inherent",
+            "columnName": "inherent",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceUrl",
+            "columnName": "sourceUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "gameId",
+            "methodId",
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "dataset_meta",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `datasetVersion` INTEGER NOT NULL, `upstreamTag` TEXT NOT NULL, `presetVersion` INTEGER NOT NULL, `builtAt` TEXT NOT NULL, `contentHash` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "datasetVersion",
+            "columnName": "datasetVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "upstreamTag",
+            "columnName": "upstreamTag",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "presetVersion",
+            "columnName": "presetVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "builtAt",
+            "columnName": "builtAt",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentHash",
+            "columnName": "contentHash",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd4fd7293d07d42efa8bb54caa27a6b49')"
+    ]
+  }
+}

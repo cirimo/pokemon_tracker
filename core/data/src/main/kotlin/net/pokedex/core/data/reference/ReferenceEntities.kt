@@ -170,7 +170,11 @@ data class EncounterEntity(
     val location: String?,
     val prerequisite: String?,
     val notes: String?,
-    val sourceUrl: String?,
+    /** This encounter can never be shiny; the variant may still be huntable another way. */
+    val shinyLocked: Boolean,
+    /** For the `evolution` method: the variant to hunt and then evolve. */
+    val fromVariantId: String?,
+    val sourceUrl: String,
 )
 
 @Entity(tableName = "odds_modifier", primaryKeys = ["gameId", "methodId", "id"])
@@ -181,7 +185,12 @@ data class OddsModifierEntity(
     val label: String,
     val rollsAdded: Int?,
     val denominator: Int?,
+    /** Rows sharing a tier are levels of one thing; only the best applies. */
+    val tier: String?,
+    /** Comes with the method itself rather than with anything the player sets up. */
+    val inherent: Boolean,
     val notes: String?,
+    val sourceUrl: String,
 )
 
 @Entity(tableName = "dataset_meta")

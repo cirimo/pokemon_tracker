@@ -225,7 +225,7 @@ export function buildReference(): void {
 
   // --- availability: upstream facts, plus the curated shiny locks ---------------
   const lockIndex = new Map(
-    curated.shinyLocks.map((l) => [l.variantId + "" + l.gameId, l]),
+    curated.shinyLocks.map((l) => [lockKey(l.variantId, l.gameId), l]),
   );
   const availability: unknown[][] = [];
   for (const id of variantIds) {
@@ -237,7 +237,7 @@ export function buildReference(): void {
       // No row at all when the game neither offers nor stores it: an absent row is
       // cheaper and less ambiguous than a row of five falses.
       if (!obtainable && !storable) continue;
-      const lock = lockIndex.get(id + "" + gameId);
+      const lock = lockIndex.get(lockKey(id, gameId));
       availability.push([
         id,
         gameId,
@@ -265,7 +265,7 @@ export function buildReference(): void {
 
   const ordinals = new Map<string, number>();
   insert(
-    "INSERT INTO encounter (id, variantId, gameId, methodId, location, prerequisite, notes, sourceUrl) VALUES (?,?,?,?,?,?,?,?)",
+    "INSERT INTO encounter (id, variantId, gameId, methodId, location, prerequisite, notes, shinyLocked, fromVariantId, sourceUrl) VALUES (?,?,?,?,?,?,?,?,?,?)",
     [...curated.encounters]
       .sort(
         (a, x) =>
@@ -285,14 +285,21 @@ export function buildReference(): void {
           e.location ?? null,
           e.prerequisite ?? null,
           e.notes ?? null,
-          e.source ?? null,
+          bool(e.shinyLocked ?? false),
+          e.from ?? null,
+          e.source,
         ];
       }),
   );
 
+  // One curated row names every game and method it applies to; the table holds one row
+  // per (game, method) so the app reads a method's modifiers with a single lookup.
   insert(
-    "INSERT INTO odds_modifier (gameId, methodId, id, label, rollsAdded, denominator, notes) VALUES (?,?,?,?,?,?,?)",
-    [...curated.oddsModifiers]
+    "INSERT INTO odds_modifier (gameId, methodId, id, label, rollsAdded, denominator, tier, inherent, notes, sourceUrl) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    curated.oddsModifiers
+      .flatMap((m) =>
+        m.games.flatMap((gameId) => m.methods.map((methodId) => ({ ...m, gameId, methodId }))),
+      )
       .sort(
         (a, x) =>
           a.gameId.localeCompare(x.gameId) ||
@@ -306,7 +313,10 @@ export function buildReference(): void {
         m.label,
         m.rollsAdded ?? null,
         m.denominator ?? null,
+        m.tier ?? null,
+        bool(m.inherent ?? false),
         m.notes ?? null,
+        m.source,
       ]),
   );
 

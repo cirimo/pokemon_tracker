@@ -4,7 +4,7 @@
 # without rewriting anything that exists. gameId is stated once at the top rather than
 # repeated on every row.
 #
-# Seeded, not complete.
+# Seeded, not complete. Every row cites a source; a row that cannot is not a row.
 
 gameId: sv-s
 
@@ -12,20 +12,16 @@ encounters:
   - variantId: koraidon
     methodId: static
     location: Area Zero
-    notes: Story encounter. Shiny-locked -- see shiny-locks.yaml.
-    source: https://www.serebii.net/scarletviolet/
-
-  - variantId: tauros-paldea
-    methodId: mass-outbreak
-    location: South Province
-    notes: >-
-      Combat Breed. The Blaze Breed is the Scarlet exclusive; the Aqua Breed is Violet's.
+    shinyLocked: true
+    notes: Story encounter. The game-wide lock is in shiny-locks.yaml.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 
   - variantId: dudunsparce-three-segment
-    methodId: breeding
+    methodId: evolution
+    from: dunsparce
     prerequisite: >-
-      Evolve Dunsparce with Hyper Drill. The three-segment form is a 1-in-100 roll at
-      evolution and is independent of shininess, so hunt the shiny first.
+      Level up Dunsparce knowing Hyper Drill. The three-segment form is a 1-in-100 roll at
+      evolution and is independent of shininess, so hunt the shiny Dunsparce first.
     notes: >-
-      The most annoying slot in the Paldea boxes: two independent rolls, and the form
-      cannot be rerolled after evolving.
+      Two independent rolls, and the form cannot be rerolled after evolving.
+    source: https://bulbapedia.bulbagarden.net/wiki/Dudunsparce_(Pok%C3%A9mon)

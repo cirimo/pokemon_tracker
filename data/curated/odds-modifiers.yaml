@@ -1,84 +1,184 @@
-# Shiny odds, per (game, method).
+# Shiny odds: what changes them, per game and method.
 #
-# Two mechanics, so two shapes:
+# Every Switch game rolls 1/4096 per attempt, so the base is not repeated here. A row
+# either adds rolls or replaces the rate outright:
 #
-#   rollsAdded    the game rolls for shiny N extra times. The base rate is 1/4096 per
-#                 roll from generation 6 onward, so three rolls is roughly 1/1365.
-#                 Shiny Charm, Masuda, outbreak tiers and KO chains all work this way.
-#   denominator   the method replaces the rate outright. Dynamax Adventures are a flat
-#                 1/300 regardless of anything else, which no amount of reroll
-#                 arithmetic reproduces.
+#   rollsAdded    the game rolls for shiny N extra times. Three rolls in total is
+#                 1 - (4095/4096)^3, about 1/1365.67 -- the figure Bulbapedia prints.
+#   denominator   the method replaces the rate. Dynamax Adventures are a flat 1/300, which
+#                 no amount of reroll arithmetic reproduces.
 #
-# A modifier must set exactly one of the two. The Zod schema enforces that; the
-# validators enforce that gameId and methodId resolve.
+# How rows combine (the thing the first version of this file could not say):
 #
-# Seeded, not complete. See docs/dataset-pipeline.md.
+#   no tier       rows stack: their rolls are summed.
+#   tier: x       rows sharing a tier are levels of one thing, and only the best counts.
+#                 Clearing 60 of an outbreak does not also count the 30 on the way there.
+#   inherent      comes with the method itself, so it is in the method's plain odds.
+#
+# `games` and `methods` are lists: a row applies to every pair of them. Every row cites
+# the table it was read from, and was checked against that table rather than remembered.
 
 modifiers:
   # --- Scarlet / Violet -------------------------------------------------------
-  - gameId: sv-s
-    methodId: sandwich
+  # Rates table (Charm, Masuda) and Gen IX "Methods of increasing Shiny rates".
+  - games: [sv-s, sv-v]
     id: shiny-charm
     label: Shiny Charm
+    methods: [wild, mass-outbreak, breeding]
     rollsAdded: 2
-    notes: Stacks with outbreak and Sparkling Power rerolls.
-  - gameId: sv-s
-    methodId: mass-outbreak
-    id: outbreak-60
-    label: Outbreak, 60+ defeated
-    rollsAdded: 1
-  - gameId: sv-s
-    methodId: mass-outbreak
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
     id: outbreak-30
-    label: Outbreak, 30+ defeated
+    label: Outbreak, 30 cleared
+    methods: [mass-outbreak]
+    tier: outbreak-cleared
     rollsAdded: 1
-  - gameId: sv-s
-    methodId: sandwich
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
+    id: outbreak-60
+    label: Outbreak, 60 cleared
+    methods: [mass-outbreak]
+    tier: outbreak-cleared
+    rollsAdded: 2
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
+    id: sparkling-power-1
+    label: Sparkling Power Lv. 1
+    methods: [wild, mass-outbreak]
+    tier: sparkling-power
+    rollsAdded: 1
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
+    id: sparkling-power-2
+    label: Sparkling Power Lv. 2
+    methods: [wild, mass-outbreak]
+    tier: sparkling-power
+    rollsAdded: 2
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
     id: sparkling-power-3
     label: Sparkling Power Lv. 3
+    methods: [wild, mass-outbreak]
+    tier: sparkling-power
     rollsAdded: 3
+    notes: From a sandwich; the Sparkling Power type must match the target.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [sv-s, sv-v]
+    id: masuda
+    label: Masuda method
+    methods: [breeding]
+    rollsAdded: 5
+    notes: Parents from different-language games.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 
   # --- Sword / Shield ---------------------------------------------------------
-  - gameId: swsh-sw
-    methodId: brilliant
+  # Rates table, and Gen VIII "Pokemon Sword and Shield". Number Battled only improves
+  # Brilliant Pokemon; ordinary encounters get nothing from it.
+  - games: [swsh-sw, swsh-sh]
     id: shiny-charm
     label: Shiny Charm
+    methods: [wild, brilliant, fishing, static, breeding]
     rollsAdded: 2
-  - gameId: swsh-sw
-    methodId: brilliant
-    id: ko-chain-500
-    label: KO chain of 500+
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-1
+    label: Number battled 1+
+    methods: [brilliant]
+    tier: number-battled
+    rollsAdded: 1
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-50
+    label: Number battled 50+
+    methods: [brilliant]
+    tier: number-battled
+    rollsAdded: 2
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-100
+    label: Number battled 100+
+    methods: [brilliant]
+    tier: number-battled
+    rollsAdded: 3
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-200
+    label: Number battled 200+
+    methods: [brilliant]
+    tier: number-battled
+    rollsAdded: 4
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-300
+    label: Number battled 300+
+    methods: [brilliant]
+    tier: number-battled
     rollsAdded: 5
-  - gameId: swsh-sw
-    methodId: dynamax-adventure
-    id: base-rate
-    label: Dynamax Adventure base rate
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: battled-500
+    label: Number battled 500+
+    methods: [brilliant]
+    tier: number-battled
+    rollsAdded: 6
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: masuda
+    label: Masuda method
+    methods: [breeding]
+    rollsAdded: 5
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: dynamax-adventure
+    label: Dynamax Adventure
+    methods: [dynamax-adventure]
     denominator: 300
-    notes: >-
-      A flat rate that ignores the reroll model entirely. Shiny Charm raises it to
-      roughly 1/100 -- recorded separately rather than as added rolls.
-
-  # --- breeding, wherever it exists -------------------------------------------
-  - gameId: sv-s
-    methodId: breeding
-    id: masuda
-    label: Masuda method
-    rollsAdded: 5
-    notes: Parents from different-language save files.
-  - gameId: swsh-sw
-    methodId: breeding
-    id: masuda
-    label: Masuda method
-    rollsAdded: 5
+    inherent: true
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [swsh-sw, swsh-sh]
+    id: dynamax-adventure-charm
+    label: Shiny Charm
+    methods: [dynamax-adventure]
+    denominator: 100
+    notes: Replaces the 1/300 rather than adding rolls to it.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 
   # --- Legends Arceus ---------------------------------------------------------
-  - gameId: la
-    methodId: massive-mass-outbreak
-    id: perfect-dex-research
-    label: Perfect Pokedex research
-    rollsAdded: 2
-  - gameId: la
-    methodId: massive-mass-outbreak
+  # Gen VIII "Pokemon Legends: Arceus", the table of rates by research and outbreak.
+  - games: [la]
+    id: mass-outbreak
+    label: Mass outbreak
+    methods: [mass-outbreak]
+    inherent: true
+    rollsAdded: 25
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [la]
+    id: massive-mass-outbreak
+    label: Massive mass outbreak
+    methods: [massive-mass-outbreak]
+    inherent: true
+    rollsAdded: 12
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [la]
+    id: research-10
+    label: Research level 10
+    methods: [wild, mass-outbreak, massive-mass-outbreak]
+    tier: research
+    rollsAdded: 1
+    notes: Per species.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [la]
+    id: research-perfect
+    label: Research perfect
+    methods: [wild, mass-outbreak, massive-mass-outbreak]
+    tier: research
+    rollsAdded: 3
+    notes: Per species, once every research task for the entry is done.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - games: [la]
     id: shiny-charm
     label: Shiny Charm
+    methods: [wild, mass-outbreak, massive-mass-outbreak]
     rollsAdded: 3
+    notes: From Professor Laventon once every Pokedex entry is at research level 10.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon

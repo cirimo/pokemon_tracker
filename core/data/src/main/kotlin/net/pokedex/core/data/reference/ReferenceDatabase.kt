@@ -40,7 +40,7 @@ abstract class ReferenceDatabase : RoomDatabase() {
     abstract fun referenceDao(): ReferenceDao
 
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
 
         /** Path inside assets/, produced by tools/dataset-pipeline. */
         const val ASSET_PATH = "dataset/reference.db"

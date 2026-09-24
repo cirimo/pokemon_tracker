@@ -173,6 +173,40 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
       );
     }
 
+    // An evolution row sends you to hunt another variant in the same game. That variant
+    // has to exist and be obtainable there, or the row is a dead end.
+    const deadEvolutions = db
+      .prepare(
+        'SELECT e.variantId, e.gameId, e.fromVariantId FROM encounter e ' +
+          'LEFT JOIN game_availability ga ON ga.variantId = e.fromVariantId AND ga.gameId = e.gameId ' +
+          "WHERE e.methodId = 'evolution' AND (ga.obtainable IS NULL OR ga.obtainable = 0)",
+      )
+      .all() as Row[];
+    for (const row of deadEvolutions) {
+      fail(
+        'evolution-from',
+        String(row.variantId) + ' evolves from ' + String(row.fromVariantId) + ' in ' +
+          String(row.gameId) + ', which that game does not offer',
+      );
+    }
+
+    // shiny-locks.yaml claims no encounter in that game can be shiny. An encounter row that
+    // says otherwise means one of the two is wrong, and the planner would show both.
+    const contradictions = db
+      .prepare(
+        'SELECT e.variantId, e.gameId, e.methodId FROM encounter e JOIN game_availability ga ' +
+          'ON ga.variantId = e.variantId AND ga.gameId = e.gameId ' +
+          'WHERE ga.shinyLocked = 1 AND e.shinyLocked = 0',
+      )
+      .all() as Row[];
+    for (const row of contradictions) {
+      fail(
+        'lock-contradiction',
+        String(row.variantId) + ' is locked in ' + String(row.gameId) + ' but its ' +
+          String(row.methodId) + ' encounter is not marked shinyLocked',
+      );
+    }
+
     // A shiny lock on something with no shiny at all is a curation mistake.
     const impossibleLocks = count(
       db,

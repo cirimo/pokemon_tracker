@@ -24,11 +24,23 @@ const gameSchema = z.object({
   sortOrder: z.number().int(),
 });
 
+/**
+ * Every claim about a game carries the page that justifies it. Required, not optional:
+ * a row nobody can re-check is a row nobody should trust, and the planner puts these
+ * in front of a person deciding where to spend an evening.
+ */
+const source = z.string().url();
+
+/**
+ * A lock that holds for EVERY way of getting the variant in that game. A lock on one
+ * encounter only (a gift, while breeding still works) is `shinyLocked` on that encounter
+ * row instead; the validators refuse a game-wide lock beside an unlocked encounter.
+ */
 const shinyLockSchema = z.object({
   variantId: z.string(),
   gameId: z.string(),
   reason: z.string(),
-  source: z.string().url().optional(),
+  source,
 });
 
 const encounterMethodSchema = z.object({
@@ -37,27 +49,53 @@ const encounterMethodSchema = z.object({
   description: z.string(),
 });
 
-const encounterSchema = z.object({
-  variantId: z.string(),
-  methodId: z.string(),
-  location: z.string().optional(),
-  prerequisite: z.string().optional(),
-  notes: z.string().optional(),
-  source: z.string().url().optional(),
-});
+const encounterSchema = z
+  .object({
+    variantId: z.string(),
+    methodId: z.string(),
+    location: z.string().optional(),
+    prerequisite: z.string().optional(),
+    notes: z.string().optional(),
+    /** This encounter can never be shiny, though the variant may be huntable another way. */
+    shinyLocked: z.boolean().optional(),
+    /**
+     * For methodId `evolution`: the variant to hunt and then evolve. Its own encounters
+     * in the same game are what decide the odds.
+     */
+    from: z.string().optional(),
+    source,
+  })
+  .refine((e) => (e.methodId === 'evolution') === (e.from !== undefined), {
+    message: 'an evolution encounter names the variant it evolves `from`, and only one does',
+  });
 
+/**
+ * One way of improving the odds, applying to one or more methods in one or more games.
+ *
+ * How modifiers combine, which is the thing the first version of this file could not say:
+ *  - rows with no `tier` stack: their rollsAdded are summed.
+ *  - rows sharing a `tier` are mutually exclusive levels of one thing (outbreak cleared
+ *    30+ or 60+, Sparkling Power 1/2/3), and only the best one applies.
+ *  - `inherent` rows come with the method itself (a Legends Arceus mass outbreak adds 25
+ *    rolls whether or not you did anything), so they are part of the method's plain odds.
+ *  - a `denominator` replaces the roll arithmetic outright; the best applicable one wins.
+ */
 const oddsModifierSchema = z
   .object({
-    gameId: z.string(),
-    methodId: z.string(),
+    /** Both versions of a pair behave the same, so one row names both. */
+    games: z.array(z.string()).min(1),
     id: z.string(),
     label: z.string(),
-    rollsAdded: z.number().int().optional(),
-    denominator: z.number().int().optional(),
+    methods: z.array(z.string()).min(1),
+    rollsAdded: z.number().int().positive().optional(),
+    denominator: z.number().int().positive().optional(),
+    tier: z.string().optional(),
+    inherent: z.boolean().optional(),
     notes: z.string().optional(),
+    source,
   })
-  .refine((m) => m.rollsAdded !== undefined || m.denominator !== undefined, {
-    message: 'an odds modifier must set either rollsAdded or denominator',
+  .refine((m) => (m.rollsAdded === undefined) !== (m.denominator === undefined), {
+    message: 'an odds modifier must set exactly one of rollsAdded or denominator',
   });
 
 const spriteOverrideSchema = z.object({

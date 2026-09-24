@@ -125,8 +125,13 @@ assumed.
   source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 ```
 
-Keep `source` on every row. Facts about a game are not copyrightable and the wording is
-ours, but a future you will want to re-check a surprising row.
+`source` is required on every row, in every curated file; the schema refuses a row without
+one. Facts about a game are not copyrightable and the wording is ours, but a future you
+will want to re-check a surprising row.
+
+A row here means *no* way of getting it in that game can be shiny. When only one encounter
+is locked (a gift, while breeding still works) mark that encounter `shinyLocked: true`
+instead. `lock-contradiction` refuses a game-wide lock beside an unlocked encounter.
 
 ### `encounter-methods.yaml` — the vocabulary
 
@@ -142,22 +147,42 @@ the top rather than repeated on every row.
 ```yaml
 gameId: sv-s
 encounters:
-  - variantId: tauros-paldea
-    methodId: mass-outbreak
-    location: South Province
-    notes: Combat Breed. The Blaze and Aqua breeds are Violet-side or post-game.
+  - variantId: dudunsparce-three-segment
+    methodId: evolution
+    from: dunsparce            # required for evolution, refused anywhere else
+    prerequisite: Level up Dunsparce knowing Hyper Drill. The form is a 1-in-100 roll.
+    shinyLocked: false         # optional; true for a locked gift or story encounter
+    source: https://bulbapedia.bulbagarden.net/wiki/Dudunsparce_(Pok%C3%A9mon)
 ```
+
+A missing row means "no method recorded yet", and the app says exactly that. It never
+means "not in this game": upstream's `obtainableIn` decides that, and
+`encounter-obtainable` refuses a row for a variant the game does not offer.
 
 ### `odds-modifiers.yaml` — the arithmetic
 
-Two shapes, because the games use two mechanics:
+Every Switch game rolls 1/4096, so the base is implicit. A row adds rolls or replaces the
+rate, and names every game and method it applies to:
 
-- `rollsAdded` — the game rolls for shiny N extra times. Base rate is 1/4096 per roll
-  from gen 6 onward. Shiny Charm, Masuda, outbreak tiers and KO chains all work this way.
-- `denominator` — the method replaces the rate outright. Dynamax Adventures are a flat
-  1/300 regardless of anything else, which no reroll arithmetic reproduces.
+```yaml
+- games: [sv-s, sv-v]
+  id: outbreak-60
+  label: Outbreak, 60 cleared
+  methods: [mass-outbreak]
+  tier: outbreak-cleared
+  rollsAdded: 2
+  source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+```
 
-Exactly one of the two per row; the schema enforces it.
+- `rollsAdded` — N extra rolls. Shiny Charm, Masuda, outbreak tiers and KO chains.
+- `denominator` — replaces the rate outright. Dynamax Adventures are a flat 1/300.
+- Rows without a `tier` stack. Rows sharing a `tier` are levels of one thing (outbreak 30
+  or 60 cleared, Sparkling Power 1/2/3) and only the best counts.
+- `inherent: true` comes with the method itself (a Legends Arceus outbreak's 25 rolls), so
+  it is part of the method's plain odds rather than something you set up.
+
+Exactly one of `rollsAdded` and `denominator` per row; the schema enforces it. The table
+in the app holds one row per (game, method).
 
 ### Scope
 
@@ -190,6 +215,8 @@ is worse than one that refuses to ship.
 | `variant-species` | A variant has no species row |
 | `curated-orphan` | A curated row references a variant, game or method that does not exist (including `sprites.yaml`) |
 | `encounter-obtainable` | A curated encounter for a variant upstream says that game does not offer. Upstream wins |
+| `evolution-from` | An evolution row names a variant the same game does not offer |
+| `lock-contradiction` | A game-wide shiny lock beside an encounter not marked `shinyLocked` |
 | `lock-sanity` | A shiny lock on a variant that has no shiny released at all |
 | `dataset-meta` | The metadata row is missing or duplicated |
 | `display-name-unique` | Two variants share a display name, so search shows rows nobody can tell apart |

@@ -126,6 +126,10 @@ data class EncounterMethod(
     val description: String,
 )
 
+/**
+ * One curated way of getting a variant in a game. Absent rows mean "no method recorded
+ * yet", never "not obtainable": obtainability is [GameAvailability], from upstream.
+ */
 data class Encounter(
     val id: String,
     val variantId: VariantId,
@@ -134,7 +138,11 @@ data class Encounter(
     val location: String?,
     val prerequisite: String?,
     val notes: String?,
-    val sourceUrl: String?,
+    /** This encounter can never be shiny, though the variant may be huntable another way. */
+    val shinyLocked: Boolean,
+    /** For the `evolution` method: hunt this variant, then evolve it. */
+    val fromVariantId: VariantId?,
+    val sourceUrl: String,
 )
 
 /**
@@ -142,7 +150,8 @@ data class Encounter(
  *
  * Two shapes, because the games use two mechanics: extra reroll chances
  * ([rollsAdded], as with the Shiny Charm and Masuda) and a flat replacement
- * denominator ([denominator], as with Dynamax Adventures at 1/300).
+ * denominator ([denominator], as with Dynamax Adventures at 1/300). How they combine is
+ * [oddsFor].
  */
 data class OddsModifier(
     val gameId: GameId,
@@ -151,7 +160,12 @@ data class OddsModifier(
     val label: String,
     val rollsAdded: Int?,
     val denominator: Int?,
+    /** Rows sharing a tier are levels of one thing (outbreak 30+ or 60+); only the best applies. */
+    val tier: String?,
+    /** Comes with the method itself, not with anything the player sets up. */
+    val inherent: Boolean,
     val notes: String?,
+    val sourceUrl: String,
 )
 
 data class DatasetMeta(

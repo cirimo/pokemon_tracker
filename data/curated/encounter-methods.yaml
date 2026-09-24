@@ -22,12 +22,6 @@ methods:
       Legends Arceus only. Space-time distortion outbreaks with the highest shiny rate
       available in that game.
 
-  - id: sandwich
-    name: Sandwich encounter power
-    description: >-
-      Scarlet/Violet. Sparkling Power raised on a type, combined with an outbreak,
-      is the standard SV shiny method.
-
   - id: brilliant
     name: Brilliant aura encounter
     description: >-
@@ -64,6 +58,12 @@ methods:
     description: >-
       Sword/Shield Crown Tundra. A flat shiny rate that ignores the usual reroll model,
       which is why it is modelled with a denominator rather than added rolls.
+
+  - id: evolution
+    name: Evolution
+    description: >-
+      Hunt the variant it evolves from, then evolve it. The row names that variant, and
+      the odds are that variant's odds in the same game.
 
   - id: transfer-only
     name: Transfer only
