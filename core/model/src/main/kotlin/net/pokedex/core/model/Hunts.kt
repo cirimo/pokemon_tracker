@@ -110,6 +110,9 @@ data class HuntKey(val dexNum: Int, val regionalForm: String?)
  *   order. A duplicated variant appears twice: owning one Unown-A fills one slot.
  * @property games my games that offer at least one of those slots shiny, in game order.
  * @property way the best recorded method, or null: "no method recorded yet".
+ * @property slotsWithWay how many of [slots] have a recorded method of their own. Fewer than
+ *   all when a hunt spans forms the method does not reach (an outbreak gives plain Rotom, not
+ *   its appliance forms), and the row has to say so rather than imply the method fills them.
  * @property box the box that is closest to done among the boxes these slots are in.
  */
 data class Hunt(
@@ -118,6 +121,7 @@ data class Hunt(
     val priority: Priority,
     val games: List<GameId>,
     val way: Way?,
+    val slotsWithWay: Int,
     val box: BoxNeed,
 ) {
     val lead: DexEntry get() = slots.first()
@@ -223,14 +227,16 @@ fun huntPlan(
         .groupBy { HuntKey(it.variant.dexNum, regionalFormOf(it.variant)) }
         .map { (key, slots) ->
             val sorted = slots.sortedBy { it.order }
+            val ways = sorted.map { it.variant.id }.distinct()
+                .associateWith { guide.bestWay(it, myGamesInOrder) }
             Hunt(
                 key = key,
                 slots = sorted,
                 priority = Priority.of(sorted.maxOf { records[it.key]?.priority ?: 0 }),
                 games = myGamesInOrder.filter { game -> sorted.any { game in it.shinyGames } },
-                way = sorted.distinctBy { it.variant.id }
-                    .mapNotNull { guide.bestWay(it.variant.id, myGamesInOrder) }
+                way = ways.values.filterNotNull()
                     .minWithOrNull(compareBy({ it.odds == null }, { it.odds?.best?.oneIn ?: Double.MAX_VALUE })),
+                slotsWithWay = sorted.count { ways[it.variant.id] != null },
                 box = sorted.groupBy { it.slot.boxIndex }
                     .map { (box, here) ->
                         BoxNeed(box, boxNames[box].orEmpty(), remainingByBox.getValue(box), here.size)

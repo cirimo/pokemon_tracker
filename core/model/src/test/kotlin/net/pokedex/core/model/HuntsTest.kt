@@ -156,6 +156,20 @@ class HuntsTest {
     }
 
     @Test
+    fun `a hunt counts only the slots its method reaches`() {
+        val variants = DexFixtures.variants.map {
+            if (it.id.value == "raichu-alola") it.copy(isRegional = false) else it
+        }
+        val dex = assemble(DexFixtures.availability + available("raichu-alola", "sv-v"), variants)
+        val guide = HuntGuide(listOf(encounter("raichu", "sv-v")), emptyList(), emptyList())
+
+        val raichu = huntPlan(dex, emptyMap(), scarletViolet, guide).hunts.single { it.key.dexNum == 26 }
+
+        assertThat(raichu.slots).hasSize(2)
+        assertThat(raichu.slotsWithWay).isEqualTo(1)
+    }
+
+    @Test
     fun `catching one copy leaves a hunt for the other`() {
         val dex = assemble(DexFixtures.availability + available("unown", "sv-v"))
         val records = Fixtures.records(Fixtures.caught("unown", copy = 1))

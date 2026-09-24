@@ -234,7 +234,12 @@ class HuntViewModel @Inject constructor(
         }
         val box = hunt.box
         val boxLine = if (box.finishes) "Finishes ${box.name}" else "${box.name}: ${box.remaining} to go"
-        val fills = if (hunt.slots.size > 1) "Fills ${hunt.slots.size} slots, " else ""
+        val fills = when {
+            hunt.slots.size == 1 -> ""
+            way != null && hunt.slotsWithWay < hunt.slots.size ->
+                "Fills ${hunt.slots.size} slots, a method for ${hunt.slotsWithWay}, "
+            else -> "Fills ${hunt.slots.size} slots, "
+        }
         // A regional hunt is named for its form; any other is the species, since its slots
         // span genders and cosmetic forms.
         val species = dex.species(variant.dexNum)?.name
