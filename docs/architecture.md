@@ -394,6 +394,82 @@ remembered object makes `onRemembered`/`onForgotten` cost about 0.3 ms per tile 
 at this trace's depth. Answer it with a method trace or a sampling trace before changing
 anything.
 
+### The settle frame, attributed (2026-09-24)
+
+**Answer: the shared-element origin on every grid sprite.** `Modifier.slotOrigin` gives each of
+a page's thirty sprites its own `rememberSharedContentState` and `sharedElement` registration.
+Entering a page registers thirty `SharedElementEntry`s with the app-wide
+`SharedTransitionScope`, and leaving one unregisters thirty. Each add walks the scope's
+entry list to find its slot. Each remove does an `indexOf` on a `SnapshotStateList`, re-runs
+`SharedElement.updateMatch` over the enabled entries (snapshot reads throughout) and
+launches a coroutine. That is quadratic in live tiles. Only one of the thirty can ever take
+part in a transition: the one tapped.
+
+*Method.* Rerunnable as follows. None of it touches `net.pokedex`.
+
+1. `./gradlew :app:installBenchmarkRelease` installs `net.pokedex.profiling`: release code,
+   R8 and the baseline profile, plus `runtime-tracing` (benchmarkRelease only, see
+   `app/build.gradle.kts`). Its compile state is `speed-profile, install-dm`, the same as state 2.
+2. `tools/perf/trace-pager.sh <serial> <out.pftrace> [hz]` runs the §8 protocol under
+   Perfetto. It collects atrace, SurfaceFlinger's frame timeline, composition tracing and
+   callstack sampling. `NAMES=0` leaves composition tracing off, and an `hz` of 0 leaves
+   sampling off. Use one named trace to learn the composables, three `NAMES=0` sampled
+   traces for proportions, and three with neither for timings. Composition tracing writes a
+   marker per composable and inflates what it measures. The kernel throttles sampling to
+   about 440 Hz of main-thread time, which is why the sampled traces are pooled.
+3. `python tools/perf/settle_frame.py <mapping.txt> <traces...>`, with the `perfetto`
+   package installed in a scratch virtualenv. It sums each settle phase per swipe and buckets
+   the samples in each phase by the object that owns them. The R8 mapping is
+   `app/build/outputs/mapping/benchmarkRelease/mapping.txt` from the same build.
+4. Confirm every bucket with an ablation: a throwaway profiling build without that object,
+   measured with `PKG=net.pokedex.profiling tools/perf/measure-pager.sh`. A sample share is
+   an estimate. The ablation is the number.
+
+*Where the samples land* (three sampled traces, 75 swipes). Shared-element code owns 85% of
+`onRemembered`, 75% of `onForgotten` and 15% of the prefetch's measure. What remains of
+`onForgotten` is the `LaunchedEffect`s being cancelled (11%) and layout nodes deactivating (5%).
+Coil's `AsyncImagePainter.onRemembered` is 0.03 ms a tile, so the request start that was a
+suspect is negligible. `BoxSlot`'s `MutableInteractionSource`, press animations and
+celebration `Animatable` never registered as an owner above 2%.
+
+*Per swipe, main thread* (three unsampled traces each, median ms):
+
+| Build | compose | apply | of it `onRemembered` | measure | deactivate | over-budget idle frame |
+|---|---|---|---|---|---|---|
+| Profiling build as is | 10.8 | 12.4 | 6.8 | 7.1 | 8.8 | 19.8 |
+| A1: grid sprites without `slotOrigin` | 6.1 | 3.2 | 0.5 | 0.1 (p90 8.5) | 1.5 | 0 |
+| A2: A1 and no sprite at all | 5.7 | 1.7 | 0.5 | 1.7 | 1.1 | 0 |
+
+The last column is the settle frame's lateness. When the prefetch does not fit the idle time
+between frames, the scheduler runs it as an `idle_frame` of its own, and the settling frame's
+`doFrame` waits behind it. Without the shared-element registrations it fits.
+
+*The same builds, untraced* (`measure-pager.sh`, three runs each, same session):
+
+| Build | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|
+| `net.pokedex` as installed (state 4) | 5.6–5.7% | 7 ms | 17–18 ms | 43–45 | 22–27 |
+| Profiling build as is | 5.5–5.9% | 7–8 ms | 16–18 ms | 39–49 | 21–23 |
+| A1: no `slotOrigin` in the grid | 3.1–3.2% | 7–8 ms | 12 ms | 17–22 | 19–22 |
+| A2: A1 and no sprites | 1.0–1.5% | 5–6 ms | 9 ms | 4–8 | 2–7 |
+| A3: A1 and `beyondViewportPageCount = 1` | 3.4–3.6% | 9 ms | 12 ms | 24–26 | 18–25 |
+
+The profiling build measures the same as the installed app, so it is a fair stand-in. A2 is
+not a candidate, because the silhouette rule needs the sprites. It shows that most of what
+remains after A1 is RenderThread (slow draw), and that is the swipe-start cluster.
+
+*Tested and rejected:* `beyondViewportPageCount = 1` (A3). Composing neighbours in advance
+does not remove the remember and forget work. It moves that work to when `currentPage`
+changes, mid-swipe, and adds a page's worth of live tiles. It measured worse than A1 on
+janky frames and P90.
+
+*The protocol's 0.5 s gap.* Each swipe of `measure-pager.sh` is 858 ms apart in practice,
+because the 0.5 s sleep adds to the 180 ms gesture and about 180 ms of `adb` and `input`
+start-up. With the loop run on the device and 0.15 s between swipes, the profiling build as
+is measured 3.6–3.9% janky, P99 15–16 ms, slow UI 31–33 and slow draw 3–10. The gap exaggerates
+the swipe-start cluster: with no idle gap the governor stays ramped and slow-draw frames
+almost vanish. It hides nothing about the settle frame, whose slow-UI count holds.
+
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
 This app is sideloaded, so the profile reaches ART without a store:

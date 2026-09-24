@@ -10,13 +10,16 @@
 #
 # The swipe coordinates are for a 1080-wide portrait screen (Galaxy S21 Ultra at its
 # default FHD+ resolution) and start mid-grid, so each swipe is one page.
+#
+# PKG=net.pokedex.profiling runs the same protocol against the profiling build, which is
+# the only build traces and experiments may use (the release id holds real records).
 set -euo pipefail
 
 SERIAL="${1:?usage: measure-pager.sh <serial> [pager-runs] [cold-starts]}"
 RUNS="${2:-3}"
 STARTS="${3:-10}"
-PKG=net.pokedex
-ACTIVITY=net.pokedex/net.pokedex.MainActivity
+PKG="${PKG:-net.pokedex}"
+ACTIVITY="$PKG/net.pokedex.MainActivity"
 ADB="${ADB:-$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe}"
 # Git Bash rewrites anything that looks like an absolute path; device paths must survive.
 export MSYS_NO_PATHCONV=1
