@@ -108,8 +108,13 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    - [`prompts/03c-settle-frame.md`](prompts/03c-settle-frame.md) — the frame where a page
      settles starts 10–17 ms late behind Compose prefetch and page teardown; find out which
      per-tile object costs that before changing anything. Independent of M3.
+     **Done 2026-09-24**: every grid sprite carried a shared-element origin. Only the opened
+     slot does now, and P99 went from 15–17 ms to 11–13 ms (`docs/architecture.md` §8,
+     state 5). Still over budget, for reasons that are not the settle frame.
 4. [`prompts/04-track-my-dex.md`](prompts/04-track-my-dex.md) — M3: backups that survive
    an uninstall first, then the catch flow, dashboards and settings. **Done 2026-09-24**:
    see `docs/adr/0011-backups-outside-the-sandbox.md` and `docs/architecture.md` §6,
-   "Durability". The baseline profile regeneration it calls for is pending a phone run.
-5. Further feature prompts, one per milestone, written as each one comes up.
+   "Durability". Its baseline profile was regenerated the same day.
+5. [`prompts/05-plan-my-hunts.md`](prompts/05-plan-my-hunts.md) — M4: my games, what to
+   hunt next, per-game availability and odds, and curation for one game. **Next.**
+6. Further feature prompts, one per milestone, written as each one comes up.
