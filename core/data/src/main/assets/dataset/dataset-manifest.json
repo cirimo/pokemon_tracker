@@ -6,11 +6,11 @@
   "spriteSet": "sprites/pokemon/other/home",
   "spriteSize": 256,
   "builtAt": "1970-01-01T00:00:00Z",
-  "contentHash": "f275de825cdf6ca0e085ed66d3ff224f1f61e75a656c3d5b4b46ccbd4f4f728c",
+  "contentHash": "96a62e5759ee091acd554767f7ee349c6f5a5b475a17b6027894862823ed8f1e",
   "tables": {
     "box": "2156cd3e04ab02bd324a5b73cf5050a730b1d775d9aaaa26a6a904fc17ebca97",
     "dex_preset": "16f5e53ad8ad95dbba10b2b53f2564e5db90728ce7eef50c843ed23e18150e8e",
-    "encounter": "5e5b95eda5e53e8033ae78f550c6bfe9b4dcd1a7b0ff56f735cad1b62e5d792a",
+    "encounter": "c172340d7d8c6964bbae24e957e04c310f9f20b9c5d2049cfc19ce096402a889",
     "encounter_method": "1cfe4db35ae9f3663e5eb48710fa96de764025085ed745f5ea632003730e8109",
     "game": "a1c5ff0fcaf3feb6bd268107d660cfd0c4f720dee9e995e7a11aa91aef7d0daf",
     "game_availability": "8bb6ef659b454740f5ef978d586f8bf4026a183648636f29ba18e1694f5e6a9c",
