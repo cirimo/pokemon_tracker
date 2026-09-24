@@ -99,6 +99,15 @@ avoids cross-database joins entirely — Room cannot join two `RoomDatabase` ins
 `ATTACH` under WAL cannot commit atomically across files. Search and filtering are
 in-memory operations over a list that fits comfortably in RAM.
 
+### How a new dataset reaches an installed app
+
+Room recopies a `createFromAsset` database only when the schema version moves. Until M4 a
+regenerated dataset with the same schema (a new shiny lock, a corrected encounter) never
+reached an installed app: it kept the copy from its first launch. The on-device file is now
+named after the asset manifest's `contentHash` (`reference-<16 hex>.db`, `ReferenceFile`), so
+any content change is a new file, and stale copies are deleted at startup. The prefix cannot
+match `user.db`.
+
 ### How a hand-built file satisfies Room
 
 Room refuses any prepackaged database whose `room_master_table` identity hash does not
@@ -135,6 +144,7 @@ device.
 │  catch_record   PK (variantId, copyIndex)                                    │
 │  user_settings  single row (incl. backup folder URI, last origin game)       │
 │  backup_log     status of backups this install wrote; NOT the restore list   │
+│  my_game        PK gameId: the games I own and play (M4, version 4)          │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -158,11 +168,11 @@ Entity definitions: `core/data/src/main/kotlin/net/pokedex/core/data/{reference,
 | Module | Type | Why it exists |
 |---|---|---|
 | `:app` | application | Single Activity, nav graph, DI root, debug gallery host |
-| `:core:model` | JVM library | Domain types plus the two pieces of real logic — progress derivation and preset diffing. No Android, so its tests run in milliseconds. Also the thing `:design-system` is forbidden to depend on |
+| `:core:model` | JVM library | Domain types plus the real logic — progress derivation, preset diffing, and (M4) the hunt ranking and shiny odds. No Android, so its tests run in milliseconds. Also the thing `:design-system` is forbidden to depend on |
 | `:core:data` | Android library | Both databases, DAOs, repositories, backup/restore, and the dataset asset. The only module that knows SQLite exists |
 | `:design-system` | Android library | Theme, tokens, components, gallery. Depends on nothing internal |
-| `:feature:dex` | Android library | Box view, search, slot and species detail, the catch sheet, and Progress |
-| `:feature:settings` | Android library | Settings, backup and restore, and the first-launch restore offer. Separate from the dex because the Storage Access Framework launchers and the restore flow share nothing with it |
+| `:feature:dex` | Android library | Box view, search, slot and species detail, the catch sheet, Progress, and the hunt list. The hunt list is here rather than in a module of its own because it is a view over the same `Dex` and opens the same slot routes |
+| `:feature:settings` | Android library | Settings, my games, backup and restore, and the first-launch restore offer. Separate from the dex because the Storage Access Framework launchers and the restore flow share nothing with it |
 | `:baselineprofile` | Android test (`com.android.test`) | Drives the release-like build on a phone to generate `:app`'s baseline profile. It exists because a device measurement put the pager over its frame budget under JIT (§8). It reaches `:app` through `targetProjectPath`, never a project dependency, and only `:app` may reference it; CI checks both, so it cannot become a path from one feature to another |
 
 Deliberately absent: `:core:database` (it would only hold the entity files `:core:data`
@@ -209,9 +219,15 @@ than a destination (`docs/adr/0010-search-is-a-mode.md`):
 ```
 Boxes (start; search is a mode) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)
 Boxes ──→ Progress ──→ (back to Boxes, on a box or on search "Needed in <game>")
+Boxes ──→ Hunt(gameId?) ──→ SlotDetail          (M4; Hunt ⇄ Progress link both ways)
 Boxes ──→ Settings ──→ BackupRestore(fileUri?)
+Settings ──→ MyGames ←── Hunt and SlotDetail, before any game is chosen (via :app)
 RestoreOffer: a sheet beside the NavHost, shown only on an empty database ──→ BackupRestore
 ```
+
+Still flat: M4 added two destinations and no nested graph, so ADR 0006's "no nested graphs
+until M4 needs them" held. Hunting is ranked by `huntPlan` in `:core:model`, derived on read
+like progress; `docs/adr/0012-hunt-ranking.md` records why the order is fixed.
 
 Two features never name each other's routes. The box view reaches Settings through a
 callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view

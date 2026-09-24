@@ -106,6 +106,7 @@ guarantees.
 | Slot-to-record resolution and `copyIndex` | DAO one-liners Room generates |
 | Preset diffing and stranded records | Hilt wiring |
 | Progress derivation | ViewModel mapping with no branches |
+| The hunt ranking, and odds against the tables they cite | |
 | Backup encode/decode, and refusal of a newer schema | Layout, when a screenshot covers it |
 | `UserDatabase` migrations | |
 | That the shipped `reference.db` opens and has 52/1394/1387 | |

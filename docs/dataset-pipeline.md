@@ -201,9 +201,11 @@ missing is zero.
 
 ### Scope
 
-`shiny-locks.yaml`, `odds-modifiers.yaml` and `encounters/` ship **seeded, not complete**.
-They hold enough real rows to exercise the schema and the validators. Filling them is M4
-work, one game at a time.
+**Legends Arceus is curated** (M4, 2026-09-24): 310 of its 347 shiny-obtainable variants
+have a method, 23 are locked, and 14 have no source that places them (see the header of
+`encounters/la.yaml` for which and why). Odds are curated for Legends Arceus, Scarlet/Violet
+and Sword/Shield. Every other game's encounters and locks are still seeded, not complete:
+fill them one game at a time, from `npm run coverage -- <game> --list`.
 
 Two things you do **not** have to curate, because upstream already answers them:
 

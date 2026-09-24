@@ -116,5 +116,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    see `docs/adr/0011-backups-outside-the-sandbox.md` and `docs/architecture.md` §6,
    "Durability". Its baseline profile was regenerated the same day.
 5. [`prompts/05-plan-my-hunts.md`](prompts/05-plan-my-hunts.md) — M4: my games, what to
-   hunt next, per-game availability and odds, and curation for one game. **Next.**
+   hunt next, per-game availability and odds, and curation for one game. **Done
+   2026-09-24**: my games in `user.db` v4, a fixed and explained hunt ranking
+   (`docs/adr/0012-hunt-ranking.md`), exact odds, and Legends Arceus curated to 89% with a
+   method (`docs/dataset-pipeline.md`, "Scope"). It also found that a regenerated dataset
+   never reached an installed app; see `docs/architecture.md` §3.
 6. Further feature prompts, one per milestone, written as each one comes up.
