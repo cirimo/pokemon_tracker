@@ -50,9 +50,16 @@ data class BoxPage(
  * It also caps the work: at most two boxes are composed at a time, so the 1400-tile problem
  * never becomes a 1400-tile *render*.
  *
- * `beyondViewportPageCount` stays at its default of 0 on purpose. Pre-composing neighbours
- * would smooth the first frame of a swipe at the cost of tripling the live tile count, and
- * thirty bordered tiles compose fast enough that the trade is not worth making.
+ * `beyondViewportPageCount` stays at its default of 0, and that was measured rather than
+ * assumed. Bringing a page in is not free: on the S21 Ultra it is about 10 ms of main-thread
+ * work in total, spread by the lazy layout's prefetch over the idle time between frames.
+ * Taking one out adds about 1.5 ms more. Pre-composing a neighbour does not remove that work.
+ * It moves it to the moment `currentPage` changes, mid-swipe, and triples the live tile
+ * count. Tried at 1, it measured worse on janky frames and P90 (docs/architecture.md §8).
+ *
+ * What made pages expensive until 2026-09-24 was a shared-element origin on every sprite,
+ * not the tiles. Only the slot being opened may carry one. Anything else per tile that
+ * registers with a scope beyond the page costs its add and its remove on every swipe.
  */
 @Composable
 fun BoxPager(
