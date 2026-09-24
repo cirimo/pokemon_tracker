@@ -194,7 +194,11 @@ npm run build:dataset
 npm run coverage -- la --list
 ```
 
-It counts the variants the game offers with a shiny released, and splits them into
+For Legends Arceus, `python tools/curation/draft_la.py` drafts the rows from Bulbapedia into
+`tools/curation/out/` for review; it never writes to `data/curated`. It is a model for the
+next game's drafter, not a general tool: each game's sources are shaped differently.
+
+The coverage report counts the variants the game offers with a shiny released, and splits them into
 *method recorded*, *shiny-locked* and *missing*. Missing is not an error -- the app shows
 "no method recorded yet" -- so this is a to-do list, not a validator. A game is done when
 missing is zero.

@@ -23,3 +23,7 @@ tools/dataset-pipeline/.upstream/
 # OS
 .DS_Store
 Thumbs.db
+
+# Curation drafts: fetched pages and generated drafts, both reproducible
+tools/curation/.cache/
+tools/curation/out/

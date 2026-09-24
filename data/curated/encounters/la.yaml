@@ -1,7 +1,7 @@
 # How to catch things in Legends Arceus.
 #
-# Curated 2026-09-24, for the game being played. Drafted from four Bulbapedia sources and
-# then read through by hand:
+# Curated 2026-09-24, for the game being played. Drafted by tools/curation/draft_la.py from
+# four Bulbapedia sources and then read through by hand:
 #
 #   Mass_outbreak           the Legends Arceus table of which Pokemon appear in mass and
 #                           massive mass outbreaks, per area. The page's own rule is that an
