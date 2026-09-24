@@ -29,6 +29,7 @@ import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChipRow
 import net.pokedex.designsystem.component.FilterOption
 import net.pokedex.designsystem.component.GameBadge
+import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.MethodBadge
 import net.pokedex.designsystem.component.ProgressBar
@@ -76,6 +77,7 @@ internal fun GallerySections() {
     GallerySection("Empty, error, loading") { StateSection() }
     GallerySection("Sheets and dialogs") { ContainerSamples() }
     GallerySection("Settings rows, notices and actions") { SettingsSamples() }
+    GallerySection("Notes and dates, for the catch sheet") { InputSamples() }
 
     Box(Modifier.padding(dimens.spaceXl))
 }

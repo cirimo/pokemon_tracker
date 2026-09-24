@@ -32,6 +32,7 @@ import net.pokedex.designsystem.component.DemoSprite
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChip
+import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
@@ -108,6 +109,9 @@ class ComponentScreenshotTest {
 
     @Test
     fun settings() = captureBothThemes("settings", alsoLargeFont = true) { SettingsSamples() }
+
+    @Test
+    fun inputs() = captureBothThemes("inputs", alsoLargeFont = true) { InputSamples() }
 
     /**
      * One helper, so adding a component to the suite is one line.

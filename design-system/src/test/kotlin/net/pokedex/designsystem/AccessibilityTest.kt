@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -19,6 +22,7 @@ import net.pokedex.designsystem.component.BoxSlot
 import net.pokedex.designsystem.component.BoxSlotItem
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.FilterChip
+import net.pokedex.designsystem.component.NoteField
 import net.pokedex.designsystem.component.ProgressRing
 import net.pokedex.designsystem.component.SettingRow
 import net.pokedex.designsystem.component.SettingSwitch
@@ -119,6 +123,14 @@ class AccessibilityTest {
         composeRule.onNodeWithText("Back up now").assertHeightIsAtLeast(MIN_TARGET)
         composeRule.onNodeWithText("Merge").assertHeightIsAtLeast(MIN_TARGET)
         composeRule.onNode(isToggleable()).assertHeightIsAtLeast(MIN_TARGET).assertIsOn()
+    }
+
+    @Test
+    fun noteFieldMeetsTheMinimumTouchTargetAndIsLabelled() {
+        composeRule.setContent {
+            PokedexTheme { NoteField(value = "", onValueChange = {}, label = "Notes") }
+        }
+        composeRule.onNode(hasSetTextAction()).assertHeightIsAtLeast(MIN_TARGET).assert(hasText("Notes"))
     }
 
     /** Every slot state announces a sentence, and no two states announce the same one. */
