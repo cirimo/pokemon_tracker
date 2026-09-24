@@ -15,17 +15,11 @@ encounters:
     notes: Story encounter. Shiny-locked -- see shiny-locks.yaml.
     source: https://www.serebii.net/scarletviolet/
 
-  - variantId: gimmighoul-roaming
-    methodId: wild
-    location: Overworld, near towers and rocks
-    prerequisite: Roaming form only; the chest form is a static encounter.
-    notes: >-
-      Does not appear in outbreaks, so Sparkling Power is the only useful modifier.
-
   - variantId: tauros-paldea
     methodId: mass-outbreak
     location: South Province
-    notes: Combat Breed. The Blaze and Aqua breeds are Violet-side or post-game.
+    notes: >-
+      Combat Breed. The Blaze Breed is the Scarlet exclusive; the Aqua Breed is Violet's.
 
   - variantId: dudunsparce-three-segment
     methodId: breeding

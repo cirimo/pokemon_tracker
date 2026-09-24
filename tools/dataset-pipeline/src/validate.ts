@@ -153,6 +153,26 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
       }
     }
 
+    // An encounter says "go to this game and find it there". Upstream is the authority on
+    // whether the game has it at all, so a curated row it contradicts is the wrong one: a
+    // method for a Pokemon the game does not offer sends the user hunting for nothing.
+    // Found by adding this check: gimmighoul-roaming as a Scarlet wild encounter, when the
+    // roaming form only comes from GO.
+    const unobtainable = db
+      .prepare(
+        'SELECT e.variantId, e.gameId FROM encounter e LEFT JOIN game_availability ga ' +
+          'ON ga.variantId = e.variantId AND ga.gameId = e.gameId ' +
+          "WHERE e.methodId != 'transfer-only' AND (ga.obtainable IS NULL OR ga.obtainable = 0)",
+      )
+      .all() as Row[];
+    for (const row of unobtainable) {
+      fail(
+        'encounter-obtainable',
+        String(row.variantId) + ' has an encounter in ' + String(row.gameId) +
+          ', which upstream says does not offer it',
+      );
+    }
+
     // A shiny lock on something with no shiny at all is a curation mistake.
     const impossibleLocks = count(
       db,

@@ -189,6 +189,7 @@ is worse than one that refuses to ship.
 | `slot-resolves` | A slot references a variant that is not in the dataset |
 | `variant-species` | A variant has no species row |
 | `curated-orphan` | A curated row references a variant, game or method that does not exist (including `sprites.yaml`) |
+| `encounter-obtainable` | A curated encounter for a variant upstream says that game does not offer. Upstream wins |
 | `lock-sanity` | A shiny lock on a variant that has no shiny released at all |
 | `dataset-meta` | The metadata row is missing or duplicated |
 | `display-name-unique` | Two variants share a display name, so search shows rows nobody can tell apart |
