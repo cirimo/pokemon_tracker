@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.pokedex.core.data.backup.BackupLocation
 import net.pokedex.core.data.backup.BackupRepository
+import net.pokedex.core.data.repository.DexRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
+import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.backup.BackupDestination
 import net.pokedex.core.model.backup.BackupWriter
@@ -28,6 +30,8 @@ data class SettingsUiState(
     val autoBackupEnabled: Boolean = true,
     val keepCount: Int = 10,
     val lastBackup: Instant? = null,
+    /** The chosen games' names, joined; empty when none are chosen. */
+    val myGames: String = "",
     val working: Boolean = false,
     /** The outcome of the last action, as a sentence. Never gold: housekeeping is not a shiny. */
     val notice: Notice? = null,
@@ -54,25 +58,43 @@ class SettingsViewModel @Inject constructor(
     private val settings: SettingsRepository,
     private val location: BackupLocation,
     private val backups: BackupRepository,
+    dexRepository: DexRepository,
 ) : ViewModel() {
 
     private val transient = MutableStateFlow(Transient())
+
+    private val gameNames = MutableStateFlow<Map<GameId, String>>(emptyMap())
+
+    private val myGames = combine(settings.observeMyGames(), gameNames) { owned, names ->
+        // In the dataset's game order, so the summary reads the way the list below it does.
+        names.filterKeys { it in owned }.values.joinToString(", ")
+    }
 
     val state: StateFlow<SettingsUiState> = combine(
         settings.observe(),
         location.observe(),
         backups.observeLastBackup(),
         transient,
-    ) { settings, destination, last, transient ->
+        myGames,
+    ) { settings, destination, last, transient, myGames ->
         SettingsUiState(
             destination = destination,
             autoBackupEnabled = settings.autoBackupEnabled,
             keepCount = settings.autoBackupKeepCount,
             lastBackup = last,
+            myGames = myGames,
             working = transient.working,
             notice = transient.notice,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SettingsUiState())
+
+    init {
+        viewModelScope.launch {
+            (dexRepository.dex() as? Outcome.Ok)?.let { loaded ->
+                gameNames.value = loaded.value.games.associate { it.id to it.name }
+            }
+        }
+    }
 
     fun onEvent(event: SettingsEvent) {
         when (event) {

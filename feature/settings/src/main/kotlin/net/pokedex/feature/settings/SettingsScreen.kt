@@ -23,14 +23,21 @@ import java.time.LocalDate
 internal fun SettingsDestination(
     onBack: () -> Unit,
     onOpenRestore: (fileUri: Uri?) -> Unit,
+    onOpenMyGames: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    SettingsScreen(state = state, onEvent = viewModel::onEvent, onBack = onBack, onOpenRestore = onOpenRestore)
+    SettingsScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+        onOpenRestore = onOpenRestore,
+        onOpenMyGames = onOpenMyGames,
+    )
 }
 
 /**
- * Backups, and nothing else yet.
+ * My games, then backups.
  *
  * The folder row comes first and says plainly when backups are not safe from an uninstall,
  * because that is the one setting whose default loses data.
@@ -41,6 +48,7 @@ internal fun SettingsScreen(
     onEvent: (SettingsEvent) -> Unit,
     onBack: () -> Unit,
     onOpenRestore: (fileUri: Uri?) -> Unit,
+    onOpenMyGames: () -> Unit,
 ) {
     val pickFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree ->
         tree?.let { onEvent(SettingsEvent.FolderPicked(it)) }
@@ -54,6 +62,14 @@ internal fun SettingsScreen(
 
     ScreenScaffold(title = "Settings", onBack = onBack) {
         state.notice?.let { NoticeCard(title = it.title, body = it.body, warning = it.warning) }
+
+        ScreenSection(title = "Hunting") {
+            SettingRow(
+                title = "My games",
+                summary = state.myGames.ifEmpty { "None chosen. The hunt list needs these." },
+                onClick = onOpenMyGames,
+            )
+        }
 
         ScreenSection(
             title = "Backups",
