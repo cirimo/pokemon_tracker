@@ -14,21 +14,30 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.GuideRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
+import net.pokedex.core.model.Encounter
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
+import net.pokedex.core.model.Priority
 import net.pokedex.core.model.SlotStatus
+import net.pokedex.core.model.Standing
 import net.pokedex.core.model.VariantId
 import net.pokedex.core.model.hasDetails
 import net.pokedex.core.model.prefillOrigin
+import net.pokedex.core.model.standingOf
 import net.pokedex.core.model.statusOf
 import net.pokedex.feature.dex.SlotDetailRoute
 import net.pokedex.feature.dex.locationOf
+import net.pokedex.feature.dex.oddsSentence
+import net.pokedex.feature.dex.sourceLabel
+import net.pokedex.feature.dex.standingSentence
 import javax.inject.Inject
 
 @Immutable
@@ -46,6 +55,34 @@ data class SlotDetailUiState(
     val record: RecordUi? = null,
     /** Every game the origin can be set to, shiny-obtainable ones first. */
     val origins: List<OriginUi> = emptyList(),
+    val priority: Priority = Priority.Normal,
+    /** How to get it in each of my games; every Switch game while none are chosen. */
+    val hunting: List<GameHuntUi> = emptyList(),
+    val gamesChosen: Boolean = false,
+)
+
+/** One game, for this slot: whether it can be shiny there, and every recorded way. */
+@Immutable
+data class GameHuntUi(
+    val name: String,
+    val standing: String,
+    val huntable: Boolean,
+    /** Empty for a huntable game means "no method recorded yet", and the screen says so. */
+    val ways: List<WayUi>,
+)
+
+@Immutable
+data class WayUi(
+    val method: String,
+    val location: String?,
+    val prerequisite: String?,
+    val notes: String?,
+    /** "Evolve a shiny Dunsparce, found by: Wild encounter". Null unless this is an evolution. */
+    val via: String?,
+    /** Null when no odds are curated for the method. */
+    val odds: String?,
+    val locked: Boolean,
+    val source: String,
 )
 
 /**
@@ -108,6 +145,7 @@ sealed interface SlotDetailEvent {
     data class SetCaught(val caught: Boolean) : SlotDetailEvent
     data class SaveDetails(val originGameId: String?, val caughtAt: Long?, val notes: String?) : SlotDetailEvent
     data object Forget : SlotDetailEvent
+    data class SetPriority(val priority: Priority) : SlotDetailEvent
     data object Retry : SlotDetailEvent
 }
 
@@ -121,6 +159,7 @@ sealed interface SlotDetailEvent {
 @HiltViewModel
 class SlotDetailViewModel @Inject constructor(
     private val dexRepository: DexRepository,
+    private val guides: GuideRepository,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
     savedState: SavedStateHandle,
@@ -129,11 +168,20 @@ class SlotDetailViewModel @Inject constructor(
     private val key = savedState.toRoute<SlotDetailRoute>().let { CatchKey(VariantId(it.variantId), it.copyIndex) }
     private val dex = MutableStateFlow<Outcome<Dex>?>(null)
 
-    val state: StateFlow<SlotDetailUiState> = combine(dex, catches.observeRecords()) { dex, records ->
+    // A guide that fails to load costs the "how" section, not the screen: the rest of the
+    // slot comes from the dex, which is the part that must work.
+    private val guide = MutableStateFlow<HuntGuide?>(null)
+
+    val state: StateFlow<SlotDetailUiState> = combine(
+        dex,
+        catches.observeRecords(),
+        settings.observeMyGames(),
+        guide,
+    ) { dex, records, myGames, guide ->
         when (dex) {
             null -> SlotDetailUiState()
             is Outcome.Err -> SlotDetailUiState(loading = false, error = dex.error)
-            is Outcome.Ok -> build(dex.value, records)
+            is Outcome.Ok -> build(dex.value, records, myGames, guide)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SlotDetailUiState())
 
@@ -157,15 +205,22 @@ class SlotDetailViewModel @Inject constructor(
                 if (origin != null) settings.edit { it.copy(lastOriginGameId = origin) }
             }
             SlotDetailEvent.Forget -> viewModelScope.launch { catches.forget(key) }
+            is SlotDetailEvent.SetPriority -> viewModelScope.launch { catches.setPriority(listOf(key), event.priority) }
             SlotDetailEvent.Retry -> load()
         }
     }
 
     private fun load() {
         viewModelScope.launch { dex.value = dexRepository.dex() }
+        viewModelScope.launch { (guides.guide() as? Outcome.Ok)?.let { guide.value = it.value } }
     }
 
-    private fun build(dex: Dex, records: Map<CatchKey, CatchRecord>): SlotDetailUiState {
+    private fun build(
+        dex: Dex,
+        records: Map<CatchKey, CatchRecord>,
+        myGames: Set<GameId>,
+        guide: HuntGuide?,
+    ): SlotDetailUiState {
         // A key the dataset no longer has is a link from an older screen state -- say so
         // rather than crash. The record itself, if any, is untouched.
         val entry = dex.entry(key) ?: return SlotDetailUiState(
@@ -187,7 +242,7 @@ class SlotDetailViewModel @Inject constructor(
                 type1 = variant.type1,
                 type2 = variant.type2,
                 spriteFile = variant.spriteFile,
-                status = statusOf(entry, records),
+                status = statusOf(entry, records, myGames),
                 location = locationOf(entry),
                 boxIndex = entry.slot.boxIndex,
             ),
@@ -215,6 +270,54 @@ class SlotDetailViewModel @Inject constructor(
                 )
             },
             origins = originsFor(dex, variant.id),
+            priority = Priority.of(records[key]?.priority ?: 0),
+            hunting = huntingFor(dex, variant.id, myGames, guide),
+            gamesChosen = myGames.isNotEmpty(),
+        )
+    }
+
+    /**
+     * Per game: where it stands, then every recorded encounter, locked ones included so a
+     * locked gift is seen as locked rather than missing. With no games chosen, every game
+     * the variant appears in, so the screen is still useful before setup.
+     */
+    private fun huntingFor(dex: Dex, variant: VariantId, myGames: Set<GameId>, guide: HuntGuide?): List<GameHuntUi> {
+        val games = dex.games.filter { it.gameSet != Dex.HOME_GAME_SET }.filter { game ->
+            if (myGames.isEmpty()) standingOf(dex, variant, game.id) != Standing.Absent else game.id in myGames
+        }
+        val lockReasons = dex.availability(variant).associate { it.gameId to it.shinyLockReason }
+        return games.map { game ->
+            val standing = standingOf(dex, variant, game.id)
+            GameHuntUi(
+                name = game.name,
+                standing = standingSentence(standing, lockReasons[game.id]),
+                huntable = standing == Standing.Shiny,
+                ways = guide?.let { g -> g.encounters(variant, game.id).map { wayUi(dex, g, it) } }.orEmpty(),
+            )
+        }
+    }
+
+    private fun wayUi(dex: Dex, guide: HuntGuide, encounter: Encounter): WayUi {
+        val from = encounter.fromVariantId
+        val source = from?.let { guide.bestWay(it, listOf(encounter.gameId)) }
+        val odds = if (from == null) guide.odds(encounter.gameId, encounter.methodId) else source?.odds
+        return WayUi(
+            method = guide.method(encounter.methodId)?.name ?: encounter.methodId,
+            location = encounter.location,
+            prerequisite = encounter.prerequisite,
+            notes = encounter.notes,
+            via = from?.let { id ->
+                val name = dex.variant(id)?.displayName ?: id.value
+                val how = source?.let { guide.method(it.encounter.methodId)?.name ?: it.encounter.methodId }
+                if (how == null) {
+                    "Evolve a shiny $name. No way to find one is recorded yet."
+                } else {
+                    "Evolve a shiny $name, found by: $how"
+                }
+            },
+            odds = odds?.let(::oddsSentence).takeUnless { encounter.shinyLocked },
+            locked = encounter.shinyLocked,
+            source = sourceLabel(encounter.sourceUrl),
         )
     }
 

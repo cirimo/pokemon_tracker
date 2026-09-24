@@ -36,6 +36,7 @@ internal fun SlotDetailDestination(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
+    onOpenMyGames: () -> Unit,
     viewModel: SlotDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -46,6 +47,7 @@ internal fun SlotDetailDestination(
         onOpenSlot = onOpenSlot,
         onOpenVariant = onOpenVariant,
         onShowInBox = onShowInBox,
+        onOpenMyGames = onOpenMyGames,
     )
 }
 
@@ -54,7 +56,7 @@ internal fun SlotDetailDestination(
  *
  * Order is the order of the questions: what it is (the hero), whether I have it (the
  * toggle, directly under the thing it toggles), whether I need another one (only for the
- * seven duplicates), then where to get it. How to catch it is M4 and is not here.
+ * seven duplicates), how much I want it, then how to catch it in my games.
  */
 @Composable
 internal fun SlotDetailScreen(
@@ -64,6 +66,7 @@ internal fun SlotDetailScreen(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
+    onOpenMyGames: () -> Unit,
 ) {
     val slot = state.slot
     ScreenScaffold(title = slot?.location ?: "Slot", onBack = onBack) {
@@ -74,7 +77,7 @@ internal fun SlotDetailScreen(
                 actionLabel = null,
             )
             slot == null -> SkeletonBox(Modifier.fillMaxWidth().aspectRatio(1f))
-            else -> SlotDetailContent(state, slot, onEvent, onOpenSlot, onOpenVariant, onShowInBox)
+            else -> SlotDetailContent(state, slot, onEvent, onOpenSlot, onOpenVariant, onShowInBox, onOpenMyGames)
         }
     }
 }
@@ -87,6 +90,7 @@ private fun SlotDetailContent(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
+    onOpenMyGames: () -> Unit,
 ) {
     val colors = PokedexTheme.colors
     val caught = slot.status == SlotStatus.Caught
@@ -142,7 +146,13 @@ private fun SlotDetailContent(
         }
     }
 
-    GamesSection(state.games)
+    if (!caught) PrioritySection(state.priority, onPick = { onEvent(SlotDetailEvent.SetPriority(it)) })
+
+    HuntingSection(state.hunting, state.gamesChosen, onOpenMyGames)
+
+    // Every game at a glance, once "In your games" has narrowed the section above. Before
+    // games are chosen that section already lists every game, so this would repeat it.
+    if (state.gamesChosen) GamesSection(state.games)
 
     ChipFlow {
         OutlinedButton(onClick = { onShowInBox(slot.boxIndex) }) {
@@ -168,7 +178,7 @@ private fun GamesSection(games: List<GameUi>) {
     val colors = PokedexTheme.colors
     val obtainableShiny = games.any { !it.shinyLocked }
     ScreenSection(
-        title = "Where to get it",
+        title = "Every game",
         body = when {
             games.isEmpty() ->
                 "Not obtainable in any Switch game. It can only arrive in HOME by transfer or through an event."

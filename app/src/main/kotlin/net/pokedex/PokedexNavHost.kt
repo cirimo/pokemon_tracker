@@ -11,6 +11,7 @@ import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.BoxesRoute
 import net.pokedex.feature.dex.dexGraph
 import net.pokedex.feature.settings.BackupRestoreRoute
+import net.pokedex.feature.settings.MyGamesRoute
 import net.pokedex.feature.settings.RestoreOffer
 import net.pokedex.feature.settings.SettingsRoute
 import net.pokedex.feature.settings.settingsGraph
@@ -51,6 +52,7 @@ fun PokedexNavHost() {
                 navController = navController,
                 sharedTransitionScope = this@SharedTransitionLayout,
                 onOpenSettings = { navController.navigate(SettingsRoute) },
+                onOpenMyGames = { navController.navigate(MyGamesRoute) },
             )
             settingsGraph(
                 navController = navController,

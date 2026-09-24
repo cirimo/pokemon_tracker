@@ -54,6 +54,7 @@ fun NavGraphBuilder.dexGraph(
     navController: NavController,
     sharedTransitionScope: SharedTransitionScope,
     onOpenSettings: () -> Unit,
+    onOpenMyGames: () -> Unit,
 ) {
     val openSlot: (CatchKey) -> Unit = { navController.navigate(SlotDetailRoute(it)) }
     val openVariant: (String) -> Unit = { navController.navigate(VariantDetailRoute(it)) }
@@ -87,6 +88,7 @@ fun NavGraphBuilder.dexGraph(
                 onOpenSlot = openSlot,
                 onOpenVariant = openVariant,
                 onShowInBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
+                onOpenMyGames = onOpenMyGames,
             )
         }
     }
