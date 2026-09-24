@@ -133,8 +133,8 @@ device.
                                     ╎
 ┌──────────── user.db (migrated, never destroyed) ─────────────────────────────┐
 │  catch_record   PK (variantId, copyIndex)                                    │
-│  user_settings  single row                                                   │
-│  backup_log     rolling local backups                                        │
+│  user_settings  single row (incl. backup folder URI, last origin game)       │
+│  backup_log     status of backups this install wrote; NOT the restore list   │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -161,7 +161,8 @@ Entity definitions: `core/data/src/main/kotlin/net/pokedex/core/data/{reference,
 | `:core:model` | JVM library | Domain types plus the two pieces of real logic — progress derivation and preset diffing. No Android, so its tests run in milliseconds. Also the thing `:design-system` is forbidden to depend on |
 | `:core:data` | Android library | Both databases, DAOs, repositories, backup/restore, and the dataset asset. The only module that knows SQLite exists |
 | `:design-system` | Android library | Theme, tokens, components, gallery. Depends on nothing internal |
-| `:feature:dex` | Android library | The first feature. At M0 it holds only the smoke screen |
+| `:feature:dex` | Android library | Box view, search, slot and species detail, the catch sheet, and Progress |
+| `:feature:settings` | Android library | Settings, backup and restore, and the first-launch restore offer. Separate from the dex because the Storage Access Framework launchers and the restore flow share nothing with it |
 | `:baselineprofile` | Android test (`com.android.test`) | Drives the release-like build on a phone to generate `:app`'s baseline profile. It exists because a device measurement put the pager over its frame budget under JIT (§8). It reaches `:app` through `targetProjectPath`, never a project dependency, and only `:app` may reference it; CI checks both, so it cannot become a path from one feature to another |
 
 Deliberately absent: `:core:database` (it would only hold the entity files `:core:data`
@@ -207,8 +208,14 @@ than a destination (`docs/adr/0010-search-is-a-mode.md`):
 
 ```
 Boxes (start; search is a mode) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)
-Settings ──→ BackupRestore
+Boxes ──→ Progress ──→ (back to Boxes, on a box or on search "Needed in <game>")
+Boxes ──→ Settings ──→ BackupRestore(fileUri?)
+RestoreOffer: a sheet beside the NavHost, shown only on an empty database ──→ BackupRestore
 ```
+
+Two features never name each other's routes. The box view reaches Settings through a
+callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view
+through a callback `:app` passes to `settingsGraph`.
 
 **Errors.** `Outcome<T>` = `Ok | Err(AppError)` in `:core:model`. `AppError` splits into
 `Fatal` (`DatasetMissing`, `DatasetCorrupt`, `DatasetVersionUnsupported`) and
@@ -221,7 +228,33 @@ raised for anything touching user data.
 `docs/adr/0007-backup-format.md`. `schema` is a single integer; a file from a newer schema
 is **refused outright** rather than partially imported, with both version numbers shown.
 Unknown keys are ignored, so additive changes do not bump `schema`. Records are sorted on
-export so two exports of the same data are byte-identical and diffable.
+export so two exports of the same data are byte-identical and diffable. Each record carries
+`updatedAt` (added in M3, additively), and a merge keeps whichever side changed a record last.
+
+**Durability** (M3, `docs/adr/0011-backups-outside-the-sandbox.md`). On 2026-09-23 an
+uninstall took every record, because the only copy lived inside the app's sandbox. Now:
+
+- Automatic backups go to a folder the user picks once through the Storage Access Framework
+  (`BackupLocation`, `SafBackupFolder`). The files belong to the user and outlive an
+  uninstall. Until a folder is picked, or if its grant is lost, they go inside the app, and
+  Settings says so with a warning.
+- WorkManager writes one two minutes after the last change, flushes it when the app goes to
+  the background, and runs daily as a net (`BackupScheduler`, `AutoBackupWorker`).
+- `BackupWriter` (`:core:model`, JVM-tested) keeps the rolling set from destroying what it
+  protects: no backup of an empty database, no rewrite of unchanged records, a high-water
+  mark (the file with the most catches) that is never pruned, a separate pool of three
+  pre-import snapshots, pruning scoped to the build's own file prefix, and a read-back check
+  after every write.
+- Import reads the current records, writes the pre-import snapshot and swaps or merges the
+  table in one Room transaction. If the snapshot fails, nothing is imported.
+- The first launch on an empty database offers a restore, which re-adopts the folder in the
+  same tap.
+- `allowBackup` is on for device-to-device transfer of `user.db` only; cloud backup carries
+  nothing.
+
+The whole loop (catch, leave the app, uninstall, reinstall, offer, pick folder, preview,
+restore) was verified on the emulator with `net.pokedex.debug`, and `BackupRepositoryTest`
+covers the durability path against real Room on a device.
 
 ---
 

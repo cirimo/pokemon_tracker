@@ -26,7 +26,7 @@ Every screen should answer one of three questions:
 | Platform | Android only, native Kotlin + Jetpack Compose. No multiplatform in v1. |
 | Min SDK | 26 (Android 8) — revisit upward if it buys us anything |
 | Data | Offline-first Room/SQLite. No backend, no auth, no network at runtime. |
-| Durability | Explicit export/import (JSON) + automatic rolling local backups |
+| Durability | Explicit export/import (JSON) + automatic rolling backups in a user-picked folder outside the sandbox (ADR 0011) |
 | Reference data | Static dataset compiled into the app at build time |
 | Game scope | Switch era: LGPE, SwSh(+DLC), BDSP, PLA, SV(+DLC), Legends Z-A, and HOME as the hub |
 | Dex definition | The PokéPC **"Grouped by Regions (Optimized)"** preset — 52 boxes, 1394 slots |
@@ -109,5 +109,7 @@ One prompt per milestone, each run as its own Claude Code session, in order:
      settles starts 10–17 ms late behind Compose prefetch and page teardown; find out which
      per-tile object costs that before changing anything. Independent of M3.
 4. [`prompts/04-track-my-dex.md`](prompts/04-track-my-dex.md) — M3: backups that survive
-   an uninstall first, then the catch flow, dashboards and settings. **Next.**
+   an uninstall first, then the catch flow, dashboards and settings. **Done 2026-09-24**:
+   see `docs/adr/0011-backups-outside-the-sandbox.md` and `docs/architecture.md` §6,
+   "Durability". The baseline profile regeneration it calls for is pending a phone run.
 5. Further feature prompts, one per milestone, written as each one comes up.
