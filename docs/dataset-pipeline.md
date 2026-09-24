@@ -19,6 +19,7 @@ npm run build:dataset          # rebuild reference.db + the manifest, then valid
 npm run build:sprites          # download and encode the shiny set (needs network)
 npm run validate               # validate the checked-in asset
 npm run validate -- --sprites  # also check every sprite is present and none is shared
+npm run coverage -- la --list  # how much of one game is curated, and what is left
 npm test                       # pipeline unit tests
 ```
 
@@ -183,6 +184,20 @@ rate, and names every game and method it applies to:
 
 Exactly one of `rollsAdded` and `denominator` per row; the schema enforces it. The table
 in the app holds one row per (game, method).
+
+### Curating a game
+
+Work one game at a time, from its coverage report:
+
+```bash
+npm run build:dataset
+npm run coverage -- la --list
+```
+
+It counts the variants the game offers with a shiny released, and splits them into
+*method recorded*, *shiny-locked* and *missing*. Missing is not an error -- the app shows
+"no method recorded yet" -- so this is a to-do list, not a validator. A game is done when
+missing is zero.
 
 ### Scope
 

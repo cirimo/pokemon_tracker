@@ -8,6 +8,7 @@
     "build:dataset": "tsx src/index.ts build",
     "build:sprites": "tsx src/index.ts sprites",
     "validate": "tsx src/index.ts validate",
+    "coverage": "tsx src/index.ts coverage",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
