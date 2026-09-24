@@ -1,6 +1,8 @@
 package net.pokedex
 
 import android.app.Application
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -10,13 +12,27 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import net.pokedex.core.data.backup.BackupScheduler
 import net.pokedex.core.data.repository.DexRepository
 import javax.inject.Inject
 
 @HiltAndroidApp
-class PokedexApplication : Application(), SingletonImageLoader.Factory {
+class PokedexApplication : Application(), SingletonImageLoader.Factory, Configuration.Provider {
 
     @Inject lateinit var dexRepository: DexRepository
+
+    @Inject lateinit var backupScheduler: BackupScheduler
+
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /**
+     * WorkManager is initialised on demand with Hilt's factory, so the backup worker gets its
+     * repository injected. The default initializer is removed in the manifest for this.
+     */
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     /**
      * Starts reading the dex before the first Activity exists.
@@ -29,7 +45,8 @@ class PokedexApplication : Application(), SingletonImageLoader.Factory {
      */
     override fun onCreate() {
         super.onCreate()
-        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch { dexRepository.dex() }
+        appScope.launch { dexRepository.dex() }
+        backupScheduler.start(appScope)
     }
 
     /**

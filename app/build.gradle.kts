@@ -122,6 +122,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.navigation.compose)
+    // The Application hands WorkManager Hilt's worker factory, so the backup worker in
+    // :core:data can be injected.
+    implementation(libs.hilt.work)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.coil.compose)
     // Already on the classpath through AndroidX, declared so it cannot quietly leave. It
     // matters only for an install without the .dm: `./gradlew installRelease` pushes the
