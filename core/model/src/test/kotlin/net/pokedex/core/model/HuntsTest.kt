@@ -178,6 +178,32 @@ class HuntsTest {
     }
 
     @Test
+    fun `a female regional form is the same hunt as the male`() {
+        val female = DexFixtures.variant("raichu-alola-f", 26, "Raichu (Alolan, Female)")
+            .copy(isRegional = true, formId = "alola-f", isFemaleForm = true)
+        val variants = DexFixtures.variants.map {
+            if (it.id.value == "raichu-alola") it.copy(isRegional = true, formId = "alola") else it
+        } + female
+        val dex = Dex.assemble(
+            preset = DexFixtures.dex.preset,
+            boxes = DexFixtures.boxes,
+            // The mewtwo slot becomes the female form's, so the preset keeps its size.
+            slots = DexFixtures.slots.map {
+                if (it.variantId.value == "mewtwo") it.copy(variantId = VariantId("raichu-alola-f")) else it
+            },
+            variants = variants,
+            species = emptyList(),
+            games = DexFixtures.games,
+            availability = DexFixtures.availability +
+                available("raichu-alola", "sv-v") + available("raichu-alola-f", "sv-v"),
+        )
+
+        val alolan = huntPlan(dex, emptyMap(), scarletViolet, noGuide).hunts.single { it.key.regionalForm == "alola" }
+
+        assertThat(alolan.slots.map { it.variant.id.value }).containsExactly("raichu-alola", "raichu-alola-f")
+    }
+
+    @Test
     fun `slots out of reach are kept, each with its reason`() {
         val plan = huntPlan(DexFixtures.dex, emptyMap(), setOf(GameId("sv-s")), noGuide)
         val reasons = plan.outOfReach.associate { it.entry.key.toString() to it.reason }

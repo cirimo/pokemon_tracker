@@ -220,7 +220,7 @@ fun huntPlan(
     val (reachable, unreachable) = needed.partition { entry -> entry.shinyGames.any { it in myGames } }
 
     val hunts = reachable
-        .groupBy { HuntKey(it.variant.dexNum, it.variant.formId.takeIf { _ -> it.variant.isRegional }) }
+        .groupBy { HuntKey(it.variant.dexNum, regionalFormOf(it.variant)) }
         .map { (key, slots) ->
             val sorted = slots.sortedBy { it.order }
             Hunt(
@@ -248,6 +248,15 @@ fun huntPlan(
 
     return HuntPlan(hunts = hunts, outOfReach = unreachable.map { outOfReach(it, dex) })
 }
+
+/**
+ * The region a regional variant belongs to, or null. A female regional form ("hisui-f", as
+ * upstream spells Hisuian Sneasel's) is the same trip as the male, so the gender is dropped.
+ */
+private fun regionalFormOf(variant: Variant): String? =
+    variant.formId?.takeIf { variant.isRegional }?.removeSuffix(FEMALE_SUFFIX)
+
+private const val FEMALE_SUFFIX = "-f"
 
 private fun outOfReach(entry: DexEntry, dex: Dex): OutOfReach {
     val otherGames = dex.games.map { it.id }.filter { it in entry.shinyGames }
