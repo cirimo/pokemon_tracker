@@ -212,4 +212,23 @@ class HuntsTest {
         games = DexFixtures.games,
         availability = availability,
     )
+
+    @Test
+    fun `a game's standing says why it is or is not a place to hunt`() {
+        val dex = DexFixtures.dex
+
+        assertThat(standingOf(dex, VariantId("pikachu"), GameId("sv-s"))).isEqualTo(Standing.Shiny)
+        assertThat(standingOf(dex, VariantId("zacian"), GameId("swsh-sw"))).isEqualTo(Standing.ShinyLocked)
+        assertThat(standingOf(dex, VariantId("unown"), GameId("sv-s"))).isEqualTo(Standing.Absent)
+        assertThat(standingOf(dex, VariantId("raichu"), GameId("sv-s"))).isEqualTo(Standing.Absent)
+    }
+
+    @Test
+    fun `setting the bucket already chosen is not a change`() {
+        val record = Fixtures.caught("pikachu").copy(priority = 5, updatedAt = 1L)
+
+        assertThat(record.withPriority(Priority.Want, now = 2L)).isSameInstanceAs(record)
+        assertThat(record.withPriority(Priority.Later, now = 2L).priority).isEqualTo(-1)
+        assertThat(record.withPriority(Priority.Later, now = 2L).updatedAt).isEqualTo(2L)
+    }
 }

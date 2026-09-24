@@ -3,8 +3,11 @@ package net.pokedex.core.data.repository
 import net.pokedex.core.data.reference.BoxEntity
 import net.pokedex.core.data.reference.DatasetMetaEntity
 import net.pokedex.core.data.reference.DexPresetEntity
+import net.pokedex.core.data.reference.EncounterEntity
+import net.pokedex.core.data.reference.EncounterMethodEntity
 import net.pokedex.core.data.reference.GameAvailabilityEntity
 import net.pokedex.core.data.reference.GameEntity
+import net.pokedex.core.data.reference.OddsModifierEntity
 import net.pokedex.core.data.reference.SlotEntity
 import net.pokedex.core.data.reference.SpeciesEntity
 import net.pokedex.core.data.reference.VariantEntity
@@ -15,9 +18,12 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.DatasetMeta
 import net.pokedex.core.model.DexPreset
+import net.pokedex.core.model.Encounter
+import net.pokedex.core.model.EncounterMethod
 import net.pokedex.core.model.Game
 import net.pokedex.core.model.GameAvailability
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.OddsModifier
 import net.pokedex.core.model.PresetId
 import net.pokedex.core.model.Slot
 import net.pokedex.core.model.Species
@@ -91,6 +97,34 @@ internal fun SlotEntity.toDomain() = Slot(
     slotIndex = slotIndex,
     variantId = VariantId(variantId),
     copyIndex = copyIndex,
+)
+
+internal fun EncounterEntity.toDomain() = Encounter(
+    id = id,
+    variantId = VariantId(variantId),
+    gameId = GameId(gameId),
+    methodId = methodId,
+    location = location,
+    prerequisite = prerequisite,
+    notes = notes,
+    shinyLocked = shinyLocked,
+    fromVariantId = fromVariantId?.let(::VariantId),
+    sourceUrl = sourceUrl,
+)
+
+internal fun EncounterMethodEntity.toDomain() = EncounterMethod(id = id, name = name, description = description)
+
+internal fun OddsModifierEntity.toDomain() = OddsModifier(
+    gameId = GameId(gameId),
+    methodId = methodId,
+    id = id,
+    label = label,
+    rollsAdded = rollsAdded,
+    denominator = denominator,
+    tier = tier,
+    inherent = inherent,
+    notes = notes,
+    sourceUrl = sourceUrl,
 )
 
 internal fun GameEntity.toDomain() = Game(

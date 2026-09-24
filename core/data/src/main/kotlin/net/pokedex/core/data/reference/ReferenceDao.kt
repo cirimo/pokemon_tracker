@@ -44,14 +44,15 @@ interface ReferenceDao {
     @Query("SELECT * FROM game_availability WHERE variantId = :variantId")
     suspend fun availability(variantId: String): List<GameAvailabilityEntity>
 
-    @Query("SELECT * FROM encounter WHERE variantId = :variantId")
-    suspend fun encounters(variantId: String): List<EncounterEntity>
+    /** Every curated encounter. Small, and read once for the hunt guide; see DexRepository. */
+    @Query("SELECT * FROM encounter ORDER BY id")
+    suspend fun encounters(): List<EncounterEntity>
 
     @Query("SELECT * FROM encounter_method ORDER BY id")
     suspend fun encounterMethods(): List<EncounterMethodEntity>
 
-    @Query("SELECT * FROM odds_modifier WHERE gameId = :gameId AND methodId = :methodId")
-    suspend fun oddsModifiers(gameId: String, methodId: String): List<OddsModifierEntity>
+    @Query("SELECT * FROM odds_modifier ORDER BY gameId, methodId, id")
+    suspend fun oddsModifiers(): List<OddsModifierEntity>
 
     // Counts used by the asset integrity check and by the M0 smoke screen.
     @Query("SELECT COUNT(*) FROM slot WHERE presetId = :presetId")

@@ -151,6 +151,43 @@ data class OutOfReach(val entry: DexEntry, val reason: Reason, val games: List<G
     }
 }
 
+/**
+ * Where a variant stands in one game, as slot detail says it. Every case but [Shiny] is a
+ * reason the game is not a place to hunt it.
+ */
+enum class Standing {
+    /** Obtainable and not shiny-locked. The only one a hunt can use. */
+    Shiny,
+
+    /** Obtainable, but never shiny there. */
+    ShinyLocked,
+
+    /** Only through an event distribution. */
+    EventOnly,
+
+    /** Can live in the game's boxes, but only arrives through HOME. */
+    TransferOnly,
+
+    /** Obtainable, but no shiny of it has been released anywhere. */
+    NoShinyYet,
+
+    /** The game does not have it. */
+    Absent,
+}
+
+fun standingOf(dex: Dex, variant: VariantId, game: GameId): Standing {
+    val row = dex.availability(variant).firstOrNull { it.gameId == game } ?: return Standing.Absent
+    val shinyExists = dex.variant(variant)?.shinyReleased ?: false
+    return when {
+        row.obtainable && !shinyExists -> Standing.NoShinyYet
+        row.obtainable && row.shinyLocked -> Standing.ShinyLocked
+        row.obtainable -> Standing.Shiny
+        row.eventOnly -> Standing.EventOnly
+        row.transferOnly -> Standing.TransferOnly
+        else -> Standing.Absent
+    }
+}
+
 data class HuntPlan(val hunts: List<Hunt>, val outOfReach: List<OutOfReach>)
 
 /**

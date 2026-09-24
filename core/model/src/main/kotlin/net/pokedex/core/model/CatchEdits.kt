@@ -34,6 +34,13 @@ fun CatchRecord.withDetails(origin: GameId?, caughtAt: Long?, notes: String?, no
     updatedAt = now,
 )
 
+/**
+ * Sets the hunt priority bucket. Unchanged is returned as is, updatedAt included, so a
+ * tap on the bucket already chosen is not a change a backup or a merge has to carry.
+ */
+fun CatchRecord.withPriority(priority: Priority, now: Long): CatchRecord =
+    if (Priority.of(this.priority) == priority) this else copy(priority = priority.value, updatedAt = now)
+
 /** Whether an uncaught record still holds something the user wrote down. */
 val CatchRecord.hasDetails: Boolean
     get() = originGameId != null || caughtAt != null || notes != null
