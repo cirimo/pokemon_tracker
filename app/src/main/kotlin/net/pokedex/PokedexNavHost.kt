@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.BoxesRoute
 import net.pokedex.feature.dex.dexGraph
+import net.pokedex.feature.settings.BackupRestoreRoute
+import net.pokedex.feature.settings.RestoreOffer
 import net.pokedex.feature.settings.SettingsRoute
 import net.pokedex.feature.settings.settingsGraph
 
@@ -23,6 +25,7 @@ import net.pokedex.feature.settings.settingsGraph
  * Shape (docs/architecture.md):
  *   Boxes (start, with search as a mode) -> SlotDetail(key) -> VariantDetail(variantId)
  *   Boxes -> Settings -> BackupRestore
+ *   RestoreOffer (a sheet over the first screen, on an empty database) -> BackupRestore
  *
  * The SharedTransitionLayout is here because both sides of the slot-to-detail shared
  * element must sit inside the same one, and the NavHost is the only thing both are inside.
@@ -55,4 +58,10 @@ fun PokedexNavHost() {
             )
         }
     }
+    // Beside the NavHost, not in it: the offer shows over whatever the first screen is, and
+    // only while the database is empty (docs/adr/0011-backups-outside-the-sandbox.md).
+    RestoreOffer(
+        onRestoreFromFolder = { navController.navigate(BackupRestoreRoute()) },
+        onRestoreFromFile = { navController.navigate(BackupRestoreRoute(it.toString())) },
+    )
 }
