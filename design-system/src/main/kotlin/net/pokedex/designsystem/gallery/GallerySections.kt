@@ -35,6 +35,7 @@ import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
 import net.pokedex.designsystem.component.SearchField
+import net.pokedex.designsystem.component.SettingsSamples
 import net.pokedex.designsystem.component.SlotState
 import net.pokedex.designsystem.component.SortControl
 import net.pokedex.designsystem.component.SortOption
@@ -74,6 +75,7 @@ internal fun GallerySections() {
     GallerySection("Stat tiles") { StatSection() }
     GallerySection("Empty, error, loading") { StateSection() }
     GallerySection("Sheets and dialogs") { ContainerSamples() }
+    GallerySection("Settings rows, notices and actions") { SettingsSamples() }
 
     Box(Modifier.padding(dimens.spaceXl))
 }

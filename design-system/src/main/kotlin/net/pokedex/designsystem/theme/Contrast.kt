@@ -53,6 +53,18 @@ val ContrastPairs: List<ContrastPair> = listOf(
     ContrastPair("muted text on case", { it.onCaseMuted }, { it.case }, ContrastKind.Text),
     ContrastPair("muted text on surface", { it.onCaseMuted }, { it.caseSurface }, ContrastKind.Text),
     ContrastPair("muted text on raised surface", { it.onCaseMuted }, { it.caseSurfaceHigh }, ContrastKind.Text),
+    ContrastPair("body text on raised surface", { it.onCase }, { it.caseSurfaceHigh }, ContrastKind.Text),
+    ContrastPair("primary action label on its fill", { it.case }, { it.onCase }, ContrastKind.Text),
+    ContrastPair("destructive action label on case", { it.errorText }, { it.case }, ContrastKind.Text),
+    ContrastPair(
+        "warning glyph on raised surface",
+        { it.errorGraphic },
+        { it.caseSurfaceHigh },
+        ContrastKind.Graphical,
+    ),
+    // Not the rim: rim on case is 2.99:1 in dark, which is fine for a well's hairline inside a
+    // lit grid and not enough to find a button by.
+    ContrastPair("secondary action outline on case", { it.onCaseMuted }, { it.case }, ContrastKind.Graphical),
     ContrastPair("progress numerals on case", { it.accentText }, { it.case }, ContrastKind.Text),
     ContrastPair("progress numerals on surface", { it.accentText }, { it.caseSurface }, ContrastKind.Text),
     ContrastPair("error text on surface", { it.errorText }, { it.caseSurface }, ContrastKind.Text),

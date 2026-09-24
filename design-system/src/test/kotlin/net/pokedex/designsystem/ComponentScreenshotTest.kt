@@ -36,6 +36,7 @@ import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
 import net.pokedex.designsystem.component.SearchField
+import net.pokedex.designsystem.component.SettingsSamples
 import net.pokedex.designsystem.component.SlotState
 import net.pokedex.designsystem.component.SortControl
 import net.pokedex.designsystem.component.SortOption
@@ -104,6 +105,9 @@ class ComponentScreenshotTest {
 
     @Test
     fun statesAndSkeletons() = captureBothThemes("states") { States() }
+
+    @Test
+    fun settings() = captureBothThemes("settings", alsoLargeFont = true) { SettingsSamples() }
 
     /**
      * One helper, so adding a component to the suite is one line.

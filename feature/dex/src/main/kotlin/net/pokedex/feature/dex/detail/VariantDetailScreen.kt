@@ -14,6 +14,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.ErrorState
+import net.pokedex.designsystem.component.ScreenScaffold
+import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SkeletonBox
 import net.pokedex.designsystem.component.SpeciesCard
 import net.pokedex.designsystem.component.SpeciesHeader
@@ -43,7 +45,7 @@ internal fun VariantDetailScreen(
     onOpenVariant: (String) -> Unit,
 ) {
     val variant = state.variant
-    DetailScaffold(title = variant?.name ?: "Species", onBack = onBack) {
+    ScreenScaffold(title = variant?.name ?: "Species", onBack = onBack) {
         when {
             state.error != null -> ErrorState(
                 title = errorTitle(state.error),
@@ -76,7 +78,7 @@ private fun VariantDetailContent(
         Text(text = it, style = MaterialTheme.typography.bodyMedium, color = PokedexTheme.colors.onCaseMuted)
     }
 
-    DetailSection(
+    ScreenSection(
         title = "In your dex",
         body = if (state.slots.size > 1) "This preset asks for ${state.slots.size} of these." else null,
     ) {
@@ -94,7 +96,7 @@ private fun VariantDetailContent(
     }
 
     if (state.evolvesFrom != null || state.evolvesInto.isNotEmpty()) {
-        DetailSection(title = "Evolution") {
+        ScreenSection(title = "Evolution") {
             state.evolvesFrom?.let { from ->
                 RelatedRow(from, prefix = "Evolves from", onOpen = onOpenVariant)
             }
@@ -105,7 +107,7 @@ private fun VariantDetailContent(
     }
 
     if (state.forms.size > 1) {
-        DetailSection(title = "Forms", body = "Every form of No. ${variant.dexNumber} this preset asks for.") {
+        ScreenSection(title = "Forms", body = "Every form of No. ${variant.dexNumber} this preset asks for.") {
             state.forms.forEach { form ->
                 RelatedRow(form, prefix = if (form.isCurrent) "This form" else null, onOpen = onOpenVariant)
             }

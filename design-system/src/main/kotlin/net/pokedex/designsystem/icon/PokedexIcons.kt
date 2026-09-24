@@ -9,6 +9,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
@@ -68,6 +71,15 @@ object PokedexIcons {
     val Info: ImageVector = Icons.Filled.Info
     val Error: ImageVector = Icons.Filled.Warning
     val Retry: ImageVector = Icons.Filled.Refresh
+
+    /**
+     * The same gear as [Filter], which the core set forces. They never share a screen state:
+     * Settings sits on the box view's top bar, which search mode replaces.
+     */
+    val Settings: ImageVector = Icons.Filled.Settings
+    val Edit: ImageVector = Icons.Filled.Edit
+    val Delete: ImageVector = Icons.Filled.Delete
+    val Date: ImageVector = Icons.Filled.DateRange
 
     val ChevronDown: ImageVector = Icons.Filled.KeyboardArrowDown
     val ChevronUp: ImageVector = Icons.Filled.KeyboardArrowUp

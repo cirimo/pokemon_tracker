@@ -5,18 +5,23 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
+import net.pokedex.designsystem.component.ActionButton
 import net.pokedex.designsystem.component.BoxGrid
 import net.pokedex.designsystem.component.BoxSlot
 import net.pokedex.designsystem.component.BoxSlotItem
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.FilterChip
 import net.pokedex.designsystem.component.ProgressRing
+import net.pokedex.designsystem.component.SettingRow
+import net.pokedex.designsystem.component.SettingSwitch
 import net.pokedex.designsystem.component.SlotState
 import net.pokedex.designsystem.component.describe
 import net.pokedex.designsystem.theme.PokedexTheme
@@ -98,6 +103,22 @@ class AccessibilityTest {
             }
         }
         composeRule.onNodeWithText("Needed").assertHeightIsAtLeast(MIN_TARGET)
+    }
+
+    @Test
+    fun settingRowsAndActionButtonsMeetTheMinimumTouchTarget() {
+        composeRule.setContent {
+            PokedexTheme {
+                Column {
+                    SettingRow(title = "Back up now", onClick = {})
+                    SettingSwitch(title = "Automatic backups", checked = true, onCheckedChange = {})
+                    ActionButton(label = "Merge", onClick = {})
+                }
+            }
+        }
+        composeRule.onNodeWithText("Back up now").assertHeightIsAtLeast(MIN_TARGET)
+        composeRule.onNodeWithText("Merge").assertHeightIsAtLeast(MIN_TARGET)
+        composeRule.onNode(isToggleable()).assertHeightIsAtLeast(MIN_TARGET).assertIsOn()
     }
 
     /** Every slot state announces a sentence, and no two states announce the same one. */

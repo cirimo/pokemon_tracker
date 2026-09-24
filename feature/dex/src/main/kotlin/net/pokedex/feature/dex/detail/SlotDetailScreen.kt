@@ -17,6 +17,8 @@ import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.GameBadge
+import net.pokedex.designsystem.component.ScreenScaffold
+import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SkeletonBox
 import net.pokedex.designsystem.component.SpeciesCard
 import net.pokedex.designsystem.component.SpeciesHeader
@@ -64,7 +66,7 @@ internal fun SlotDetailScreen(
     onShowInBox: (Int) -> Unit,
 ) {
     val slot = state.slot
-    DetailScaffold(title = slot?.location ?: "Slot", onBack = onBack) {
+    ScreenScaffold(title = slot?.location ?: "Slot", onBack = onBack) {
         when {
             state.error != null -> ErrorState(
                 title = errorTitle(state.error),
@@ -114,7 +116,7 @@ private fun SlotDetailContent(
     CaughtToggle(caught = caught, onCaughtChange = { onEvent(SlotDetailEvent.SetCaught(it)) })
 
     if (state.copies.size > 1) {
-        DetailSection(
+        ScreenSection(
             title = "Needed ${state.copies.size} times",
             body = "This preset asks for ${state.copies.size} of this Pokémon. This slot is copy " +
                 "${state.copyNumber} of ${state.copies.size}, and each copy is marked caught on its own.",
@@ -158,7 +160,7 @@ private fun GamesSection(games: List<GameUi>) {
     val dimens = PokedexTheme.dimens
     val colors = PokedexTheme.colors
     val obtainableShiny = games.any { !it.shinyLocked }
-    DetailSection(
+    ScreenSection(
         title = "Where to get it",
         body = when {
             games.isEmpty() ->
