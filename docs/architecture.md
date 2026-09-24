@@ -357,6 +357,7 @@ read immediately before each run.
 | 3. State 2 after background dexopt | speed-profile, install-dm | 233–282 ms | 5.1–5.3% | 7–9 ms | 14–16 ms |
 | Ceiling: state 1 after `compile -m speed` | speed, cmdline | 198–248 ms | 5.1–5.4% | 8 ms | 14 ms |
 | 4. After M3: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 215–238 ms | 5.3–6.1% | 7 ms | 15–17 ms |
+| 5. After the settle-frame fix: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 231–293 ms | 3.1–3.5% | 7–9 ms | 11–13 ms |
 
 State 4 is the M3 build after regenerating the profile with the journey extended to the catch
 sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
@@ -470,6 +471,30 @@ is measured 3.6–3.9% janky, P99 15–16 ms, slow UI 31–33 and slow draw 3–
 the swipe-start cluster: with no idle gap the governor stays ramped and slow-draw frames
 almost vanish. It hides nothing about the settle frame, whose slow-UI count holds.
 
+So the tight run is now a second standing measurement: `TIGHT=1 tools/perf/measure-pager.sh
+<serial>`. It runs the same 25 swipes, but loops them on the device. It does not replace the
+default run, whose numbers remain the baseline everything compares against. Read the two
+together: the default run's slow-draw count, minus the tight run's, is what the idle gap costs.
+
+*What changed.* Only the slot being opened carries `slotOrigin` now (`BoxContent` keeps its
+key, saveable). The other twenty-nine never had a matching destination, so the transition is
+the same in both directions, which was checked frame by frame on the phone. On the profiling
+build it measured the same as A1: 3.1–3.5% janky, P99 11–13 ms, slow UI 21–25. The settle
+phases per swipe were compose 6.6 ms, apply 3.2 ms and deactivate 1.5 ms, and the median
+over-budget idle frame was 0. After regenerating the profile, the installed app is state 5
+in the table above:
+
+| `net.pokedex`, state 5 | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|
+| Default run | 3.1–3.5% | 7–9 ms | 11–13 ms | 22–25 | 20–23 |
+| Tight run (`TIGHT=1`) | 2.9–3.5% | 7–8 ms | 12–13 ms | 24–28 | 4–7 |
+
+The settle frame is no longer the problem. P99 is still over the 8.3 ms budget. What remains
+is the swipe-start cluster, which the default run's slow-draw count shows and the tight run
+largely removes, and the sprites' own cost. A2 bounds the sprites at about 3 ms of P99, mostly
+RenderThread. Neither of these is settle-frame work, and neither is a change to make without
+its own trace.
+
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
 This app is sideloaded, so the profile reaches ART without a store:
@@ -496,4 +521,5 @@ It runs against `net.pokedex.profiling`, a separate application id, because the 
 uninstalls the build it tested. Under the release id that deleted the real install and its
 catch records. A normal build never generates, and neither does CI (it has no device).
 Commit the regenerated profile on its own. Then re-measure with
-`tools/perf/measure-pager.sh <serial>` for each state above and update the table.
+`tools/perf/measure-pager.sh <serial>` for each state above and update the table. Take
+`TIGHT=1` as well.

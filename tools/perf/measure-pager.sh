@@ -13,6 +13,13 @@
 #
 # PKG=net.pokedex.profiling runs the same protocol against the profiling build, which is
 # the only build traces and experiments may use (the release id holds real records).
+#
+# TIGHT=1 is the second standing measurement: the same 25 swipes, looped on the device with
+# 0.15 s between them. The default loop drives each swipe from here, and the adb round trip
+# plus `input` start-up put them about 860 ms apart, long enough for the CPU governor to
+# ramp down before every swipe. The tight run keeps it ramped, so its slow-draw count
+# isolates what that idle gap costs. It does not replace the default run, whose numbers are
+# the baseline. docs/architecture.md §8.
 set -euo pipefail
 
 SERIAL="${1:?usage: measure-pager.sh <serial> [pager-runs] [cold-starts]}"
@@ -62,7 +69,11 @@ for _ in $(seq "$STARTS"); do
 done
 echo
 
-echo "== pager: 25 swipes, 0.5 s apart"
+if [ "${TIGHT:-0}" = "1" ]; then
+  echo "== pager: 25 swipes, looped on the device, 0.15 s apart"
+else
+  echo "== pager: 25 swipes, 0.5 s apart"
+fi
 echo "run  janky        p50   p90   p99   slowUI  slowDraw"
 for run in $(seq "$RUNS"); do
   sh am force-stop "$PKG"
@@ -78,10 +89,14 @@ for run in $(seq "$RUNS"); do
   sleep 2
   [ "$(current_box)" = "1" ] || { echo "reopened away from box 1" >&2; exit 1; }
   sh dumpsys gfxinfo "$PKG" reset > /dev/null
-  for _ in $(seq 25); do
-    sh input swipe 918 960 162 960 180
-    sleep 0.5
-  done
+  if [ "${TIGHT:-0}" = "1" ]; then
+    sh 'for i in $(seq 25); do input swipe 918 960 162 960 180; sleep 0.15; done'
+  else
+    for _ in $(seq 25); do
+      sh input swipe 918 960 162 960 180
+      sleep 0.5
+    done
+  fi
   # The first occurrence of each line is the process-wide aggregate; per-window
   # sections follow it.
   sh dumpsys gfxinfo "$PKG" | awk -v run="$run" '
