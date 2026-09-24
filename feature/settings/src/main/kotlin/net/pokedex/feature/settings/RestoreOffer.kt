@@ -57,7 +57,7 @@ fun RestoreOffer(
     }
     val pickFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
-            viewModel.handled()
+            viewModel.answered()
             onRestoreFromFile(uri)
         }
     }
@@ -107,22 +107,33 @@ class RestoreOfferViewModel @Inject constructor(
     /** Dismissed for this process: the user is on their way to restoring, or closed the sheet. */
     private val handled = MutableStateFlow(false)
 
+    /**
+     * Only an empty database that has never answered the offer and knows no backup folder.
+     * An uninstall clears all three, which is exactly when the offer should come back. A
+     * folder picked in Settings counts as an answer: that user knows where their backups are.
+     */
     val visible: StateFlow<Boolean> = combine(catches.observeRecords(), settings.observe(), handled) { records, s, h ->
-        records.isEmpty() && !s.restoreOfferDismissed && !h
+        records.isEmpty() && !s.restoreOfferDismissed && s.backupTreeUri == null && !h
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), false)
 
     fun handled() {
         handled.value = true
     }
 
-    fun startFresh() {
+    fun startFresh() = answered()
+
+    /**
+     * Any answer is remembered, not only "start fresh". Otherwise a user who picked the folder
+     * and found nothing to restore is asked again on every launch until they catch something.
+     */
+    fun answered() {
         handled()
         viewModelScope.launch { settings.edit { it.copy(restoreOfferDismissed = true) } }
     }
 
     /** Adopts the folder for automatic backups too, then opens the list of what is in it. */
     fun adoptFolder(tree: Uri, then: () -> Unit) {
-        handled()
+        answered()
         viewModelScope.launch {
             // The result is not checked on purpose. If the grant fails, the restore screen still
             // opens on the in-app folder, and its own notice offers to pick again. That beats
