@@ -36,6 +36,7 @@ import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.DexFilter
+import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
@@ -80,17 +81,29 @@ class BoxesViewModel @Inject constructor(
     private val records = catches.observeRecords()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
 
+    // Shared for the same reason as records: both derivations read it, and it should be
+    // one Room observer, not two.
+    private val myGames = settings.observeMyGames()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
+
     private val searching = savedState.getStateFlow(KEY_SEARCHING, false)
     private val filter = savedState.getStateFlow(KEY_FILTER, "").map(::decodeFilter)
     private val jump = savedState.getStateFlow(KEY_JUMP_TO_BOX, NO_JUMP)
 
     // Nullable rather than filterNotNull: if the dex fails to load these must still emit, or
     // the combine below would wait on them forever and the error would never be shown.
-    private val boxes = combine(loaded, records) { loaded, records -> loaded?.let { boxesOf(it, records) } }
-        .flowOn(default)
+    private val boxes = combine(loaded, records, myGames) { loaded, records, games ->
+        loaded?.let { boxesOf(it, records, games) }
+    }.flowOn(default)
 
-    private val search = combine(loaded, records, searching, filter) { loaded, records, active, filter ->
-        loaded?.let { searchOf(it, records, active, filter) } ?: SearchUiState()
+    private val search = combine(
+        loaded,
+        records,
+        myGames,
+        searching,
+        filter,
+    ) { loaded, records, games, active, filter ->
+        loaded?.let { searchOf(it, records, games, active, filter) } ?: SearchUiState()
     }.flowOn(default)
 
     val state: StateFlow<BoxesUiState> =
@@ -218,7 +231,7 @@ class BoxesViewModel @Inject constructor(
 
     private class Boxes(val pages: List<BoxPage>, val overall: Progress, val noShinyRemaining: Int)
 
-    private fun boxesOf(loaded: Loaded, records: Map<CatchKey, CatchRecord>): Boxes {
+    private fun boxesOf(loaded: Loaded, records: Map<CatchKey, CatchRecord>, myGames: Set<GameId>): Boxes {
         val dex = loaded.dex
         val pages = dex.boxes.mapIndexed { i, box ->
             BoxPage(
@@ -229,7 +242,7 @@ class BoxesViewModel @Inject constructor(
                         BoxSlotItem(state = SlotState.Empty, key = "hole-${box.boxIndex}-$position")
                     } else {
                         BoxSlotItem(
-                            state = statusOf(entry, records).toSlotState(),
+                            state = statusOf(entry, records, myGames).toSlotState(),
                             label = entry.variant.displayName,
                             key = entry.key.toString(),
                         )
@@ -247,6 +260,7 @@ class BoxesViewModel @Inject constructor(
     private fun searchOf(
         loaded: Loaded,
         records: Map<CatchKey, CatchRecord>,
+        myGames: Set<GameId>,
         active: Boolean,
         filter: DexFilter,
     ): SearchUiState {
@@ -259,7 +273,7 @@ class BoxesViewModel @Inject constructor(
                 dexNumber = entry.variant.dexNum,
                 type1 = entry.variant.type1,
                 type2 = entry.variant.type2,
-                status = statusOf(entry, records),
+                status = statusOf(entry, records, myGames),
                 location = locationOf(entry),
                 spriteFile = entry.variant.spriteFile,
             )

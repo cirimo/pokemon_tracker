@@ -18,6 +18,7 @@ internal fun SlotStatus.toSlotState(): SlotState = when (this) {
     SlotStatus.Caught -> SlotState.Caught
     SlotStatus.Needed -> SlotState.Needed
     SlotStatus.NoShinyExists -> SlotState.ShinyLocked
+    SlotStatus.Unavailable -> SlotState.Unavailable
 }
 
 internal fun typesOf(type1: String, type2: String?): List<PokemonType?> =

@@ -121,6 +121,9 @@ class Dex(
                         variant = variant,
                         boxName = box.name,
                         order = order,
+                        shinyGames = availabilityByVariant[variant.id].orEmpty()
+                            .filter { it.obtainable && !it.shinyLocked && gameSetOf[it.gameId] != HOME_GAME_SET }
+                            .mapTo(HashSet()) { it.gameId },
                         shinyGameSets = availabilityByVariant[variant.id].orEmpty()
                             .filter { it.obtainable && !it.shinyLocked }
                             .mapNotNullTo(HashSet()) { gameSetOf[it.gameId] }
@@ -158,6 +161,12 @@ data class DexEntry(
     /** Position in preset order, 0-based. The tiebreak for every sort. */
     val order: Int,
     /**
+     * Games, never HOME, where this variant can be obtained AND is not shiny-locked. The
+     * per-game counterpart of [shinyGameSets], which is what "my games" is checked against:
+     * owning Scarlet does not make a Violet exclusive reachable.
+     */
+    val shinyGames: Set<GameId>,
+    /**
      * Game pairs where this variant can be obtained AND is not shiny-locked. Never HOME: a
      * HOME gift is not a hunt, and "available in HOME" would make every filter match it.
      */
@@ -183,13 +192,30 @@ enum class SlotStatus {
 
     /** Not caught, and no shiny of this variant has been released in any game. */
     NoShinyExists,
+
+    /**
+     * Not caught, a shiny exists, but none of the user's games offers it shiny. Only ever
+     * produced when the user has chosen games: with none chosen, nothing is out of reach.
+     */
+    Unavailable,
 }
 
-fun statusOf(entry: DexEntry, records: Map<CatchKey, CatchRecord>): SlotStatus = when {
+/**
+ * @param myGames the games the user owns and plays. Empty means "not chosen yet", which
+ *   must not paint 1394 slots as out of reach, so it produces no [SlotStatus.Unavailable].
+ *   Progress and the dashboards leave it empty on purpose: what is needed does not depend
+ *   on which games you own, only whether you can get it now does.
+ */
+fun statusOf(
+    entry: DexEntry,
+    records: Map<CatchKey, CatchRecord>,
+    myGames: Set<GameId> = emptySet(),
+): SlotStatus = when {
     // Caught wins over "no shiny exists": the dataset can lag behind a real distribution,
     // and a record the user made is a fact the app must not contradict.
     records[entry.key]?.caught == true -> SlotStatus.Caught
     !entry.variant.shinyReleased -> SlotStatus.NoShinyExists
+    myGames.isNotEmpty() && entry.shinyGames.none { it in myGames } -> SlotStatus.Unavailable
     else -> SlotStatus.Needed
 }
 

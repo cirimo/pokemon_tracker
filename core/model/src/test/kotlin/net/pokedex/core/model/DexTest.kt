@@ -84,4 +84,36 @@ class DexTest {
         assertThat(variantStatusOf(copies, oneOfTwo)).isEqualTo(SlotStatus.Needed)
         assertThat(variantStatusOf(copies, both)).isEqualTo(SlotStatus.Caught)
     }
+
+    @Test
+    fun `with no games chosen nothing is unavailable`() {
+        assertThat(statusOf(dex.entry(key("raichu"))!!, emptyMap())).isEqualTo(SlotStatus.Needed)
+    }
+
+    @Test
+    fun `a slot is unavailable only when none of my games offers it shiny`() {
+        val scarlet = setOf(GameId("sv-s"))
+
+        // Raichu is Violet-only in the fixture: owning Scarlet does not reach it.
+        assertThat(statusOf(dex.entry(key("raichu"))!!, emptyMap(), scarlet)).isEqualTo(SlotStatus.Unavailable)
+        assertThat(statusOf(dex.entry(key("pikachu"))!!, emptyMap(), scarlet)).isEqualTo(SlotStatus.Needed)
+        // Shiny-locked in every game that has it, so owning those games does not help.
+        val swsh = setOf(GameId("swsh-sw"), GameId("swsh-sh"))
+        assertThat(statusOf(dex.entry(key("zacian"))!!, emptyMap(), swsh)).isEqualTo(SlotStatus.Unavailable)
+    }
+
+    @Test
+    fun `caught and no-shiny win over unavailable`() {
+        val scarlet = setOf(GameId("sv-s"))
+        val caught = Fixtures.records(Fixtures.caught("raichu"))
+
+        assertThat(statusOf(dex.entry(key("raichu"))!!, caught, scarlet)).isEqualTo(SlotStatus.Caught)
+        assertThat(statusOf(dex.entry(key("magearna"))!!, emptyMap(), scarlet)).isEqualTo(SlotStatus.NoShinyExists)
+    }
+
+    @Test
+    fun `HOME is never one of the games a slot can be hunted in`() {
+        assertThat(dex.entry(key("zacian"))!!.shinyGames).isEmpty()
+        assertThat(dex.entry(key("pikachu"))!!.shinyGames).containsExactly(GameId("sv-s"), GameId("swsh-sw"))
+    }
 }
