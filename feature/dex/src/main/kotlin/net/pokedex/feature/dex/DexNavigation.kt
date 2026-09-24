@@ -11,6 +11,7 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.feature.dex.boxes.BoxesDestination
 import net.pokedex.feature.dex.detail.SlotDetailDestination
 import net.pokedex.feature.dex.detail.VariantDetailDestination
+import net.pokedex.feature.dex.progress.ProgressDestination
 
 /**
  * Type-safe routes, Navigation Compose 2.9 style.
@@ -38,8 +39,15 @@ data class SlotDetailRoute(val variantId: String, val copyIndex: Int) {
 @Serializable
 data class VariantDetailRoute(val variantId: String)
 
+/** The dashboards: overall, by region, by game, and recent catches. */
+@Serializable
+data object ProgressRoute
+
 /** A result a detail screen leaves on the box destination's back stack entry. */
 private const val SHOW_BOX_KEY = "showBox"
+
+/** The game pair Progress asked to see the needed slots of; the box view opens search on it. */
+private const val SHOW_NEEDED_KEY = "showNeeded"
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.dexGraph(
@@ -51,13 +59,24 @@ fun NavGraphBuilder.dexGraph(
     val openVariant: (String) -> Unit = { navController.navigate(VariantDetailRoute(it)) }
     val back: () -> Unit = { navController.popBackStack() }
 
+    // Leave the request on the box destination's back stack entry, then pop back to it.
+    // Popping rather than navigating keeps one box screen on the stack however deep the
+    // trail went.
+    fun returnToBoxes(key: String, value: Any) {
+        navController.getBackStackEntry<BoxesRoute>().savedStateHandle[key] = value
+        navController.popBackStack<BoxesRoute>(inclusive = false)
+    }
+
     composable<BoxesRoute> { entry ->
         CompositionLocalProvider(LocalSpriteTransition provides SpriteTransition(sharedTransitionScope, this)) {
             BoxesDestination(
                 onOpenSlot = openSlot,
                 onOpenSettings = onOpenSettings,
+                onOpenProgress = { navController.navigate(ProgressRoute) },
                 jumpRequests = entry.savedStateHandle.getStateFlow<Int?>(SHOW_BOX_KEY, null),
                 onJumpForwarded = { entry.savedStateHandle[SHOW_BOX_KEY] = null },
+                neededRequests = entry.savedStateHandle.getStateFlow<String?>(SHOW_NEEDED_KEY, null),
+                onNeededForwarded = { entry.savedStateHandle[SHOW_NEEDED_KEY] = null },
             )
         }
     }
@@ -67,15 +86,17 @@ fun NavGraphBuilder.dexGraph(
                 onBack = back,
                 onOpenSlot = openSlot,
                 onOpenVariant = openVariant,
-                onShowInBox = { boxIndex ->
-                    // Leave the request on the box destination's back stack entry, then pop back
-                    // to it. Popping rather than navigating keeps one box screen on the stack
-                    // however deep the detail trail went.
-                    navController.getBackStackEntry<BoxesRoute>().savedStateHandle[SHOW_BOX_KEY] = boxIndex
-                    navController.popBackStack<BoxesRoute>(inclusive = false)
-                },
+                onShowInBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
             )
         }
+    }
+    composable<ProgressRoute> {
+        ProgressDestination(
+            onBack = back,
+            onShowBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
+            onShowNeededIn = { gameSetId -> returnToBoxes(SHOW_NEEDED_KEY, gameSetId) },
+            onOpenSlot = openSlot,
+        )
     }
     composable<VariantDetailRoute> {
         VariantDetailDestination(onBack = back, onOpenSlot = openSlot, onOpenVariant = openVariant)

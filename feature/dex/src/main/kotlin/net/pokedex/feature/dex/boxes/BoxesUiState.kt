@@ -92,6 +92,9 @@ sealed interface BoxesEvent {
     /** "Show in box" from a detail screen: page to this box, leaving search if it is open. */
     data class JumpRequested(val boxIndex: Int) : BoxesEvent
     data object JumpHandled : BoxesEvent
+
+    /** From Progress: open search on the slots still needed that are shiny in this game pair. */
+    data class ShowNeededIn(val gameSetId: String) : BoxesEvent
     data object OpenSearch : BoxesEvent
     data object CloseSearch : BoxesEvent
     data class QueryChanged(val query: String) : BoxesEvent

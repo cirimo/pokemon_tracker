@@ -3,6 +3,7 @@ package net.pokedex.feature.dex.boxes
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -65,19 +67,35 @@ import net.pokedex.feature.dex.slotOrigin
 internal fun BoxesDestination(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenProgress: () -> Unit,
     jumpRequests: StateFlow<Int?>,
     onJumpForwarded: () -> Unit,
+    neededRequests: StateFlow<String?>,
+    onNeededForwarded: () -> Unit,
     viewModel: BoxesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val jump by jumpRequests.collectAsStateWithLifecycle()
+    val needed by neededRequests.collectAsStateWithLifecycle()
     LaunchedEffect(jump) {
         jump?.let {
             viewModel.onEvent(BoxesEvent.JumpRequested(it))
             onJumpForwarded()
         }
     }
-    BoxesScreen(state = state, onEvent = viewModel::onEvent, onOpenSlot = onOpenSlot, onOpenSettings = onOpenSettings)
+    LaunchedEffect(needed) {
+        needed?.let {
+            viewModel.onEvent(BoxesEvent.ShowNeededIn(it))
+            onNeededForwarded()
+        }
+    }
+    BoxesScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onOpenSlot = onOpenSlot,
+        onOpenSettings = onOpenSettings,
+        onOpenProgress = onOpenProgress,
+    )
 }
 
 /**
@@ -95,6 +113,7 @@ internal fun BoxesScreen(
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenProgress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dimens = PokedexTheme.dimens
@@ -170,6 +189,7 @@ internal fun BoxesScreen(
                     focusManager.clearFocus()
                     onOpenSlot(key)
                 },
+                onOpenProgress = onOpenProgress,
             )
         }
     }
@@ -185,6 +205,7 @@ private fun LoadedContent(
     state: BoxesUiState,
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenProgress: () -> Unit,
 ) {
     // rememberPagerState is saveable: after process death it restores the page it was on and
     // ignores startBox. startBox only decides a cold start.
@@ -197,7 +218,13 @@ private fun LoadedContent(
     if (state.search.active) {
         SearchContent(search = state.search, onEvent = onEvent, onOpenResult = onOpenSlot)
     } else {
-        BoxContent(state = state, pager = pager, onEvent = onEvent, onOpenSlot = onOpenSlot)
+        BoxContent(
+            state = state,
+            pager = pager,
+            onEvent = onEvent,
+            onOpenSlot = onOpenSlot,
+            onOpenProgress = onOpenProgress,
+        )
     }
 }
 
@@ -207,6 +234,7 @@ private fun BoxContent(
     pager: PagerState,
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenProgress: () -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
     val scope = rememberCoroutineScope()
@@ -232,7 +260,7 @@ private fun BoxContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(dimens.spaceMd),
     ) {
-        OverallHeader(state = state, onOpenOverview = { overviewOpen = true })
+        OverallHeader(state = state, onOpenOverview = { overviewOpen = true }, onOpenProgress = onOpenProgress)
 
         BoxPager(
             pages = state.pages,
@@ -268,19 +296,24 @@ private fun BoxContent(
 }
 
 @Composable
-private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit) {
+private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpenProgress: () -> Unit) {
     val dimens = PokedexTheme.dimens
     Column(
         modifier = Modifier.padding(horizontal = dimens.spaceLg),
         verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ProgressReadout(
-                caught = state.overall.caught,
-                total = state.overall.total,
-                label = "shiny",
-                modifier = Modifier.weight(1f),
-            )
+            // The headline number opens the dashboards: it is the thing you tap when you want
+            // to know more about it. The chevron says it can be tapped.
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(onClickLabel = "Open progress", role = Role.Button, onClick = onOpenProgress),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ProgressReadout(caught = state.overall.caught, total = state.overall.total, label = "shiny")
+                Icon(PokedexIcons.NextBox, contentDescription = null, tint = PokedexTheme.colors.onCaseMuted)
+            }
             OutlinedButton(onClick = onOpenOverview) {
                 Text("All boxes", style = PokedexTheme.text.badgeLabel)
             }

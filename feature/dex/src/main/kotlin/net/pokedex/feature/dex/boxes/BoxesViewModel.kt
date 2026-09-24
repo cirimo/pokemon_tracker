@@ -32,6 +32,7 @@ import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
+import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.DexFilter
@@ -131,6 +132,12 @@ class BoxesViewModel @Inject constructor(
                 savedState[KEY_JUMP_TO_BOX] = event.boxIndex
             }
             BoxesEvent.JumpHandled -> savedState[KEY_JUMP_TO_BOX] = NO_JUMP
+            is BoxesEvent.ShowNeededIn -> {
+                savedState[KEY_FILTER] = Json.encodeToString(
+                    DexFilter(caught = CaughtFilter.Needed, gameSets = setOf(event.gameSetId)),
+                )
+                savedState[KEY_SEARCHING] = true
+            }
             BoxesEvent.OpenSearch -> savedState[KEY_SEARCHING] = true
             BoxesEvent.CloseSearch -> closeSearch()
             is BoxesEvent.QueryChanged -> editFilter { copy(query = event.query) }
