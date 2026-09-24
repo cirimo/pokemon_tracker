@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  API 26-27. requireFlags does not exist before API 28, so an include here would go to the
+  cloud as well. Nothing is included. xml-v28/backup_rules.xml carries user.db on device
+  transfer from API 28 to 30; data_extraction_rules.xml governs 31+.
+-->
+<full-backup-content>
+    <exclude domain="root" />
+    <exclude domain="database" />
+    <exclude domain="sharedpref" />
+    <exclude domain="file" />
+</full-backup-content>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  API 28-30: user.db on device-to-device transfer only, never to the cloud.
+  docs/adr/0011-backups-outside-the-sandbox.md.
+-->
+<full-backup-content>
+    <include domain="database" path="user.db" requireFlags="deviceToDeviceTransfer" />
+    <include domain="database" path="user.db-wal" requireFlags="deviceToDeviceTransfer" />
+</full-backup-content>

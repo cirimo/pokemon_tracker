@@ -1,12 +1,14 @@
 # 0007 — Versioned JSON backup, refusing anything from a newer schema
 
-Status: accepted, 2026-09-22
+Status: accepted, 2026-09-22. Where the files go, and the `allowBackup` position below, are
+amended by `0011-backups-outside-the-sandbox.md`.
 
 ## Context
 
 The requirement is surviving a lost phone. There is no backend and no account, so the
 only durability story is a file the user exports and can put somewhere safe. Android
-cloud backup is off deliberately -- it is silent, unversioned and not inspectable.
+cloud backup is off deliberately -- it is silent, unversioned and not inspectable. (Device
+transfer of `user.db` was turned on in M3; see ADR 0011.)
 
 The file may be restored years later, possibly into a newer build.
 

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Cloud backup is off (android:allowBackup="false") because durability here is
-  user-driven export/import, not a silent platform backup we cannot inspect or
-  version. See docs/adr/0007-backup-format.md.
+  API 31+. Cloud backup carries nothing: it is silent, unversioned and cannot be tested
+  here. Device-to-device transfer (a cable or Smart Switch at a phone swap) carries
+  user.db and nothing else. It happens once, into an empty install, at a moment the user
+  chooses. reference.db is rebuilt from the asset. docs/adr/0011-backups-outside-the-sandbox.md.
+
+  The -wal file travels too: Room runs in WAL mode, and user.db alone can be missing the
+  latest commits until a checkpoint.
 -->
 <data-extraction-rules>
     <cloud-backup>
@@ -12,6 +16,7 @@
         <exclude domain="file" />
     </cloud-backup>
     <device-transfer>
-        <exclude domain="root" />
+        <include domain="database" path="user.db" />
+        <include domain="database" path="user.db-wal" />
     </device-transfer>
 </data-extraction-rules>
