@@ -356,6 +356,17 @@ read immediately before each run.
 | 2. `installRelease` with the app profile | speed-profile, install-dm | 231–289 ms | 4.5–5.3% | 7 ms | 13–14 ms |
 | 3. State 2 after background dexopt | speed-profile, install-dm | 233–282 ms | 5.1–5.3% | 7–9 ms | 14–16 ms |
 | Ceiling: state 1 after `compile -m speed` | speed, cmdline | 198–248 ms | 5.1–5.4% | 8 ms | 14 ms |
+| 4. After M3: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 215–238 ms | 5.3–6.1% | 7 ms | 15–17 ms |
+
+State 4 is the M3 build after regenerating the profile with the journey extended to the catch
+sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
+state 2. The pager is a little worse: 0.5–1 point more janky frames, and P99 up 2–3 ms. Its
+slow-UI-thread counts (38–50 per run) point at main-thread work, not rendering. M3 changed
+nothing in the pager or the grid. It did add a clickable header row above the pager and an
+app-scope observer of the records table for the backup scheduler, which is idle during
+swipes. Whether any of that is the cause, or it is thermal variance between two days, is a
+question for the settle-frame investigation (`prompts/03c-settle-frame.md`). It was not
+chased here.
 
 The profile brings an installed app to the fully compiled ceiling on its first launch. It
 does not bring the pager inside 8.3 ms P99, and nothing that compiles code can, because the
