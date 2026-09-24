@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.BoxesRoute
 import net.pokedex.feature.dex.dexGraph
+import net.pokedex.feature.settings.SettingsRoute
+import net.pokedex.feature.settings.settingsGraph
 
 /**
  * The navigation graph.
@@ -20,7 +22,7 @@ import net.pokedex.feature.dex.dexGraph
  *
  * Shape (docs/architecture.md):
  *   Boxes (start, with search as a mode) -> SlotDetail(key) -> VariantDetail(variantId)
- *   Settings -> BackupRestore   (M3)
+ *   Boxes -> Settings -> BackupRestore
  *
  * The SharedTransitionLayout is here because both sides of the slot-to-detail shared
  * element must sit inside the same one, and the NavHost is the only thing both are inside.
@@ -42,7 +44,15 @@ fun PokedexNavHost() {
             popEnterTransition = { fadeIn(fade) },
             popExitTransition = { fadeOut(fade) },
         ) {
-            dexGraph(navController, this@SharedTransitionLayout)
+            dexGraph(
+                navController = navController,
+                sharedTransitionScope = this@SharedTransitionLayout,
+                onOpenSettings = { navController.navigate(SettingsRoute) },
+            )
+            settingsGraph(
+                navController = navController,
+                onRestored = { navController.popBackStack<BoxesRoute>(inclusive = false) },
+            )
         }
     }
 }

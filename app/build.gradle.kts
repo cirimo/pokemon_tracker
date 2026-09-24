@@ -115,6 +115,7 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":design-system"))
     implementation(project(":feature:dex"))
+    implementation(project(":feature:settings"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

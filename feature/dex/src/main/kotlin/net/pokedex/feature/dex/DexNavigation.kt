@@ -42,7 +42,11 @@ data class VariantDetailRoute(val variantId: String)
 private const val SHOW_BOX_KEY = "showBox"
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-fun NavGraphBuilder.dexGraph(navController: NavController, sharedTransitionScope: SharedTransitionScope) {
+fun NavGraphBuilder.dexGraph(
+    navController: NavController,
+    sharedTransitionScope: SharedTransitionScope,
+    onOpenSettings: () -> Unit,
+) {
     val openSlot: (CatchKey) -> Unit = { navController.navigate(SlotDetailRoute(it)) }
     val openVariant: (String) -> Unit = { navController.navigate(VariantDetailRoute(it)) }
     val back: () -> Unit = { navController.popBackStack() }
@@ -51,6 +55,7 @@ fun NavGraphBuilder.dexGraph(navController: NavController, sharedTransitionScope
         CompositionLocalProvider(LocalSpriteTransition provides SpriteTransition(sharedTransitionScope, this)) {
             BoxesDestination(
                 onOpenSlot = openSlot,
+                onOpenSettings = onOpenSettings,
                 jumpRequests = entry.savedStateHandle.getStateFlow<Int?>(SHOW_BOX_KEY, null),
                 onJumpForwarded = { entry.savedStateHandle[SHOW_BOX_KEY] = null },
             )

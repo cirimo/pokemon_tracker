@@ -57,7 +57,7 @@ class BackupLocation @Inject constructor(
      * Adopts a folder from the system picker: takes a grant that outlives this process,
      * lets go of the previous folder's grant, and remembers it.
      */
-    suspend fun choose(tree: Uri) = withContext(io) {
+    suspend fun choose(tree: Uri): Outcome<Unit> = storage(io, "the folder could not be used") {
         val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
         val resolver = context.contentResolver
         resolver.takePersistableUriPermission(tree, flags)

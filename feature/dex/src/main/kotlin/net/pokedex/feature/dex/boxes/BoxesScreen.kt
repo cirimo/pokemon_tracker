@@ -64,6 +64,7 @@ import net.pokedex.feature.dex.slotOrigin
 @Composable
 internal fun BoxesDestination(
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenSettings: () -> Unit,
     jumpRequests: StateFlow<Int?>,
     onJumpForwarded: () -> Unit,
     viewModel: BoxesViewModel = hiltViewModel(),
@@ -76,7 +77,7 @@ internal fun BoxesDestination(
             onJumpForwarded()
         }
     }
-    BoxesScreen(state = state, onEvent = viewModel::onEvent, onOpenSlot = onOpenSlot)
+    BoxesScreen(state = state, onEvent = viewModel::onEvent, onOpenSlot = onOpenSlot, onOpenSettings = onOpenSettings)
 }
 
 /**
@@ -93,6 +94,7 @@ internal fun BoxesScreen(
     state: BoxesUiState,
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dimens = PokedexTheme.dimens
@@ -145,6 +147,12 @@ internal fun BoxesScreen(
                     .weight(1f)
                     .onFocusChanged { if (it.isFocused) onEvent(BoxesEvent.OpenSearch) },
             )
+            // Not in search mode: there the same gear glyph is the filter button.
+            if (!state.search.active) {
+                IconButton(onClick = onOpenSettings) {
+                    Icon(PokedexIcons.Settings, contentDescription = "Settings and backups")
+                }
+            }
         }
 
         when {
