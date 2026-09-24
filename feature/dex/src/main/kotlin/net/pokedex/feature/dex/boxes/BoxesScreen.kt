@@ -240,6 +240,13 @@ private fun BoxContent(
     val scope = rememberCoroutineScope()
     val motion = PokedexTheme.motion
     var overviewOpen by rememberSaveable { mutableStateOf(false) }
+    // The one tile that carries the shared-element origin: the one being opened. Every
+    // sprite carrying it registered thirty entries with the app-wide transition scope per
+    // page, and adding and removing those made each swipe's settle frame late
+    // (docs/architecture.md §8). Only the tapped slot has a matching destination, so the
+    // other twenty-nine never animated anyway. Saveable, because the grid leaves
+    // composition while the detail is open and the return transition needs it back.
+    var openedKey by rememberSaveable { mutableStateOf<String?>(null) }
 
     // Here and not above the search switch: PagerState.scrollToPage waits for the pager's
     // first layout, so it can only complete where the pager is actually on screen. The
@@ -267,11 +274,20 @@ private fun BoxContent(
             state = pager,
             onSlotClick = { box, position ->
                 val item = state.pages.getOrNull(box)?.slots?.getOrNull(position)
-                item?.let { state.slots.key(it.key) }?.let(onOpenSlot)
+                val key = item?.let { state.slots.key(it.key) }
+                if (item != null && key != null) {
+                    // Set in the same event as the navigation, so the origin and the
+                    // destination enter composition in the same frame and match.
+                    openedKey = item.key
+                    onOpenSlot(key)
+                }
             },
             sprite = { item, rendering ->
                 val file = state.slots.sprite(item.key)
-                if (file != null) DexSprite(file, rendering, Modifier.slotOrigin(item.key))
+                if (file != null) {
+                    val origin = if (item.key == openedKey) Modifier.slotOrigin(item.key) else Modifier
+                    DexSprite(file, rendering, origin)
+                }
             },
         )
 
