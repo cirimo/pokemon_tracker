@@ -45,6 +45,19 @@ data class UserSettings(
      * It is deliberately not part of a backup.
      */
     val lastBoxIndex: Int = 0,
+    /**
+     * The folder automatic backups are written to: a Storage Access Framework tree URI the
+     * user granted once. Null until they pick one. Device-specific, so never in a backup --
+     * a restored URI would point at a grant the new install does not hold.
+     */
+    val backupTreeUri: String? = null,
+    /**
+     * The game the last catch was recorded in. The catch sheet prefills it, because catches
+     * come in runs from one game, but only where the variant can actually be shiny there.
+     */
+    val lastOriginGameId: GameId? = null,
+    /** "Start fresh" on the first-launch restore offer. An uninstall resets it, which is right. */
+    val restoreOfferDismissed: Boolean = false,
 ) {
     companion object {
         val DEFAULT = UserSettings(

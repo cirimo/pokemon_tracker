@@ -31,8 +31,12 @@ class SettingsRepository @Inject constructor(
         dao.upsert(settings.toEntity())
     }
 
-    suspend fun setLastBox(boxIndex: Int) = withContext(io) {
+    suspend fun setLastBox(boxIndex: Int) = edit { it.copy(lastBoxIndex = boxIndex) }
+
+    /** Read, change, write back only if something changed. There is one writer: the user. */
+    suspend fun edit(transform: (UserSettings) -> UserSettings) = withContext(io) {
         val current = dao.get()?.toDomain() ?: UserSettings.DEFAULT
-        if (current.lastBoxIndex != boxIndex) dao.upsert(current.copy(lastBoxIndex = boxIndex).toEntity())
+        val next = transform(current)
+        if (next != current) dao.upsert(next.toEntity())
     }
 }

@@ -1,0 +1,211 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "b5aa53e2b1c53d14dfd79822a3be5610",
+    "entities": [
+      {
+        "tableName": "catch_record",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`variantId` TEXT NOT NULL, `copyIndex` INTEGER NOT NULL, `caught` INTEGER NOT NULL, `originGameId` TEXT, `caughtAt` INTEGER, `notes` TEXT, `favourite` INTEGER NOT NULL, `priority` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY(`variantId`, `copyIndex`))",
+        "fields": [
+          {
+            "fieldPath": "variantId",
+            "columnName": "variantId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "copyIndex",
+            "columnName": "copyIndex",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "caught",
+            "columnName": "caught",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originGameId",
+            "columnName": "originGameId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "caughtAt",
+            "columnName": "caughtAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "favourite",
+            "columnName": "favourite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "priority",
+            "columnName": "priority",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "variantId",
+            "copyIndex"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_catch_record_caught",
+            "unique": false,
+            "columnNames": [
+              "caught"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_catch_record_caught` ON `${TABLE_NAME}` (`caught`)"
+          },
+          {
+            "name": "index_catch_record_favourite",
+            "unique": false,
+            "columnNames": [
+              "favourite"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_catch_record_favourite` ON `${TABLE_NAME}` (`favourite`)"
+          }
+        ]
+      },
+      {
+        "tableName": "user_settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `activePresetId` TEXT NOT NULL, `lastSeenPresetVersion` INTEGER NOT NULL, `lastSeenDatasetVersion` INTEGER NOT NULL, `autoBackupEnabled` INTEGER NOT NULL, `autoBackupKeepCount` INTEGER NOT NULL, `lastBoxIndex` INTEGER NOT NULL DEFAULT 0, `backupTreeUri` TEXT, `lastOriginGameId` TEXT, `restoreOfferDismissed` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activePresetId",
+            "columnName": "activePresetId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSeenPresetVersion",
+            "columnName": "lastSeenPresetVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastSeenDatasetVersion",
+            "columnName": "lastSeenDatasetVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoBackupEnabled",
+            "columnName": "autoBackupEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoBackupKeepCount",
+            "columnName": "autoBackupKeepCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastBoxIndex",
+            "columnName": "lastBoxIndex",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "backupTreeUri",
+            "columnName": "backupTreeUri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastOriginGameId",
+            "columnName": "lastOriginGameId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "restoreOfferDismissed",
+            "columnName": "restoreOfferDismissed",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "backup_log",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`fileName` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `recordCount` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `reason` TEXT NOT NULL, PRIMARY KEY(`fileName`))",
+        "fields": [
+          {
+            "fieldPath": "fileName",
+            "columnName": "fileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recordCount",
+            "columnName": "recordCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "fileName"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b5aa53e2b1c53d14dfd79822a3be5610')"
+    ]
+  }
+}

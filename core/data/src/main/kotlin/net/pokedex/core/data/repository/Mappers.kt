@@ -154,6 +154,9 @@ internal fun UserSettingsEntity.toDomain() = UserSettings(
     autoBackupEnabled = autoBackupEnabled,
     autoBackupKeepCount = autoBackupKeepCount,
     lastBoxIndex = lastBoxIndex,
+    backupTreeUri = backupTreeUri,
+    lastOriginGameId = lastOriginGameId?.let(::GameId),
+    restoreOfferDismissed = restoreOfferDismissed,
 )
 
 internal fun UserSettings.toEntity() = UserSettingsEntity(
@@ -164,4 +167,7 @@ internal fun UserSettings.toEntity() = UserSettingsEntity(
     autoBackupEnabled = autoBackupEnabled,
     autoBackupKeepCount = autoBackupKeepCount,
     lastBoxIndex = lastBoxIndex,
+    backupTreeUri = backupTreeUri,
+    lastOriginGameId = lastOriginGameId?.value,
+    restoreOfferDismissed = restoreOfferDismissed,
 )

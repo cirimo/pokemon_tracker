@@ -29,7 +29,7 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun backupLogDao(): BackupLogDao
 
     companion object {
-        const val VERSION = 2
+        const val VERSION = 3
         const val FILE_NAME = "user.db"
 
         /**
@@ -45,11 +45,28 @@ abstract class UserDatabase : RoomDatabase() {
         }
 
         /**
+         * 2 -> 3: where automatic backups go, the game the catch sheet prefills, and whether
+         * the first-launch restore offer was turned down.
+         *
+         * Additive again: two nullable columns and a flag defaulting to false, so no
+         * existing row changes meaning and catch_record is not touched.
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE user_settings ADD COLUMN backupTreeUri TEXT")
+                db.execSQL("ALTER TABLE user_settings ADD COLUMN lastOriginGameId TEXT")
+                db.execSQL(
+                    "ALTER TABLE user_settings ADD COLUMN restoreOfferDismissed INTEGER NOT NULL DEFAULT 0",
+                )
+            }
+        }
+
+        /**
          * Migrations, in order.
          *
          * When you add one, add a MigrationTestHelper test alongside it. An untested
          * migration on this database is a data-loss bug waiting for a release.
          */
-        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2)
+        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3)
     }
 }

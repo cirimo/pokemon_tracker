@@ -75,6 +75,63 @@ class UserDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migration2To3KeepsRecordsAndSettingsAndAddsNoBackupFolder() {
+        helper.createDatabase(TEST_DB, 2).apply {
+            insertSecondUnown(this)
+            execSQL(
+                "INSERT INTO user_settings " +
+                    "(id, activePresetId, lastSeenPresetVersion, lastSeenDatasetVersion, " +
+                    "autoBackupEnabled, autoBackupKeepCount, lastBoxIndex) " +
+                    "VALUES (1, 'grouped-balanced', 3, 7, 0, 4, 12)",
+            )
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, 3, true, UserDatabase.MIGRATION_2_3)
+
+        migrated.query("SELECT variantId, copyIndex, caught, originGameId, notes FROM catch_record").use { cursor ->
+            assertThat(cursor.count).isEqualTo(1)
+            cursor.moveToFirst()
+            assertThat(cursor.getString(0)).isEqualTo("unown")
+            assertThat(cursor.getInt(1)).isEqualTo(1)
+            assertThat(cursor.getInt(2)).isEqualTo(1)
+            assertThat(cursor.getString(3)).isEqualTo("la")
+            assertThat(cursor.getString(4)).isEqualTo("the second copy")
+        }
+        migrated.query(
+            "SELECT autoBackupEnabled, autoBackupKeepCount, lastBoxIndex, " +
+                "backupTreeUri, lastOriginGameId, restoreOfferDismissed FROM user_settings",
+        ).use { cursor ->
+            cursor.moveToFirst()
+            // The user's choices survive; the new columns start empty.
+            assertThat(cursor.getInt(0)).isEqualTo(0)
+            assertThat(cursor.getInt(1)).isEqualTo(4)
+            assertThat(cursor.getInt(2)).isEqualTo(12)
+            assertThat(cursor.isNull(3)).isTrue()
+            assertThat(cursor.isNull(4)).isTrue()
+            assertThat(cursor.getInt(5)).isEqualTo(0)
+        }
+        migrated.close()
+    }
+
+    @Test
+    fun everyMigrationInOrderTakesVersion1ToCurrent() {
+        helper.createDatabase(TEST_DB, 1).apply {
+            insertSecondUnown(this)
+            close()
+        }
+
+        @Suppress("SpreadOperator")
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, UserDatabase.VERSION, true, *UserDatabase.MIGRATIONS)
+
+        migrated.query("SELECT COUNT(*) FROM catch_record").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(1)
+        }
+        migrated.close()
+    }
+
     private fun insertSecondUnown(db: androidx.sqlite.db.SupportSQLiteDatabase) {
         db.execSQL(
             "INSERT INTO catch_record " +

@@ -42,6 +42,10 @@ data class UserSettingsEntity(
     val autoBackupKeepCount: Int,
     /** Added in version 2. The default is what MIGRATION_1_2 writes into existing rows. */
     @ColumnInfo(defaultValue = "0") val lastBoxIndex: Int,
+    /** Added in version 3, with the two below. A persisted SAF tree URI, or null. */
+    val backupTreeUri: String?,
+    val lastOriginGameId: String?,
+    @ColumnInfo(defaultValue = "0") val restoreOfferDismissed: Boolean,
 )
 
 /** One row per rolling local backup written, so the UI can offer a restore list. */
