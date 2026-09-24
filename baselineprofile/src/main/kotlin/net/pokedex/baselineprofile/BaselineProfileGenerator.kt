@@ -7,6 +7,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Direction
+import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
 import org.junit.Rule
@@ -96,11 +97,57 @@ class BaselineProfileGenerator {
         device.pressBack()
         await(BOX_COUNTER)
 
-        // 8. The "All boxes" sheet again, to the far end.
+        // 8. Hunting (M4): choose a game, walk the hunt list, open a hunt's slot and its
+        // per-game section, then un-choose the game so every iteration starts the same way.
+        setMyGame()
+        await(By.text(HUNT_NEXT)).click()
+        await(HUNT_ROW)
+        flingList(Direction.DOWN)
+        flingList(Direction.UP)
+        await(HUNT_ROW).click()
+        await(BACK_BUTTON)
+        flingList(Direction.DOWN)
+        device.pressBack()
+        await(HUNT_ROW)
+        device.pressBack()
+        await(BOX_COUNTER)
+        setMyGame()
+
+        // 9. The "All boxes" sheet again, to the far end.
         jumpViaAllBoxes { rows ->
             val list = device.findObject(By.scrollable(true))
             repeat(SHEET_FLINGS) { list?.fling(Direction.DOWN) }
             sheetRows().last()
+        }
+    }
+
+    /** Settings, My games, flip the game the journey hunts in, and back to the boxes. */
+    private fun MacrobenchmarkScope.setMyGame() {
+        await(By.desc(SETTINGS)).click()
+        await(By.text(MY_GAMES)).click()
+        await(By.text(MY_GAMES_HEADING))
+        // Legends Arceus is a pair of one, so its section heading and its switch share the
+        // name. The switch is the second.
+        flingList(Direction.DOWN)
+        await(By.text(HUNT_GAME))
+        device.findObjects(By.text(HUNT_GAME)).last().click()
+        device.pressBack()
+        await(By.text(BACKUPS))
+        device.pressBack()
+        await(BOX_COUNTER)
+    }
+
+    /**
+     * Flings whatever scrolls, finding it again each time. A lazy list that is still taking
+     * rows replaces its node under a held reference, and the fling then throws.
+     */
+    private fun MacrobenchmarkScope.flingList(direction: Direction) {
+        repeat(SHEET_FLINGS) {
+            try {
+                device.findObject(By.scrollable(true))?.fling(direction)
+            } catch (_: StaleObjectException) {
+                device.waitForIdle()
+            }
         }
     }
 
@@ -192,6 +239,13 @@ private const val CANCEL = "Cancel"
 private const val PROGRESS_TITLE = "Progress"
 private const val SETTINGS = "Settings and backups"
 private const val BACKUPS = "Backups"
+private const val MY_GAMES = "My games"
+private const val MY_GAMES_HEADING = "Games you own and play"
+private const val HUNT_GAME = "Legends Arceus"
+private const val HUNT_NEXT = "Hunt next"
+
+/** A hunt row: a needed slot, spoken with its reasons. */
+private val HUNT_ROW = By.desc(Pattern.compile(".+, not yet caught\\. .*Legends Arceus.*"))
 
 /** The headline readout, which opens Progress. Its sentence starts with the label. */
 private val PROGRESS_ENTRY = By.desc(Pattern.compile("shiny: .*"))
