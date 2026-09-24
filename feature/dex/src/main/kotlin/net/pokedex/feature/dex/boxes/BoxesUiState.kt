@@ -33,6 +33,13 @@ data class BoxesUiState(
     val search: SearchUiState = SearchUiState(),
 )
 
+/**
+ * The one-line answer to "what next", under the pager. Its own state, not a field of
+ * [BoxesUiState]: it changes when a record does, and the pager should not recompose for it.
+ */
+@Immutable
+data class NextHuntUi(val summary: String)
+
 @Immutable
 data class SearchUiState(
     val active: Boolean = false,

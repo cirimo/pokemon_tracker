@@ -11,6 +11,7 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.feature.dex.boxes.BoxesDestination
 import net.pokedex.feature.dex.detail.SlotDetailDestination
 import net.pokedex.feature.dex.detail.VariantDetailDestination
+import net.pokedex.feature.dex.hunt.HuntDestination
 import net.pokedex.feature.dex.progress.ProgressDestination
 
 /**
@@ -38,6 +39,13 @@ data class SlotDetailRoute(val variantId: String, val copyIndex: Int) {
 
 @Serializable
 data class VariantDetailRoute(val variantId: String)
+
+/**
+ * What to hunt next. [gameId] preselects one of my games; the list otherwise draws on all
+ * of them.
+ */
+@Serializable
+data class HuntRoute(val gameId: String? = null)
 
 /** The dashboards: overall, by region, by game, and recent catches. */
 @Serializable
@@ -74,6 +82,7 @@ fun NavGraphBuilder.dexGraph(
                 onOpenSlot = openSlot,
                 onOpenSettings = onOpenSettings,
                 onOpenProgress = { navController.navigate(ProgressRoute) },
+                onOpenHunt = { navController.navigate(HuntRoute()) },
                 jumpRequests = entry.savedStateHandle.getStateFlow<Int?>(SHOW_BOX_KEY, null),
                 onJumpForwarded = { entry.savedStateHandle[SHOW_BOX_KEY] = null },
                 neededRequests = entry.savedStateHandle.getStateFlow<String?>(SHOW_NEEDED_KEY, null),
@@ -92,9 +101,18 @@ fun NavGraphBuilder.dexGraph(
             )
         }
     }
+    composable<HuntRoute> {
+        HuntDestination(
+            onBack = back,
+            onOpenSlot = openSlot,
+            onOpenMyGames = onOpenMyGames,
+            onOpenProgress = { navController.navigate(ProgressRoute) },
+        )
+    }
     composable<ProgressRoute> {
         ProgressDestination(
             onBack = back,
+            onOpenHunt = { navController.navigate(HuntRoute()) },
             onShowBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
             onShowNeededIn = { gameSetId -> returnToBoxes(SHOW_NEEDED_KEY, gameSetId) },
             onOpenSlot = openSlot,

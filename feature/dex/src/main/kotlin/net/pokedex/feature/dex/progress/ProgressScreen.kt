@@ -41,13 +41,14 @@ import java.time.format.FormatStyle
 @Composable
 internal fun ProgressDestination(
     onBack: () -> Unit,
+    onOpenHunt: () -> Unit,
     onShowBox: (Int) -> Unit,
     onShowNeededIn: (gameSetId: String) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowNeededIn, onOpenSlot)
+    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowNeededIn, onOpenSlot, onOpenHunt)
 }
 
 /**
@@ -63,6 +64,7 @@ internal fun ProgressScreen(
     onShowBox: (Int) -> Unit,
     onShowNeededIn: (gameSetId: String) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenHunt: () -> Unit = {},
 ) {
     ScreenScaffold(title = "Progress", onBack = onBack) {
         when {
@@ -76,6 +78,9 @@ internal fun ProgressScreen(
             }
             else -> {
                 Overall(state)
+                // Progress says where you stand; the hunt list says what to do about it. One
+                // link each way rather than a hunt section here.
+                SettingRow(title = "Hunt next", summary = "What to hunt, in which of your games", onClick = onOpenHunt)
                 if (state.orphans.isNotEmpty()) Orphans(state.orphans, onEvent)
                 if (state.closest.isNotEmpty()) {
                     ScreenSection(title = "Closest to done", body = "Boxes you have started, fewest left first.") {

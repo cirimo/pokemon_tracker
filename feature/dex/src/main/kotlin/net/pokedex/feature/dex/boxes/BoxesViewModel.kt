@@ -28,6 +28,7 @@ import kotlinx.serialization.json.Json
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.GuideRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
@@ -37,9 +38,11 @@ import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.DexFilter
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
+import net.pokedex.core.model.huntPlan
 import net.pokedex.core.model.progressOf
 import net.pokedex.core.model.searchDex
 import net.pokedex.core.model.statusOf
@@ -48,6 +51,7 @@ import net.pokedex.designsystem.component.BoxSlotItem
 import net.pokedex.designsystem.component.SlotState
 import net.pokedex.feature.dex.gameSetLabel
 import net.pokedex.feature.dex.locationOf
+import net.pokedex.feature.dex.oddsLabel
 import net.pokedex.feature.dex.toSlotState
 import net.pokedex.feature.dex.typeLabel
 import javax.inject.Inject
@@ -68,6 +72,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BoxesViewModel @Inject constructor(
     private val dexRepository: DexRepository,
+    private val guides: GuideRepository,
     catches: CatchRepository,
     private val settings: SettingsRepository,
     private val savedState: SavedStateHandle,
@@ -105,6 +110,21 @@ class BoxesViewModel @Inject constructor(
     ) { loaded, records, games, active, filter ->
         loaded?.let { searchOf(it, records, games, active, filter) } ?: SearchUiState()
     }.flowOn(default)
+
+    private val guide = MutableStateFlow<HuntGuide?>(null)
+
+    /**
+     * The top of the hunt list, as one line. Derived from the same ranking as the hunt screen,
+     * so the two cannot disagree about what is next.
+     */
+    val nextHunt: StateFlow<NextHuntUi?> = combine(
+        loaded,
+        guide,
+        records,
+        myGames,
+    ) { loaded, guide, records, games ->
+        if (loaded == null || guide == null) null else nextHuntOf(loaded.dex, guide, records, games)
+    }.flowOn(default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
 
     val state: StateFlow<BoxesUiState> =
         combine(loaded, error, boxes, search, jump) { loaded, error, boxes, search, jump ->
@@ -173,6 +193,8 @@ class BoxesViewModel @Inject constructor(
                     val dex = outcome.value
                     val lastBox = settings.get().lastBoxIndex.coerceIn(0, dex.boxes.lastIndex)
                     loaded.value = Loaded.of(dex, lastBox)
+                    // After the dex, never before it: the guide is not needed to draw a box.
+                    launch { (guides.guide() as? Outcome.Ok)?.let { guide.value = it.value } }
                     // The number the cold-start budget is about: process start to a box you can
                     // read, not just to the first frame (which is a skeleton).
                     val sinceStart = SystemClock.uptimeMillis() - Process.getStartUptimeMillis()
@@ -255,6 +277,28 @@ class BoxesViewModel @Inject constructor(
             overall = progressOf(dex.entries.map { it.slot }, records),
             noShinyRemaining = dex.entries.count { statusOf(it, records) == SlotStatus.NoShinyExists },
         )
+    }
+
+    private fun nextHuntOf(
+        dex: Dex,
+        guide: HuntGuide,
+        records: Map<CatchKey, CatchRecord>,
+        myGames: Set<GameId>,
+    ): NextHuntUi {
+        if (myGames.isEmpty()) return NextHuntUi("Choose your games to see what to hunt next")
+        val top = huntPlan(dex, records, myGames, guide).hunts.firstOrNull()
+            ?: return NextHuntUi("Nothing left to hunt in your games")
+        val names = dex.games.associate { it.id to it.name }
+        val way = top.way
+        val name = dex.species(top.lead.variant.dexNum)?.name.takeIf { top.key.regionalForm == null }
+            ?: top.lead.variant.displayName
+        val how = if (way == null) {
+            "shiny in " + top.games.joinToString(", ") { names[it] ?: it.value }
+        } else {
+            val method = guide.method(way.encounter.methodId)?.name ?: way.encounter.methodId
+            "$method in ${names[way.game] ?: way.game.value}" + way.odds?.let { ", ${oddsLabel(it.best)}" }.orEmpty()
+        }
+        return NextHuntUi("$name, $how")
     }
 
     private fun searchOf(

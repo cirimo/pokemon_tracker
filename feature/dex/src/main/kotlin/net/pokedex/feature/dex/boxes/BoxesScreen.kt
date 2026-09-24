@@ -51,6 +51,7 @@ import net.pokedex.designsystem.component.PokedexBottomSheet
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.SearchField
+import net.pokedex.designsystem.component.SettingRow
 import net.pokedex.designsystem.icon.PokedexIcons
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
@@ -68,6 +69,7 @@ internal fun BoxesDestination(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenProgress: () -> Unit,
+    onOpenHunt: () -> Unit,
     jumpRequests: StateFlow<Int?>,
     onJumpForwarded: () -> Unit,
     neededRequests: StateFlow<String?>,
@@ -75,6 +77,7 @@ internal fun BoxesDestination(
     viewModel: BoxesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val nextHunt by viewModel.nextHunt.collectAsStateWithLifecycle()
     val jump by jumpRequests.collectAsStateWithLifecycle()
     val needed by neededRequests.collectAsStateWithLifecycle()
     LaunchedEffect(jump) {
@@ -95,6 +98,8 @@ internal fun BoxesDestination(
         onOpenSlot = onOpenSlot,
         onOpenSettings = onOpenSettings,
         onOpenProgress = onOpenProgress,
+        nextHunt = nextHunt,
+        onOpenHunt = onOpenHunt,
     )
 }
 
@@ -115,6 +120,8 @@ internal fun BoxesScreen(
     onOpenSettings: () -> Unit,
     onOpenProgress: () -> Unit,
     modifier: Modifier = Modifier,
+    nextHunt: NextHuntUi? = null,
+    onOpenHunt: () -> Unit = {},
 ) {
     val dimens = PokedexTheme.dimens
     val focusManager = LocalFocusManager.current
@@ -190,6 +197,8 @@ internal fun BoxesScreen(
                     onOpenSlot(key)
                 },
                 onOpenProgress = onOpenProgress,
+                nextHunt = nextHunt,
+                onOpenHunt = onOpenHunt,
             )
         }
     }
@@ -206,6 +215,8 @@ private fun LoadedContent(
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     onOpenProgress: () -> Unit,
+    nextHunt: NextHuntUi?,
+    onOpenHunt: () -> Unit,
 ) {
     // rememberPagerState is saveable: after process death it restores the page it was on and
     // ignores startBox. startBox only decides a cold start.
@@ -224,6 +235,8 @@ private fun LoadedContent(
             onEvent = onEvent,
             onOpenSlot = onOpenSlot,
             onOpenProgress = onOpenProgress,
+            nextHunt = nextHunt,
+            onOpenHunt = onOpenHunt,
         )
     }
 }
@@ -235,6 +248,8 @@ private fun BoxContent(
     onEvent: (BoxesEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     onOpenProgress: () -> Unit,
+    nextHunt: NextHuntUi?,
+    onOpenHunt: () -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
     val scope = rememberCoroutineScope()
@@ -297,6 +312,16 @@ private fun BoxContent(
             onPrevious = { scope.launch { pager.step(-1, motion.interactive()) } },
             onNext = { scope.launch { pager.step(1, motion.interactive()) } },
         )
+
+        // Below the pager, outside it: nothing here is per page or per tile.
+        if (nextHunt != null) {
+            SettingRow(
+                title = "Hunt next",
+                summary = nextHunt.summary,
+                onClick = onOpenHunt,
+                modifier = Modifier.padding(horizontal = dimens.spaceLg),
+            )
+        }
     }
 
     if (overviewOpen) {
