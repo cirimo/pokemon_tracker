@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import net.pokedex.designsystem.component.MethodBadge
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
+import net.pokedex.designsystem.component.ScreenSample
 import net.pokedex.designsystem.component.SearchField
 import net.pokedex.designsystem.component.SettingsSamples
 import net.pokedex.designsystem.component.SlotState
@@ -78,11 +80,20 @@ internal fun GallerySections() {
     GallerySection("Sheets and dialogs") { ContainerSamples() }
     GallerySection("Settings rows, notices and actions") { SettingsSamples() }
     GallerySection("Notes and dates, for the catch sheet") { InputSamples() }
+    GallerySection("Screen frame — back, title, one scroll") { ScreenFrameSection() }
 
     Box(Modifier.padding(dimens.spaceXl))
 }
 
 private val GALLERY_SLOT = 52.dp
+
+/** The scaffold scrolls its own body, so inside this scrolling gallery it needs a fixed height. */
+private val GALLERY_SCREEN_HEIGHT = 280.dp
+
+@Composable
+private fun ScreenFrameSection() {
+    Box(Modifier.fillMaxWidth().height(GALLERY_SCREEN_HEIGHT)) { ScreenSample() }
+}
 
 /** Human labels for the state row. The enum names are for code, not for a design review. */
 private val SlotState.galleryLabel: String

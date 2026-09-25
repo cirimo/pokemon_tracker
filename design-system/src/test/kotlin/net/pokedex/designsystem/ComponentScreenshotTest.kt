@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,6 +37,7 @@ import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
+import net.pokedex.designsystem.component.ScreenSample
 import net.pokedex.designsystem.component.SearchField
 import net.pokedex.designsystem.component.SettingsSamples
 import net.pokedex.designsystem.component.SlotState
@@ -114,6 +116,16 @@ class ComponentScreenshotTest {
     fun inputs() = captureBothThemes("inputs", alsoLargeFont = true) { InputSamples() }
 
     /**
+     * The frame every pushed screen shares. Its back button drew black on the dark case for
+     * two milestones because nothing captured it: token contrast was checked, the drawn icon
+     * was not.
+     */
+    @Test
+    fun screenScaffold() = captureBothThemes("screen_scaffold", alsoLargeFont = true) {
+        Box(Modifier.height(SCREEN_HEIGHT)) { ScreenSample() }
+    }
+
+    /**
      * One helper, so adding a component to the suite is one line.
      *
      * `setContent` may only be called once per test, so theme and font scale are driven by
@@ -168,6 +180,9 @@ class ComponentScreenshotTest {
 
     private companion object {
         val SHOT_WIDTH = 380.dp
+
+        /** The scaffold fills what it is given; the shot gives it a phone-width strip, not 1600dp. */
+        val SCREEN_HEIGHT = 320.dp
         const val LARGE_FONT = 2f
     }
 }

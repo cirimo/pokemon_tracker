@@ -1,6 +1,7 @@
 package net.pokedex.designsystem.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -93,8 +94,14 @@ fun PokedexTheme(
         MaterialTheme(
             colorScheme = colors.toMaterialScheme(),
             typography = PokedexTypography,
-            content = content,
-        )
+        ) {
+            // Material's default content colour is black, and it only changes inside a Surface
+            // or a Material container. Screens draw the case with Modifier.background, so
+            // without this every untinted Icon -- the back arrow, the settings gear, the box
+            // stepper -- drew black on the dark case and vanished. Containers still override
+            // it; this is only what shows through where nothing else says.
+            CompositionLocalProvider(LocalContentColor provides colors.onCase, content = content)
+        }
     }
 }
 
