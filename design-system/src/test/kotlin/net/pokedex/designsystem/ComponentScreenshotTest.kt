@@ -34,6 +34,7 @@ import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChip
 import net.pokedex.designsystem.component.InputSamples
+import net.pokedex.designsystem.component.NavigationSamples
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
@@ -120,6 +121,9 @@ class ComponentScreenshotTest {
      * two milestones because nothing captured it: token contrast was checked, the drawn icon
      * was not.
      */
+    @Test
+    fun navigation() = captureBothThemes("navigation", alsoLargeFont = true) { NavigationSamples() }
+
     @Test
     fun screenScaffold() = captureBothThemes("screen_scaffold", alsoLargeFont = true) {
         Box(Modifier.height(SCREEN_HEIGHT)) { ScreenSample() }

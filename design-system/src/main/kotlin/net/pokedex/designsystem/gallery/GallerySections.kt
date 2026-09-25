@@ -33,6 +33,7 @@ import net.pokedex.designsystem.component.GameBadge
 import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.MethodBadge
+import net.pokedex.designsystem.component.NavigationSamples
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ProgressRing
@@ -81,6 +82,7 @@ internal fun GallerySections() {
     GallerySection("Settings rows, notices and actions") { SettingsSamples() }
     GallerySection("Notes and dates, for the catch sheet") { InputSamples() }
     GallerySection("Screen frame — back, title, one scroll") { ScreenFrameSection() }
+    GallerySection("Top bar and stepper") { NavigationSamples() }
 
     Box(Modifier.padding(dimens.spaceXl))
 }

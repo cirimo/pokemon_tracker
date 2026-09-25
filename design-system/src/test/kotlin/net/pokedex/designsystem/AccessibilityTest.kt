@@ -6,6 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasSetTextAction
@@ -27,6 +29,7 @@ import net.pokedex.designsystem.component.ProgressRing
 import net.pokedex.designsystem.component.SettingRow
 import net.pokedex.designsystem.component.SettingSwitch
 import net.pokedex.designsystem.component.SlotState
+import net.pokedex.designsystem.component.Stepper
 import net.pokedex.designsystem.component.describe
 import net.pokedex.designsystem.theme.PokedexTheme
 import org.junit.Rule
@@ -107,6 +110,31 @@ class AccessibilityTest {
             }
         }
         composeRule.onNodeWithText("Needed").assertHeightIsAtLeast(MIN_TARGET)
+    }
+
+    /**
+     * Both chevrons are 48dp and say where they go. A disabled end still names its direction,
+     * so TalkBack does not skip over a silent button.
+     */
+    @Test
+    fun stepperButtonsMeetTheMinimumTouchTargetAndNameTheirDestination() {
+        composeRule.setContent {
+            PokedexTheme {
+                Stepper(
+                    label = "Kanto 1 · 1 of 30",
+                    previousDescription = "Previous slot",
+                    nextDescription = "Next slot, Ivysaur",
+                    hasPrevious = false,
+                    hasNext = true,
+                    onPrevious = {},
+                    onNext = {},
+                )
+            }
+        }
+        composeRule.onNodeWithContentDescription("Next slot, Ivysaur")
+            .assertWidthIsAtLeast(MIN_TARGET).assertHeightIsAtLeast(MIN_TARGET).assertIsEnabled()
+        composeRule.onNodeWithContentDescription("Previous slot")
+            .assertWidthIsAtLeast(MIN_TARGET).assertHeightIsAtLeast(MIN_TARGET).assertIsNotEnabled()
     }
 
     @Test

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +18,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,10 +32,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
@@ -50,8 +46,10 @@ import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.PokedexBottomSheet
 import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
-import net.pokedex.designsystem.component.SearchField
+import net.pokedex.designsystem.component.SearchTopBar
 import net.pokedex.designsystem.component.SettingRow
+import net.pokedex.designsystem.component.Stepper
+import net.pokedex.designsystem.component.TopBarAction
 import net.pokedex.designsystem.icon.PokedexIcons
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
@@ -148,38 +146,23 @@ internal fun BoxesScreen(
             .background(PokedexTheme.colors.case)
             .safeDrawingPadding(),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = dimens.spaceLg, vertical = dimens.spaceSm),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (state.search.active) {
-                IconButton(onClick = {
-                    focusManager.clearFocus()
-                    onEvent(BoxesEvent.CloseSearch)
-                }) {
-                    Icon(PokedexIcons.Back, contentDescription = "Close search")
-                }
-            }
-            SearchField(
-                value = query,
-                onValueChange = {
-                    query = it
-                    onEvent(BoxesEvent.QueryChanged(it))
-                },
-                placeholder = "Name or dex number",
-                onSearch = { focusManager.clearFocus() },
-                focusRequester = searchFocus,
-                modifier = Modifier
-                    .weight(1f)
-                    .onFocusChanged { if (it.isFocused) onEvent(BoxesEvent.OpenSearch) },
-            )
-            // Not in search mode: there the same gear glyph is the filter button.
-            if (!state.search.active) {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(PokedexIcons.Settings, contentDescription = "Settings and backups")
-                }
-            }
-        }
+        SearchTopBar(
+            query = query,
+            onQueryChange = {
+                query = it
+                onEvent(BoxesEvent.QueryChanged(it))
+            },
+            searching = state.search.active,
+            onCloseSearch = {
+                focusManager.clearFocus()
+                onEvent(BoxesEvent.CloseSearch)
+            },
+            action = TopBarAction(PokedexIcons.Settings, "Settings and backups", onOpenSettings),
+            placeholder = "Name or dex number",
+            onFocused = { onEvent(BoxesEvent.OpenSearch) },
+            onSearch = { focusManager.clearFocus() },
+            focusRequester = searchFocus,
+        )
 
         when {
             state.error != null -> ErrorState(
@@ -366,13 +349,7 @@ private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpe
 private suspend fun PagerState.step(by: Int, spec: FiniteAnimationSpec<Float>) =
     animateScrollToPage(currentPage + by, animationSpec = spec)
 
-/**
- * Previous and next, with where you are between them.
- *
- * The pager already swipes. This row is for the two people it does not serve: someone using
- * TalkBack, for whom a horizontal swipe means "next element", and someone holding the phone
- * one-handed who wants to step a single box without a thumb-length drag.
- */
+/** The box pager's [Stepper]: "Box 3 of 52", each chevron naming the box it goes to. */
 @Composable
 private fun BoxStepper(
     pager: PagerState,
@@ -381,34 +358,17 @@ private fun BoxStepper(
     onNext: () -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
-    val colors = PokedexTheme.colors
     val current = pager.currentPage
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = dimens.spaceSm, end = dimens.spaceSm, bottom = dimens.spaceLg),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onPrevious, enabled = current > 0) {
-            Icon(
-                PokedexIcons.PreviousBox,
-                contentDescription = names.getOrNull(current - 1)?.let { "Previous box, $it" } ?: "Previous box",
-            )
-        }
-        Text(
-            text = "Box ${current + 1} of ${names.size}",
-            style = PokedexTheme.text.dexNumber,
-            color = colors.onCaseMuted,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
-        )
-        IconButton(onClick = onNext, enabled = current < names.lastIndex) {
-            Icon(
-                PokedexIcons.NextBox,
-                contentDescription = names.getOrNull(current + 1)?.let { "Next box, $it" } ?: "Next box",
-            )
-        }
-    }
+    Stepper(
+        label = "Box ${current + 1} of ${names.size}",
+        previousDescription = names.getOrNull(current - 1)?.let { "Previous box, $it" } ?: "Previous box",
+        nextDescription = names.getOrNull(current + 1)?.let { "Next box, $it" } ?: "Next box",
+        hasPrevious = current > 0,
+        hasNext = current < names.lastIndex,
+        onPrevious = onPrevious,
+        onNext = onNext,
+        modifier = Modifier.padding(start = dimens.spaceSm, end = dimens.spaceSm, bottom = dimens.spaceLg),
+    )
 }
 
 /**
