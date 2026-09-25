@@ -6,7 +6,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.feature.dex.boxes.BoxesDestination
 import net.pokedex.feature.dex.detail.SlotDetailDestination
@@ -31,10 +33,15 @@ data object BoxesRoute
  * A slot, by the key its record is stored under. Two primitives rather than a CatchKey,
  * because a custom route type needs a hand-written NavType and these two fields are the
  * whole of it.
+ *
+ * [browse] is the list it was opened from, encoded by [Browse.encode]: not the list, the
+ * question it answered, which the detail asks again to page through its neighbours. Null for
+ * a slot opened on its own. docs/adr/0013-browse-context.md.
  */
 @Serializable
-data class SlotDetailRoute(val variantId: String, val copyIndex: Int) {
-    constructor(key: CatchKey) : this(key.variantId.value, key.copyIndex)
+data class SlotDetailRoute(val variantId: String, val copyIndex: Int, val browse: String? = null) {
+    constructor(key: CatchKey, browse: Browse? = null) :
+        this(key.variantId.value, key.copyIndex, browse?.let(Browse::encode))
 }
 
 @Serializable
@@ -57,6 +64,13 @@ private const val SHOW_BOX_KEY = "showBox"
 /** The game pair Progress asked to see the needed slots of; the box view opens search on it. */
 private const val SHOW_NEEDED_KEY = "showNeeded"
 
+/**
+ * The slot a browsing detail came to rest on, as a CatchKey string, left on the entry that
+ * opened it. The list reads it on the way back so it lands on that slot and the sprite flies
+ * home to it rather than to the one first tapped.
+ */
+private const val BROWSED_TO_KEY = "browsedTo"
+
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun NavGraphBuilder.dexGraph(
     navController: NavController,
@@ -65,6 +79,7 @@ fun NavGraphBuilder.dexGraph(
     onOpenMyGames: () -> Unit,
 ) {
     val openSlot: (CatchKey) -> Unit = { navController.navigate(SlotDetailRoute(it)) }
+    val browseSlot: (CatchKey, Browse) -> Unit = { key, browse -> navController.navigate(SlotDetailRoute(key, browse)) }
     val openVariant: (String) -> Unit = { navController.navigate(VariantDetailRoute(it)) }
     val back: () -> Unit = { navController.popBackStack() }
 
@@ -79,7 +94,7 @@ fun NavGraphBuilder.dexGraph(
     composable<BoxesRoute> { entry ->
         CompositionLocalProvider(LocalSpriteTransition provides SpriteTransition(sharedTransitionScope, this)) {
             BoxesDestination(
-                onOpenSlot = openSlot,
+                onOpenSlot = browseSlot,
                 onOpenSettings = onOpenSettings,
                 onOpenProgress = { navController.navigate(ProgressRoute) },
                 onOpenHunt = { navController.navigate(HuntRoute()) },
@@ -87,10 +102,13 @@ fun NavGraphBuilder.dexGraph(
                 onJumpForwarded = { entry.savedStateHandle[SHOW_BOX_KEY] = null },
                 neededRequests = entry.savedStateHandle.getStateFlow<String?>(SHOW_NEEDED_KEY, null),
                 onNeededForwarded = { entry.savedStateHandle[SHOW_NEEDED_KEY] = null },
+                browsedTo = entry.savedStateHandle.getStateFlow<String?>(BROWSED_TO_KEY, null),
+                onBrowsedToHandled = { entry.savedStateHandle[BROWSED_TO_KEY] = null },
             )
         }
     }
-    composable<SlotDetailRoute> {
+    composable<SlotDetailRoute> { entry ->
+        val browsing = entry.toRoute<SlotDetailRoute>().browse != null
         CompositionLocalProvider(LocalSpriteTransition provides SpriteTransition(sharedTransitionScope, this)) {
             SlotDetailDestination(
                 onBack = back,
@@ -98,6 +116,13 @@ fun NavGraphBuilder.dexGraph(
                 onOpenVariant = openVariant,
                 onShowInBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
                 onOpenMyGames = onOpenMyGames,
+                // Only while this detail is on top: during its exit transition the entry below
+                // is already current, and writing then would land on the wrong entry.
+                onBrowsed = { slotKey ->
+                    if (browsing && navController.currentBackStackEntry == entry) {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(BROWSED_TO_KEY, slotKey)
+                    }
+                },
             )
         }
     }

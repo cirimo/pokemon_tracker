@@ -6,17 +6,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
 import net.pokedex.core.data.repository.GuideRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
+import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
@@ -29,6 +36,7 @@ import net.pokedex.core.model.Priority
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.core.model.Standing
 import net.pokedex.core.model.VariantId
+import net.pokedex.core.model.browseKeys
 import net.pokedex.core.model.hasDetails
 import net.pokedex.core.model.prefillOrigin
 import net.pokedex.core.model.standingOf
@@ -39,6 +47,30 @@ import net.pokedex.feature.dex.oddsSentence
 import net.pokedex.feature.dex.sourceLabel
 import net.pokedex.feature.dex.standingSentence
 import javax.inject.Inject
+
+/**
+ * The detail destination: the slot on screen, and the list it can page through.
+ *
+ * [keys] is frozen when the detail opens, so marking a slot caught never pulls a page out from
+ * under you (docs/adr/0013-browse-context.md). [pages] holds only the slot on screen and its two
+ * neighbours: a pager composes a neighbour as soon as a drag reveals it, and its data should
+ * already be there when it does.
+ */
+@Immutable
+data class SlotDetailPagesState(
+    val loading: Boolean = true,
+    val error: AppError? = null,
+    /** One key when the detail was opened on its own. */
+    val keys: List<CatchKey> = emptyList(),
+    val current: CatchKey? = null,
+    val pages: Map<CatchKey, SlotDetailUiState> = emptyMap(),
+    /** Null when there is nothing to page through; the screen then shows no stepper. */
+    val browse: BrowseUi? = null,
+)
+
+/** The list, as the stepper names it: "Kanto 1 · 3 of 30", "Next hunt, Pikachu". */
+@Immutable
+data class BrowseUi(val listName: String, val unit: String)
 
 @Immutable
 data class SlotDetailUiState(
@@ -141,11 +173,20 @@ data class GameUi(
     val lockReason: String?,
 )
 
+/** Every edit names its slot: with paging, "this slot" is whichever page sent it. */
 sealed interface SlotDetailEvent {
-    data class SetCaught(val caught: Boolean) : SlotDetailEvent
-    data class SaveDetails(val originGameId: String?, val caughtAt: Long?, val notes: String?) : SlotDetailEvent
-    data object Forget : SlotDetailEvent
-    data class SetPriority(val priority: Priority) : SlotDetailEvent
+    data class SetCaught(val key: CatchKey, val caught: Boolean) : SlotDetailEvent
+    data class SaveDetails(
+        val key: CatchKey,
+        val originGameId: String?,
+        val caughtAt: Long?,
+        val notes: String?,
+    ) : SlotDetailEvent
+    data class Forget(val key: CatchKey) : SlotDetailEvent
+    data class SetPriority(val key: CatchKey, val priority: Priority) : SlotDetailEvent
+
+    /** A page came to rest; it is now the slot a return to the list should land on. */
+    data class PageSettled(val key: CatchKey) : SlotDetailEvent
     data object Retry : SlotDetailEvent
 }
 
@@ -162,31 +203,45 @@ class SlotDetailViewModel @Inject constructor(
     private val guides: GuideRepository,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
-    savedState: SavedStateHandle,
+    private val savedState: SavedStateHandle,
+    @DefaultDispatcher default: CoroutineDispatcher,
 ) : ViewModel() {
 
-    private val key = savedState.toRoute<SlotDetailRoute>().let { CatchKey(VariantId(it.variantId), it.copyIndex) }
+    private val route = savedState.toRoute<SlotDetailRoute>()
+
+    /** What the detail was opened from. Null: opened on its own, nothing to page through. */
+    private val browse: Browse? = route.browse?.let(Browse::decode)
+
+    // The slot on screen, which after a swipe is no longer the route's. Saved, so process
+    // death restores the page you were on rather than the one you opened.
+    private val current = combine(
+        savedState.getStateFlow(KEY_VARIANT, route.variantId),
+        savedState.getStateFlow(KEY_COPY, route.copyIndex),
+    ) { variant, copy -> CatchKey(VariantId(variant), copy) }
+
     private val dex = MutableStateFlow<Outcome<Dex>?>(null)
 
     // A guide that fails to load costs the "how" section, not the screen: the rest of the
     // slot comes from the dex, which is the part that must work.
     private val guide = MutableStateFlow<HuntGuide?>(null)
+    private val guideTried = CompletableDeferred<HuntGuide?>()
 
-    val state: StateFlow<SlotDetailUiState> = combine(
-        dex,
-        catches.observeRecords(),
-        settings.observeMyGames(),
-        guide,
-    ) { dex, records, myGames, guide ->
-        when (dex) {
-            null -> SlotDetailUiState()
-            is Outcome.Err -> SlotDetailUiState(loading = false, error = dex.error)
-            is Outcome.Ok -> build(dex.value, records, myGames, guide)
+    /** Frozen once, when the detail opens; null until then. */
+    private val keys = MutableStateFlow<List<CatchKey>?>(null)
+
+    private val inputs = combine(dex, catches.observeRecords(), settings.observeMyGames(), guide, ::Inputs)
+
+    val state: StateFlow<SlotDetailPagesState> = combine(inputs, current, keys) { inputs, current, keys ->
+        when (val dex = inputs.dex) {
+            null -> SlotDetailPagesState()
+            is Outcome.Err -> SlotDetailPagesState(loading = false, error = dex.error)
+            is Outcome.Ok -> if (keys == null) SlotDetailPagesState() else pagesOf(dex.value, inputs, keys, current)
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SlotDetailUiState())
+    }.flowOn(default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SlotDetailPagesState())
 
     init {
         load()
+        viewModelScope.launch { freezeKeys() }
     }
 
     fun onEvent(event: SlotDetailEvent) {
@@ -194,25 +249,75 @@ class SlotDetailViewModel @Inject constructor(
             is SlotDetailEvent.SetCaught -> viewModelScope.launch {
                 // The prefill is decided here, where the dex is loaded, and only offered: the
                 // record keeps an origin it already has (see withCaught).
-                val availability = (dex.value as? Outcome.Ok)?.value?.availability(key.variantId).orEmpty()
+                val availability = (dex.value as? Outcome.Ok)?.value?.availability(event.key.variantId).orEmpty()
                 val prefill = if (event.caught) prefillOrigin(settings.get().lastOriginGameId, availability) else null
-                catches.setCaught(key, event.caught, prefill)
+                catches.setCaught(event.key, event.caught, prefill)
             }
             is SlotDetailEvent.SaveDetails -> viewModelScope.launch {
                 val origin = event.originGameId?.let(::GameId)
-                catches.setDetails(key, origin, event.caughtAt, event.notes)
+                catches.setDetails(event.key, origin, event.caughtAt, event.notes)
                 // A game chosen by hand is what the next catch prefills.
                 if (origin != null) settings.edit { it.copy(lastOriginGameId = origin) }
             }
-            SlotDetailEvent.Forget -> viewModelScope.launch { catches.forget(key) }
-            is SlotDetailEvent.SetPriority -> viewModelScope.launch { catches.setPriority(listOf(key), event.priority) }
+            is SlotDetailEvent.Forget -> viewModelScope.launch { catches.forget(event.key) }
+            is SlotDetailEvent.SetPriority -> viewModelScope.launch {
+                catches.setPriority(listOf(event.key), event.priority)
+            }
+            is SlotDetailEvent.PageSettled -> {
+                savedState[KEY_VARIANT] = event.key.variantId.value
+                savedState[KEY_COPY] = event.key.copyIndex
+            }
             SlotDetailEvent.Retry -> load()
         }
     }
 
     private fun load() {
         viewModelScope.launch { dex.value = dexRepository.dex() }
-        viewModelScope.launch { (guides.guide() as? Outcome.Ok)?.let { guide.value = it.value } }
+        viewModelScope.launch {
+            val loaded = (guides.guide() as? Outcome.Ok)?.value
+            if (loaded != null) guide.value = loaded
+            guideTried.complete(loaded)
+        }
+    }
+
+    /**
+     * Asks the browse context for its list once, with the records as they are now, and keeps
+     * the answer. Only the hunt list needs the guide, so the others do not wait for it.
+     */
+    private suspend fun freezeKeys() {
+        val dex = dex.mapNotNull { (it as? Outcome.Ok)?.value }.first()
+        val keep = current.first()
+        keys.value = if (browse == null) {
+            listOf(keep)
+        } else {
+            val guide = if (browse is Browse.Hunt) guideTried.await() else null
+            browseKeys(browse, dex, catches.observeRecords().first(), settings.observeMyGames().first(), guide, keep)
+        }
+    }
+
+    private class Inputs(
+        val dex: Outcome<Dex>?,
+        val records: Map<CatchKey, CatchRecord>,
+        val myGames: Set<GameId>,
+        val guide: HuntGuide?,
+    )
+
+    private fun pagesOf(dex: Dex, inputs: Inputs, keys: List<CatchKey>, current: CatchKey): SlotDetailPagesState {
+        val at = keys.indexOf(current)
+        val near = listOfNotNull(keys.getOrNull(at - 1), current, keys.getOrNull(at + 1))
+        return SlotDetailPagesState(
+            loading = false,
+            keys = keys,
+            current = current,
+            pages = near.associateWith { build(dex, inputs.records, inputs.myGames, inputs.guide, it) },
+            browse = browse?.takeIf { keys.size > 1 }?.let { browseUiOf(it, dex) },
+        )
+    }
+
+    private fun browseUiOf(browse: Browse, dex: Dex): BrowseUi = when (browse) {
+        is Browse.Box -> BrowseUi(dex.boxes.firstOrNull { it.boxIndex == browse.boxIndex }?.name ?: "Box", "slot")
+        is Browse.Search -> BrowseUi("Search", "slot")
+        is Browse.Hunt -> BrowseUi("Hunt list", "hunt")
     }
 
     private fun build(
@@ -220,6 +325,7 @@ class SlotDetailViewModel @Inject constructor(
         records: Map<CatchKey, CatchRecord>,
         myGames: Set<GameId>,
         guide: HuntGuide?,
+        key: CatchKey,
     ): SlotDetailUiState {
         // A key the dataset no longer has is a link from an older screen state -- say so
         // rather than crash. The record itself, if any, is untouched.
@@ -330,6 +436,8 @@ class SlotDetailViewModel @Inject constructor(
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L
+        const val KEY_VARIANT = "currentVariant"
+        const val KEY_COPY = "currentCopy"
     }
 }
 

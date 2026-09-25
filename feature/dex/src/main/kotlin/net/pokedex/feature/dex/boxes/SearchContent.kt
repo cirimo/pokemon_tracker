@@ -20,16 +20,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.flow.first
+import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.NoShinyFilter
@@ -55,13 +59,28 @@ import net.pokedex.feature.dex.typesOf
 internal fun SearchContent(
     search: SearchUiState,
     onEvent: (BoxesEvent) -> Unit,
-    onOpenResult: (CatchKey) -> Unit,
+    onOpenResult: (CatchKey, Browse) -> Unit,
+    returnedTo: String? = null,
+    onReturnHandled: () -> Unit = {},
 ) {
     val dimens = PokedexTheme.dimens
     val colors = PokedexTheme.colors
     var sheetOpen by rememberSaveable { mutableStateOf(false) }
     // Saveable, so the list comes back scrolled to where it was after process death.
     val listState = rememberLazyListState()
+
+    // Back from a detail that paged through these results: bring the row it ended on into view,
+    // but only if it is not already, so a list you were reading does not jump. A row that a
+    // catch took out of a "needed" search is simply not found.
+    LaunchedEffect(returnedTo) {
+        val returned = returnedTo ?: return@LaunchedEffect
+        val index = search.results.indexOfFirst { it.slotKey == returned }
+        if (index >= 0) {
+            val visible = snapshotFlow { listState.layoutInfo.visibleItemsInfo }.first { it.isNotEmpty() }
+            if (visible.none { it.index == index && it.offset >= 0 }) listState.scrollToItem(index)
+        }
+        onReturnHandled()
+    }
 
     Column(modifier = Modifier.fillMaxSize().imePadding()) {
         FlowRow(
@@ -134,7 +153,7 @@ internal fun SearchContent(
                         // Where it sits, not the form name: the form is already in the name,
                         // and the location is what separates the two copies of a duplicate.
                         formName = result.location,
-                        onClick = { onOpenResult(result.key) },
+                        onClick = { onOpenResult(result.key, Browse.Search(search.filter)) },
                         sprite = { rendering ->
                             DexSprite(result.spriteFile, rendering, Modifier.slotOrigin(result.slotKey))
                         },

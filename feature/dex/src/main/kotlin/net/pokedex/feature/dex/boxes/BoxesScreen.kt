@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.designsystem.component.BoxPager
 import net.pokedex.designsystem.component.BoxSummary
@@ -62,9 +63,10 @@ import net.pokedex.feature.dex.slotOrigin
  * NavBackStackEntry's own SavedStateHandle, which is NOT the handle Hilt gives the
  * ViewModel -- so it is forwarded here as an event and cleared via [onJumpForwarded].
  */
+@Suppress("LongParameterList") // Every pair is one result forwarded from the back stack entry.
 @Composable
 internal fun BoxesDestination(
-    onOpenSlot: (CatchKey) -> Unit,
+    onOpenSlot: (CatchKey, Browse) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenProgress: () -> Unit,
     onOpenHunt: () -> Unit,
@@ -72,12 +74,17 @@ internal fun BoxesDestination(
     onJumpForwarded: () -> Unit,
     neededRequests: StateFlow<String?>,
     onNeededForwarded: () -> Unit,
+    browsedTo: StateFlow<String?>,
+    onBrowsedToHandled: () -> Unit,
     viewModel: BoxesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val nextHunt by viewModel.nextHunt.collectAsStateWithLifecycle()
     val jump by jumpRequests.collectAsStateWithLifecycle()
     val needed by neededRequests.collectAsStateWithLifecycle()
+    // Read synchronously on the first frame back, before any effect runs: the return transition
+    // looks for its tile in that frame.
+    val returnedTo by browsedTo.collectAsStateWithLifecycle()
     LaunchedEffect(jump) {
         jump?.let {
             viewModel.onEvent(BoxesEvent.JumpRequested(it))
@@ -98,6 +105,8 @@ internal fun BoxesDestination(
         onOpenProgress = onOpenProgress,
         nextHunt = nextHunt,
         onOpenHunt = onOpenHunt,
+        returnedTo = returnedTo,
+        onReturnHandled = onBrowsedToHandled,
     )
 }
 
@@ -110,16 +119,19 @@ internal fun BoxesDestination(
  * It opens on the box you were last on, because mid-hunt that is usually the one you are
  * filling.
  */
+@Suppress("LongParameterList") // Stateless screen: every input and every way out is a parameter.
 @Composable
 internal fun BoxesScreen(
     state: BoxesUiState,
     onEvent: (BoxesEvent) -> Unit,
-    onOpenSlot: (CatchKey) -> Unit,
+    onOpenSlot: (CatchKey, Browse) -> Unit,
     onOpenSettings: () -> Unit,
     onOpenProgress: () -> Unit,
     modifier: Modifier = Modifier,
     nextHunt: NextHuntUi? = null,
     onOpenHunt: () -> Unit = {},
+    returnedTo: String? = null,
+    onReturnHandled: () -> Unit = {},
 ) {
     val dimens = PokedexTheme.dimens
     val focusManager = LocalFocusManager.current
@@ -175,13 +187,15 @@ internal fun BoxesScreen(
             else -> LoadedContent(
                 state = state,
                 onEvent = onEvent,
-                onOpenSlot = { key ->
+                onOpenSlot = { key, browse ->
                     focusManager.clearFocus()
-                    onOpenSlot(key)
+                    onOpenSlot(key, browse)
                 },
                 onOpenProgress = onOpenProgress,
                 nextHunt = nextHunt,
                 onOpenHunt = onOpenHunt,
+                returnedTo = returnedTo,
+                onReturnHandled = onReturnHandled,
             )
         }
     }
@@ -192,14 +206,17 @@ internal fun BoxesScreen(
  * branch, opening search would discard it and closing search would land on the cold-start
  * box instead of the one you were on.
  */
+@Suppress("LongParameterList") // Passes the screen's inputs through to whichever mode is showing.
 @Composable
 private fun LoadedContent(
     state: BoxesUiState,
     onEvent: (BoxesEvent) -> Unit,
-    onOpenSlot: (CatchKey) -> Unit,
+    onOpenSlot: (CatchKey, Browse) -> Unit,
     onOpenProgress: () -> Unit,
     nextHunt: NextHuntUi?,
     onOpenHunt: () -> Unit,
+    returnedTo: String?,
+    onReturnHandled: () -> Unit,
 ) {
     // rememberPagerState is saveable: after process death it restores the page it was on and
     // ignores startBox. startBox only decides a cold start.
@@ -210,7 +227,13 @@ private fun LoadedContent(
     }
 
     if (state.search.active) {
-        SearchContent(search = state.search, onEvent = onEvent, onOpenResult = onOpenSlot)
+        SearchContent(
+            search = state.search,
+            onEvent = onEvent,
+            onOpenResult = onOpenSlot,
+            returnedTo = returnedTo,
+            onReturnHandled = onReturnHandled,
+        )
     } else {
         BoxContent(
             state = state,
@@ -220,19 +243,24 @@ private fun LoadedContent(
             onOpenProgress = onOpenProgress,
             nextHunt = nextHunt,
             onOpenHunt = onOpenHunt,
+            returnedTo = returnedTo,
+            onReturnHandled = onReturnHandled,
         )
     }
 }
 
+@Suppress("LongParameterList") // The box mode's inputs; split further they would only be passed again.
 @Composable
 private fun BoxContent(
     state: BoxesUiState,
     pager: PagerState,
     onEvent: (BoxesEvent) -> Unit,
-    onOpenSlot: (CatchKey) -> Unit,
+    onOpenSlot: (CatchKey, Browse) -> Unit,
     onOpenProgress: () -> Unit,
     nextHunt: NextHuntUi?,
     onOpenHunt: () -> Unit,
+    returnedTo: String?,
+    onReturnHandled: () -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
     val scope = rememberCoroutineScope()
@@ -245,6 +273,15 @@ private fun BoxContent(
     // other twenty-nine never animated anyway. Saveable, because the grid leaves
     // composition while the detail is open and the return transition needs it back.
     var openedKey by rememberSaveable { mutableStateOf<String?>(null) }
+    // A detail that paged through this box came back on another slot. It wins on the first frame
+    // back, so the sprite flies home to the slot you ended on; then it becomes the opened key.
+    // One screen-level value either way: nothing here is per tile.
+    val origin = returnedTo ?: openedKey
+    LaunchedEffect(returnedTo) {
+        val returned = returnedTo ?: return@LaunchedEffect
+        openedKey = returned
+        onReturnHandled()
+    }
 
     // Here and not above the search switch: PagerState.scrollToPage waits for the pager's
     // first layout, so it can only complete where the pager is actually on screen. The
@@ -277,14 +314,13 @@ private fun BoxContent(
                     // Set in the same event as the navigation, so the origin and the
                     // destination enter composition in the same frame and match.
                     openedKey = item.key
-                    onOpenSlot(key)
+                    onOpenSlot(key, Browse.Box(box))
                 }
             },
             sprite = { item, rendering ->
                 val file = state.slots.sprite(item.key)
                 if (file != null) {
-                    val origin = if (item.key == openedKey) Modifier.slotOrigin(item.key) else Modifier
-                    DexSprite(file, rendering, origin)
+                    DexSprite(file, rendering, if (item.key == origin) Modifier.slotOrigin(item.key) else Modifier)
                 }
             },
         )
