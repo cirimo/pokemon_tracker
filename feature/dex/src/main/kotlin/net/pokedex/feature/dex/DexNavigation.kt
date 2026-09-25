@@ -126,12 +126,15 @@ fun NavGraphBuilder.dexGraph(
             )
         }
     }
-    composable<HuntRoute> {
+    composable<HuntRoute> { entry ->
         HuntDestination(
             onBack = back,
             onOpenSlot = openSlot,
+            onBrowseSlot = browseSlot,
             onOpenMyGames = onOpenMyGames,
             onOpenProgress = { navController.navigate(ProgressRoute) },
+            browsedTo = entry.savedStateHandle.getStateFlow<String?>(BROWSED_TO_KEY, null),
+            onBrowsedToHandled = { entry.savedStateHandle[BROWSED_TO_KEY] = null },
         )
     }
     composable<ProgressRoute> {

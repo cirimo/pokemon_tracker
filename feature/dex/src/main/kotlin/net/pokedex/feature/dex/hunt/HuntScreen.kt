@@ -6,10 +6,16 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
@@ -26,16 +32,35 @@ import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
 import net.pokedex.feature.dex.typesOf
 
+/**
+ * [browsedTo] is the hunt a detail paged to before coming back, left on this entry's own
+ * SavedStateHandle; the list scrolls it into view and clears it through [onBrowsedToHandled].
+ */
+@Suppress("LongParameterList") // The screen's links out, plus one result from the back stack.
 @Composable
 internal fun HuntDestination(
     onBack: () -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onBrowseSlot: (CatchKey, Browse) -> Unit,
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
+    browsedTo: StateFlow<String?>,
+    onBrowsedToHandled: () -> Unit,
     viewModel: HuntViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    HuntScreen(state, viewModel::onEvent, onBack, onOpenSlot, onOpenMyGames, onOpenProgress)
+    val returnedTo by browsedTo.collectAsStateWithLifecycle()
+    HuntScreen(
+        state = state,
+        onEvent = viewModel::onEvent,
+        onBack = onBack,
+        onOpenSlot = onOpenSlot,
+        onBrowseSlot = onBrowseSlot,
+        onOpenMyGames = onOpenMyGames,
+        onOpenProgress = onOpenProgress,
+        returnedTo = returnedTo,
+        onReturnHandled = onBrowsedToHandled,
+    )
 }
 
 /**
@@ -46,6 +71,7 @@ internal fun HuntDestination(
  * Nothing on the list is gold. The top pick is where it is because of its position and its
  * reasons, not because it glows, and gold is reserved for shiny things.
  */
+@Suppress("LongParameterList") // Stateless screen: every input and every way out is a parameter.
 @Composable
 internal fun HuntScreen(
     state: HuntUiState,
@@ -54,6 +80,9 @@ internal fun HuntScreen(
     onOpenSlot: (CatchKey) -> Unit,
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
+    onBrowseSlot: (CatchKey, Browse) -> Unit = { key, _ -> onOpenSlot(key) },
+    returnedTo: String? = null,
+    onReturnHandled: () -> Unit = {},
 ) {
     ScreenScaffold(title = "Hunt next", onBack = onBack, scrollable = false) {
         when {
@@ -69,21 +98,51 @@ internal fun HuntScreen(
                 actionLabel = "Choose my games",
                 action = onOpenMyGames,
             )
-            else -> HuntList(state, onEvent, onOpenSlot, onOpenMyGames, onOpenProgress)
+            else -> HuntList(
+                state = state,
+                onEvent = onEvent,
+                onOpenSlot = onOpenSlot,
+                // The hunts in the order shown, under the game filter shown. Out-of-reach rows are
+                // not hunts, so they open a slot on its own.
+                onOpenHunt = { lead -> onBrowseSlot(lead, Browse.Hunt(state.selectedGame)) },
+                onOpenMyGames = onOpenMyGames,
+                onOpenProgress = onOpenProgress,
+                returnedTo = returnedTo,
+                onReturnHandled = onReturnHandled,
+            )
         }
     }
 }
 
+@Suppress("LongParameterList") // The list's rows link out three ways.
 @Composable
 private fun HuntList(
     state: HuntUiState,
     onEvent: (HuntEvent) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenHunt: (CatchKey) -> Unit,
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
+    returnedTo: String?,
+    onReturnHandled: () -> Unit,
 ) {
     val dimens = PokedexTheme.dimens
+    val listState = rememberLazyListState()
+
+    // Back from a detail that paged to another hunt: bring that hunt's row into view, unless it
+    // already is. A hunt caught meanwhile has left the list and is simply not found.
+    LaunchedEffect(returnedTo) {
+        val returned = returnedTo ?: return@LaunchedEffect
+        val index = rowIndexOf(state, returned)
+        if (index >= 0) {
+            val visible = snapshotFlow { listState.layoutInfo.visibleItemsInfo }.first { it.isNotEmpty() }
+            if (visible.none { it.index == index && it.offset >= 0 }) listState.scrollToItem(index)
+        }
+        onReturnHandled()
+    }
+
     LazyColumn(
+        state = listState,
         contentPadding = PaddingValues(bottom = dimens.spaceXl),
         verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
     ) {
@@ -100,7 +159,7 @@ private fun HuntList(
                     state = SlotState.Needed,
                     formName = row.where,
                     details = row.reasons,
-                    onClick = { onOpenSlot(row.lead) },
+                    onClick = { onOpenHunt(row.lead) },
                     sprite = { rendering -> DexSprite(row.spriteFile, rendering) },
                 )
             }
@@ -121,6 +180,18 @@ private fun HuntList(
             }
         }
     }
+}
+
+/** The lazy-list index of the hunt led by [slotKey]: after the summary, each section's header then its rows. */
+private fun rowIndexOf(state: HuntUiState, slotKey: String): Int {
+    var index = 1
+    for (section in state.sections) {
+        index++
+        val at = section.rows.indexOfFirst { it.lead.toString() == slotKey }
+        if (at >= 0) return index + at
+        index += section.rows.size
+    }
+    return -1
 }
 
 @Composable
