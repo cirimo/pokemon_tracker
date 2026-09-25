@@ -27,6 +27,7 @@ import net.pokedex.core.model.Hunt
 import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Priority
+import net.pokedex.core.model.huntGames
 import net.pokedex.core.model.huntPlan
 import net.pokedex.feature.dex.locationOf
 import net.pokedex.feature.dex.oddsLabel
@@ -163,7 +164,7 @@ class HuntViewModel @Inject constructor(
         val mine = dex.games.filter { it.id in myGames }
         // A filter left over from a game since unticked is dropped rather than showing nothing.
         val game = selected?.let(::GameId)?.takeIf { it in myGames }
-        val plan = huntPlan(dex, records, game?.let { setOf(it) } ?: myGames, guide)
+        val plan = huntPlan(dex, records, huntGames(myGames, game), guide)
 
         var explained = false
         val sections = Priority.entries.flatMap { bucket ->

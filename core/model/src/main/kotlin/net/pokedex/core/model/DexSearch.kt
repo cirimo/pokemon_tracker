@@ -51,11 +51,20 @@ enum class NoShinyFilter { Any, Hide, Only }
  *
  * Pure and allocation-light on purpose: it runs on every keystroke over 1394 entries, and
  * the budget in docs/architecture.md is 5 ms.
+ *
+ * @param always a slot that passes the refinements regardless of its record: the one a
+ *   browsing detail is showing (see [browseKeys]). It must still match the text, which no
+ *   record can change, so it lands exactly where it ranked before.
  */
-fun searchDex(dex: Dex, records: Map<CatchKey, CatchRecord>, filter: DexFilter): List<DexEntry> {
+fun searchDex(
+    dex: Dex,
+    records: Map<CatchKey, CatchRecord>,
+    filter: DexFilter,
+    always: CatchKey? = null,
+): List<DexEntry> {
     val query = parseQuery(filter.query)
     val matches = dex.entries.filter { entry ->
-        matchesRefinements(entry, records, filter) && query.matches(entry)
+        (entry.key == always || matchesRefinements(entry, records, filter)) && query.matches(entry)
     }
     return if (query is Query.Text) {
         matches.sortedWith(compareBy({ query.rank(it) }, { it.order }))
