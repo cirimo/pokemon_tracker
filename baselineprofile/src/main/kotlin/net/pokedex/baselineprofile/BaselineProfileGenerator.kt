@@ -56,10 +56,15 @@ class BaselineProfileGenerator {
 
         // 3. A slot's detail and back, which includes the shared element. A tap on a pager
         // that is still settling stops the fling instead of opening the slot, so wait until
-        // it is back on the first box.
+        // it is back on the first box. In between, page through the box from the detail,
+        // by swipe and by the stepper, so the return flies to a different tile.
         await(By.text(FIRST_BOX))
         onScreen(SLOT).click()
         await(BACK_BUTTON)
+        repeat(DETAIL_PAGES) { swipeDetail(forward = true) }
+        swipeDetail(forward = false)
+        await(NEXT_SLOT).click()
+        Thread.sleep(SWIPE_GAP_MS)
         device.pressBack()
         await(BOX_COUNTER)
 
@@ -68,6 +73,7 @@ class BaselineProfileGenerator {
         await(By.clazz(EDIT_TEXT)).text = SEARCH_QUERY
         await(SEARCH_RESULT).click()
         await(BACK_BUTTON)
+        repeat(DETAIL_PAGES) { swipeDetail(forward = true) }
         device.pressBack()
         await(By.desc(CLOSE_SEARCH)).click()
         await(BOX_COUNTER)
@@ -107,6 +113,7 @@ class BaselineProfileGenerator {
         await(HUNT_ROW).click()
         await(BACK_BUTTON)
         flingList(Direction.DOWN)
+        repeat(DETAIL_PAGES) { swipeDetail(forward = true) }
         device.pressBack()
         await(HUNT_ROW)
         device.pressBack()
@@ -187,6 +194,19 @@ class BaselineProfileGenerator {
     }
 
     /**
+     * One page of slot detail's pager. Lower than the box pager's swipe: the detail's hero
+     * and toggle sit near the top, and a swipe starting on the toggle would still page, but
+     * one starting on the stepper's chevrons would tap them.
+     */
+    private fun MacrobenchmarkScope.swipeDetail(forward: Boolean) {
+        val y = (device.displayHeight * DETAIL_Y).toInt()
+        val left = (device.displayWidth * EDGE).toInt()
+        val right = (device.displayWidth * (1 - EDGE)).toInt()
+        if (forward) device.swipe(right, y, left, y, SWIPE_STEPS) else device.swipe(left, y, right, y, SWIPE_STEPS)
+        Thread.sleep(SWIPE_GAP_MS)
+    }
+
+    /**
      * The build under test (net.pokedex.profiling), as the plugin passes it, and never the
      * installed release: the run uninstalls what it tested, and the release holds the real
      * catch records. No fallback on purpose. This module instruments itself, so the target
@@ -212,6 +232,7 @@ class BaselineProfileGenerator {
 private const val TARGET_PACKAGE_ARG = "androidx.benchmark.targetPackageName"
 
 private const val PAGES = 22
+private const val DETAIL_PAGES = 3
 private const val SHEET_FLINGS = 4
 private const val MIN_SHEET_ROWS = 3
 private const val TIMEOUT_MS = 5_000L
@@ -219,6 +240,9 @@ private const val TIMEOUT_MS = 5_000L
 /** Mid-grid on a portrait phone, clear of the header above and the box switcher below. */
 private const val PAGER_Y = 0.4f
 private const val EDGE = 0.15f
+
+/** Slot detail's pages, below the hero, in the part of the page that is text. */
+private const val DETAIL_Y = 0.6f
 
 /** About 180 ms at uiautomator's 5 ms per step: the same speed as the measured swipes. */
 private const val SWIPE_STEPS = 36
@@ -253,6 +277,9 @@ private val PROGRESS_ENTRY = By.desc(Pattern.compile("shiny: .*"))
 private val BOX_COUNTER = By.text(Pattern.compile("Box \\d+ of \\d+"))
 private const val FIRST_BOX = "Box 1 of 52"
 private val BACK_BUTTON = By.desc("Back")
+
+/** The browse stepper's forward chevron, which names the slot it goes to. */
+private val NEXT_SLOT = By.desc(Pattern.compile("Next slot, .+"))
 
 /**
  * A grid tile, whatever its state. Tiles are buttons; the detail screen's hero carries the
