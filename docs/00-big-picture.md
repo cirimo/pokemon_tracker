@@ -121,4 +121,8 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    (`docs/adr/0012-hunt-ranking.md`), exact odds, and Legends Arceus curated to 89% with a
    method (`docs/dataset-pipeline.md`, "Scope"). It also found that a regenerated dataset
    never reached an installed app; see `docs/architecture.md` §3.
-6. Further feature prompts, one per milestone, written as each one comes up.
+6. [`prompts/06-browse-and-dark-icons.md`](prompts/06-browse-and-dark-icons.md) — found by
+   using M4 on the phone: back and settings icons are invisible in dark mode, and slot detail
+   should swipe to the previous and next slot of the box or search list it came from.
+   **Next.**
+7. Further feature prompts, one per milestone, written as each one comes up.
