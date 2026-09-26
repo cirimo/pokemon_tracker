@@ -124,5 +124,11 @@ One prompt per milestone, each run as its own Claude Code session, in order:
 6. [`prompts/06-browse-and-dark-icons.md`](prompts/06-browse-and-dark-icons.md) — found by
    using M4 on the phone: back and settings icons are invisible in dark mode, and slot detail
    should swipe to the previous and next slot of the box or search list it came from.
-   **Next.**
-7. Further feature prompts, one per milestone, written as each one comes up.
+   **In progress**: icon fix, browsing and ADR 0013 built; profile and §8 remain.
+7. [`prompts/07-where-to-farm.md`](prompts/07-where-to-farm.md) — I farm game by game (Legends
+   Z-A, then Arceus, then Violet): an ordered list of my games, and filters for what I can get
+   shiny only in one of them, or should get in it first by that order.
+8. [`prompts/08-regular-dex.md`](prompts/08-regular-dex.md) — the regular dex: record owning the
+   regular Pokémon in a slot, count the living dex beside the shiny one, and hunt upgrades. A
+   `user.db` migration of the real records, so it goes slowly.
+9. Further feature prompts, one per milestone, written as each one comes up.
