@@ -217,17 +217,28 @@ features can link to each other without depending on each other.
 than a destination (`docs/adr/0010-search-is-a-mode.md`):
 
 ```
-Boxes (start; search is a mode) ──→ SlotDetail(catchKey) ──→ VariantDetail(variantId)
+Boxes (start; search is a mode) ──→ SlotDetail(catchKey, browse?) ──→ VariantDetail(variantId)
 Boxes ──→ Progress ──→ (back to Boxes, on a box or on search "Needed in <game>")
 Boxes ──→ Hunt(gameId?) ──→ SlotDetail          (M4; Hunt ⇄ Progress link both ways)
 Boxes ──→ Settings ──→ BackupRestore(fileUri?)
 Settings ──→ MyGames ←── Hunt and SlotDetail, before any game is chosen (via :app)
 RestoreOffer: a sheet beside the NavHost, shown only on an empty database ──→ BackupRestore
+
+SlotDetail pages through browse = Box(i) | Search(filter) | Hunt(gameId?)   (prompt 6)
+  and leaves "browsedTo" on the entry that opened it, so back lands on the last slot shown
 ```
 
 Still flat: M4 added two destinations and no nested graph, so ADR 0006's "no nested graphs
 until M4 needs them" held. Hunting is ranked by `huntPlan` in `:core:model`, derived on read
 like progress; `docs/adr/0012-hunt-ranking.md` records why the order is fixed.
+
+**Browsing between slots** (prompt 6, `docs/adr/0013-browse-context.md`). Slot detail is a
+pager over the list it was opened from: a box's filled slots, the search results under the
+active filter, or the hunt list. The route carries only the question (`Browse`, encoded),
+and `browseKeys` in `:core:model` asks it again with `dex.layout`, `searchDex` or
+`huntPlan`, so it survives process death. The list is frozen while the detail is open, and
+the slot on screen is always kept in it. Progress's recent catches, the species page and
+the "Needed N times" copies open a slot on its own, with no pager stepper.
 
 Two features never name each other's routes. The box view reaches Settings through a
 callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view

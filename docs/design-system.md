@@ -283,9 +283,17 @@ Not a section of claims. A gate you can run:
 |---|---|---|
 | `ContrastTest` | Every pair in `ContrastPairs`, both themes, against its WCAG bar | anywhere |
 | `ContrastTest` | All 18 type badges, plus the *uniformity* of the OKLCH ramp | anywhere |
+| `IconContrastTest` | Every icon button in the gallery, both themes: the glyph as drawn, at least 3:1 against what is behind it | anywhere |
 | `AccessibilityTest` | 48dp touch targets; TalkBack sentences, distinct per state | anywhere |
 | `BoxGridScrollingParentTest` | Container contracts a screenshot cannot see | anywhere |
 | `ComponentScreenshotTest` | Both themes, 100% and 200% font scale | **CI only** |
+
+`ContrastTest` checks what is declared; `IconContrastTest` checks what is drawn. The second
+exists because the first cannot see a component that never asks for a token. Until prompt 6,
+`PokedexTheme` provided no `LocalContentColor`, so every untinted `Icon` drew Material's
+default black: invisible on the dark case, indistinguishable from `onCase` in light. The
+theme now provides `onCase`; Material containers (buttons, fields, sheets) still set their
+own.
 
 Screenshots are the one CI-only gate, and the split is not arbitrary. Roborazzi compares
 pixels exactly and Robolectric does not render identically across operating systems, so a
