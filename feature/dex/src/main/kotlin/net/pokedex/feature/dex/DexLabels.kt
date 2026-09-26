@@ -2,6 +2,7 @@ package net.pokedex.feature.dex
 
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.DexEntry
+import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameSet
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.SlotState
@@ -64,4 +65,9 @@ internal fun errorBody(error: AppError): String = when (error) {
         "Reinstalling the app restores it. Your catch records are kept in a separate " +
             "database and are not affected."
     else -> error.toString()
+}
+
+internal fun farmScopeLabel(scope: FarmScope): String = when (scope) {
+    FarmScope.HereFirst -> "Here first"
+    FarmScope.OnlyHere -> "Only here"
 }

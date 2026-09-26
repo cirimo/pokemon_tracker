@@ -17,10 +17,11 @@ import net.pokedex.core.data.backup.BackupRepository
 import net.pokedex.core.data.repository.DexRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
-import net.pokedex.core.model.GameId
+import net.pokedex.core.model.Game
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.backup.BackupDestination
 import net.pokedex.core.model.backup.BackupWriter
+import net.pokedex.core.model.farmOrderOf
 import java.time.Instant
 import javax.inject.Inject
 
@@ -63,11 +64,12 @@ class SettingsViewModel @Inject constructor(
 
     private val transient = MutableStateFlow(Transient())
 
-    private val gameNames = MutableStateFlow<Map<GameId, String>>(emptyMap())
+    private val games = MutableStateFlow<List<Game>>(emptyList())
 
-    private val myGames = combine(settings.observeMyGames(), gameNames) { owned, names ->
-        // In the dataset's game order, so the summary reads the way the list below it does.
-        names.filterKeys { it in owned }.values.joinToString(", ")
+    private val myGames = combine(settings.observeFarmRanks(), games) { ranks, games ->
+        // In farm order, so the summary says what comes first.
+        val names = games.associate { it.id to it.name }
+        farmOrderOf(games, ranks).mapNotNull { names[it] }.joinToString(", ")
     }
 
     val state: StateFlow<SettingsUiState> = combine(
@@ -91,7 +93,7 @@ class SettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             (dexRepository.dex() as? Outcome.Ok)?.let { loaded ->
-                gameNames.value = loaded.value.games.associate { it.id to it.name }
+                games.value = loaded.value.games
             }
         }
     }

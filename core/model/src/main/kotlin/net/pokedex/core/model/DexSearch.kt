@@ -23,16 +23,28 @@ data class DexFilter(
     /** Dataset type ids, e.g. "fire". Empty means no type restriction. */
     val types: Set<String> = emptySet(),
     val noShiny: NoShinyFilter = NoShinyFilter.Any,
+    /**
+     * Added in prompt 7, with a default, so a filter encoded before it -- in a saved state or
+     * a browse route -- still decodes. Null means no farm restriction.
+     */
+    val farm: FarmFilter? = null,
 ) {
     /** True when anything other than the text query narrows the result. */
     val hasRefinements: Boolean
         get() = caught != CaughtFilter.All || gameSets.isNotEmpty() || types.isNotEmpty() ||
-            noShiny != NoShinyFilter.Any
+            noShiny != NoShinyFilter.Any || farm != null
 
     val refinementCount: Int
         get() = (if (caught != CaughtFilter.All) 1 else 0) + gameSets.size + types.size +
-            (if (noShiny != NoShinyFilter.Any) 1 else 0)
+            (if (noShiny != NoShinyFilter.Any) 1 else 0) + (if (farm != null) 1 else 0)
 }
+
+/**
+ * "Farm in": the slots that belong to one of my games, see [FarmPlan]. One game rather than
+ * any-of, unlike [DexFilter.gameSets]: "only here" in two games at once asks nothing useful.
+ */
+@Serializable
+data class FarmFilter(val gameId: String, val scope: FarmScope = FarmScope.HereFirst)
 
 @Serializable
 enum class CaughtFilter { All, Needed, Caught }
@@ -55,16 +67,20 @@ enum class NoShinyFilter { Any, Hide, Only }
  * @param always a slot that passes the refinements regardless of its record: the one a
  *   browsing detail is showing (see [browseKeys]). It must still match the text, which no
  *   record can change, so it lands exactly where it ranked before.
+ * @param farm where each slot is farmed, for [DexFilter.farm]. Built by the caller when my
+ *   games or their order change, never here: a keystroke must not walk my games per slot.
+ *   Without one, a farm filter matches nothing rather than everything.
  */
 fun searchDex(
     dex: Dex,
     records: Map<CatchKey, CatchRecord>,
     filter: DexFilter,
     always: CatchKey? = null,
+    farm: FarmPlan? = null,
 ): List<DexEntry> {
     val query = parseQuery(filter.query)
     val matches = dex.entries.filter { entry ->
-        (entry.key == always || matchesRefinements(entry, records, filter)) && query.matches(entry)
+        (entry.key == always || matchesRefinements(entry, records, filter, farm)) && query.matches(entry)
     }
     return if (query is Query.Text) {
         matches.sortedWith(compareBy({ query.rank(it) }, { it.order }))
@@ -77,6 +93,7 @@ internal fun matchesRefinements(
     entry: DexEntry,
     records: Map<CatchKey, CatchRecord>,
     filter: DexFilter,
+    farm: FarmPlan?,
 ): Boolean {
     val status = statusOf(entry, records)
     val caughtOk = when (filter.caught) {
@@ -95,8 +112,11 @@ internal fun matchesRefinements(
         NoShinyFilter.Hide -> entry.variant.shinyReleased
         NoShinyFilter.Only -> !entry.variant.shinyReleased
     }
-    return caughtOk && gameOk && typeOk && noShinyOk
+    return caughtOk && gameOk && typeOk && noShinyOk && matchesFarm(entry, filter.farm, farm)
 }
+
+private fun matchesFarm(entry: DexEntry, filter: FarmFilter?, plan: FarmPlan?): Boolean =
+    filter == null || plan?.matches(entry, GameId(filter.gameId), filter.scope) == true
 
 /**
  * Lowercase, accents stripped, punctuation to spaces, whitespace collapsed.

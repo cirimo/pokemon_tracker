@@ -14,7 +14,7 @@ import org.junit.Test
 class BrowseTest {
 
     private val dex = DexFixtures.dex
-    private val scarletViolet = setOf(GameId("sv-s"), GameId("sv-v"))
+    private val scarletViolet = listOf(GameId("sv-s"), GameId("sv-v"))
     private val noGuide = HuntGuide(emptyList(), emptyList(), emptyList())
 
     private fun caught(vararg keys: CatchKey, priority: Int = 0) =
@@ -105,7 +105,7 @@ class BrowseTest {
 
     @Test
     fun `the hunt list is one stop per hunt, on its lead, in ranked order`() {
-        val plan = huntPlan(dex, emptyMap(), scarletViolet, noGuide)
+        val plan = huntPlan(dex, emptyMap(), scarletViolet.toSet(), noGuide)
 
         assertThat(keys(Browse.Hunt(), keep = key("pikachu"))).isEqualTo(plan.hunts.map { it.lead.key })
     }
@@ -125,8 +125,8 @@ class BrowseTest {
     fun `a hunt filtered to a game I no longer have falls back to all my games, as the hunt screen does`() {
         assertThat(keys(Browse.Hunt(gameId = "swsh-sw"), keep = key("pikachu")))
             .isEqualTo(keys(Browse.Hunt(), keep = key("pikachu")))
-        assertThat(huntGames(scarletViolet, GameId("swsh-sw"))).isEqualTo(scarletViolet)
-        assertThat(huntGames(scarletViolet, GameId("sv-v"))).containsExactly(GameId("sv-v"))
+        assertThat(huntGames(scarletViolet.toSet(), GameId("swsh-sw"))).isEqualTo(scarletViolet.toSet())
+        assertThat(huntGames(scarletViolet.toSet(), GameId("sv-v"))).containsExactly(GameId("sv-v"))
     }
 
     @Test
@@ -139,6 +139,7 @@ class BrowseTest {
         val contexts = listOf(
             Browse.Box(3),
             Browse.Search(DexFilter(query = "mew", caught = CaughtFilter.Needed, gameSets = setOf("sv"))),
+            Browse.Search(DexFilter(farm = FarmFilter("sv-v", FarmScope.OnlyHere))),
             Browse.Hunt(gameId = "sv-s"),
             Browse.Hunt(),
         )
@@ -146,5 +147,33 @@ class BrowseTest {
         contexts.forEach { assertThat(Browse.decode(Browse.encode(it))).isEqualTo(it) }
         assertThat(Browse.decode("""{"type":"somewhere-new"}""")).isNull()
         assertThat(Browse.decode("not json")).isNull()
+    }
+
+    @Test
+    fun `a search context written before the farm filter still decodes, with no farm filter`() {
+        // Exactly what prompt 6 put in a route.
+        val old = """{"type":"search","filter":{"query":"mew","caught":"Needed","gameSets":["sv"]}}"""
+
+        assertThat(Browse.decode(old))
+            .isEqualTo(Browse.Search(DexFilter(query = "mew", caught = CaughtFilter.Needed, gameSets = setOf("sv"))))
+    }
+
+    @Test
+    fun `a farm search browses the list it showed, in my order`() {
+        // Scarlet first: Pikachu is Scarlet's. Violet keeps Raichu and Flabebe, both only there.
+        val violetFirst = Browse.Search(DexFilter(caught = CaughtFilter.Needed, farm = FarmFilter("sv-v")))
+        val onlyScarlet = Browse.Search(DexFilter(farm = FarmFilter("sv-s", FarmScope.OnlyHere)))
+
+        assertThat(keys(violetFirst, keep = key("raichu"))).containsExactly(key("raichu"), key("flabebe")).inOrder()
+        assertThat(keys(onlyScarlet, keep = key("pikachu"))).containsExactly(key("pikachu"))
+    }
+
+    @Test
+    fun `a slot caught out of a farm search keeps its place`() {
+        val browse = Browse.Search(DexFilter(caught = CaughtFilter.Needed, farm = FarmFilter("sv-v")))
+
+        val after = keys(browse, keep = key("flabebe"), records = caught(key("flabebe")))
+
+        assertThat(after).containsExactly(key("raichu"), key("flabebe")).inOrder()
     }
 }

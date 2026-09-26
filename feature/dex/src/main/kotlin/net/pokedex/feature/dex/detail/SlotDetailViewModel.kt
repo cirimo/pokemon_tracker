@@ -37,6 +37,7 @@ import net.pokedex.core.model.SlotStatus
 import net.pokedex.core.model.Standing
 import net.pokedex.core.model.VariantId
 import net.pokedex.core.model.browseKeys
+import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.hasDetails
 import net.pokedex.core.model.prefillOrigin
 import net.pokedex.core.model.standingOf
@@ -291,7 +292,8 @@ class SlotDetailViewModel @Inject constructor(
             listOf(keep)
         } else {
             val guide = if (browse is Browse.Hunt) guideTried.await() else null
-            browseKeys(browse, dex, catches.observeRecords().first(), settings.observeMyGames().first(), guide, keep)
+            val order = farmOrderOf(dex.games, settings.observeFarmRanks().first())
+            browseKeys(browse, dex, catches.observeRecords().first(), order, guide, keep)
         }
     }
 

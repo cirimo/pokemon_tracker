@@ -5,6 +5,7 @@ import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.DexFilter
+import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.NoShinyFilter
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
@@ -47,6 +48,8 @@ data class SearchUiState(
     val results: List<SearchResult> = emptyList(),
     val gameSets: List<FilterChoice> = emptyList(),
     val types: List<FilterChoice> = emptyList(),
+    /** My games, first to farm first: the "Farm in" choices. Empty until games are chosen. */
+    val farmGames: List<FilterChoice> = emptyList(),
 ) {
     val needed: Boolean get() = filter.caught == CaughtFilter.Needed
     val caught: Boolean get() = filter.caught == CaughtFilter.Caught
@@ -104,11 +107,18 @@ sealed interface BoxesEvent {
     data class ShowNeededIn(val gameSetId: String) : BoxesEvent
     data object OpenSearch : BoxesEvent
     data object CloseSearch : BoxesEvent
-    data class QueryChanged(val query: String) : BoxesEvent
-    data class CaughtFilterChanged(val value: CaughtFilter) : BoxesEvent
-    data class GameSetToggled(val id: String) : BoxesEvent
-    data class TypeToggled(val id: String) : BoxesEvent
-    data class NoShinyChanged(val value: NoShinyFilter) : BoxesEvent
-    data object ClearRefinements : BoxesEvent
+
+    /** A change to the search filter, and nothing else. */
+    sealed interface FilterEdit : BoxesEvent
+    data class QueryChanged(val query: String) : FilterEdit
+    data class CaughtFilterChanged(val value: CaughtFilter) : FilterEdit
+    data class GameSetToggled(val id: String) : FilterEdit
+    data class TypeToggled(val id: String) : FilterEdit
+    data class NoShinyChanged(val value: NoShinyFilter) : FilterEdit
+
+    /** Pick a game to farm in, or put the picked one down. One at a time. */
+    data class FarmGameToggled(val gameId: String) : FilterEdit
+    data class FarmScopeChanged(val scope: FarmScope) : FilterEdit
+    data object ClearRefinements : FilterEdit
     data object Retry : BoxesEvent
 }

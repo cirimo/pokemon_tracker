@@ -111,4 +111,37 @@ class DexSearchTest {
         assertThat(normalizeForSearch("Nidoran♀")).isEqualTo("nidoran")
         assertThat(normalizeForSearch("  Porygon-Z  ")).isEqualTo("porygon z")
     }
+
+    @Test
+    fun `a farm filter keeps the slots that belong to that game and combines with the rest`() {
+        val plan = FarmPlan(DexFixtures.dex, listOf(GameId("swsh-sw"), GameId("sv-s"), GameId("sv-v")))
+        fun search(filter: DexFilter, records: Map<CatchKey, CatchRecord> = emptyMap()) =
+            searchDex(DexFixtures.dex, records, filter, farm = plan).map { it.variant.id.value }
+
+        assertThat(search(DexFilter(farm = FarmFilter("swsh-sw")))).containsExactly("pikachu")
+        // Scarlet also has Pikachu, but Sword comes first.
+        assertThat(search(DexFilter(farm = FarmFilter("sv-s")))).isEmpty()
+        val onlyViolet = DexFilter(farm = FarmFilter("sv-v", FarmScope.OnlyHere))
+        assertThat(search(onlyViolet)).containsExactly("raichu", "flabebe")
+        assertThat(search(DexFilter(query = "fla", farm = FarmFilter("sv-v")))).containsExactly("flabebe")
+        assertThat(
+            search(
+                DexFilter(caught = CaughtFilter.Needed, farm = FarmFilter("sv-v")),
+                records = mapOf(DexFixtures.key("raichu") to Fixtures.caught("raichu")),
+            ),
+        ).containsExactly("flabebe")
+    }
+
+    @Test
+    fun `a farm filter with no plan to answer it matches nothing rather than everything`() {
+        assertThat(searchDex(DexFixtures.dex, emptyMap(), DexFilter(farm = FarmFilter("sv-v")))).isEmpty()
+    }
+
+    @Test
+    fun `the farm filter counts as one refinement`() {
+        val filter = DexFilter(farm = FarmFilter("sv-v"))
+
+        assertThat(filter.hasRefinements).isTrue()
+        assertThat(filter.refinementCount).isEqualTo(1)
+    }
 }

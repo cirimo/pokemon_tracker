@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.first
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CaughtFilter
+import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.NoShinyFilter
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.FilterChip
@@ -44,6 +45,7 @@ import net.pokedex.designsystem.component.SpeciesCard
 import net.pokedex.designsystem.icon.PokedexIcons
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
+import net.pokedex.feature.dex.farmScopeLabel
 import net.pokedex.feature.dex.slotOrigin
 import net.pokedex.feature.dex.toSlotState
 import net.pokedex.feature.dex.typesOf
@@ -104,8 +106,8 @@ internal fun SearchContent(
             )
             OutlinedButton(onClick = { sheetOpen = true }) {
                 Icon(PokedexIcons.Filter, contentDescription = null)
-                val extra = search.filter.gameSets.size + search.filter.types.size +
-                    if (search.filter.noShiny != NoShinyFilter.Any) 1 else 0
+                // What the sheet holds: every refinement but the caught chips beside this button.
+                val extra = search.filter.refinementCount - if (search.filter.caught != CaughtFilter.All) 1 else 0
                 Text(
                     text = if (extra == 0) "More filters" else "More filters, $extra on",
                     style = PokedexTheme.text.badgeLabel,
@@ -191,6 +193,7 @@ private fun FilterSheet(search: SearchUiState, onEvent: (BoxesEvent) -> Unit, on
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(dimens.spaceLg),
         ) {
+            if (search.farmGames.isNotEmpty()) FarmSection(search, onEvent)
             FilterSection(
                 title = "Get it shiny in",
                 hint = "Any of these. A game where it is shiny-locked does not count.",
@@ -246,6 +249,43 @@ private fun FilterSheet(search: SearchUiState, onEvent: (BoxesEvent) -> Unit, on
                     enabled = search.filter.hasRefinements,
                 ) {
                     Text("Clear filters", style = PokedexTheme.text.badgeLabel)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * "Farm in": one of my games, and which half of the question. First in the sheet, because
+ * it is the question asked most while working through my games one at a time.
+ */
+@Composable
+private fun FarmSection(search: SearchUiState, onEvent: (BoxesEvent) -> Unit) {
+    val farm = search.filter.farm
+    Column(verticalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm)) {
+        FilterSection(
+            title = "Farm in",
+            hint = "One of your games, in your farm order. Here first: the first of your games that has " +
+                "it shiny. Only here: none of your other games has it shiny.",
+        ) {
+            search.farmGames.forEach { game ->
+                FilterChip(
+                    label = game.label,
+                    selected = farm?.gameId == game.id,
+                    onSelectedChange = { onEvent(BoxesEvent.FarmGameToggled(game.id)) },
+                )
+            }
+        }
+        if (farm != null) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm)) {
+                FarmScope.entries.forEach { scope ->
+                    FilterChip(
+                        label = farmScopeLabel(scope),
+                        selected = farm.scope == scope,
+                        // A scope is always chosen while a game is: tapping the chosen one again
+                        // keeps it rather than leaving the filter half-set.
+                        onSelectedChange = { onEvent(BoxesEvent.FarmScopeChanged(scope)) },
+                    )
                 }
             }
         }

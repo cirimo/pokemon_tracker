@@ -59,18 +59,24 @@ fun huntGames(myGames: Set<GameId>, selected: GameId?): Set<GameId> =
  * for again, and by then [keep] may have been caught out of it; this puts it back in the
  * place it would have had, so the page on screen is never the one that disappears. If even
  * that cannot place it (a newer dataset dropped it), the list is [keep] alone.
+ *
+ * @param farmOrder my games, first to farm first ([farmOrderOf]).
  */
 fun browseKeys(
     browse: Browse,
     dex: Dex,
     records: Map<CatchKey, CatchRecord>,
-    myGames: Set<GameId>,
+    farmOrder: List<GameId>,
     guide: HuntGuide?,
     keep: CatchKey,
 ): List<CatchKey> {
+    val myGames = farmOrder.toSet()
     val keys = when (browse) {
         is Browse.Box -> dex.layout(browse.boxIndex).mapNotNull { it?.key }
-        is Browse.Search -> searchDex(dex, records, browse.filter, always = keep).map { it.key }
+        is Browse.Search -> {
+            val farm = browse.filter.farm?.let { FarmPlan(dex, farmOrder) }
+            searchDex(dex, records, browse.filter, always = keep, farm = farm).map { it.key }
+        }
         is Browse.Hunt -> {
             if (guide == null) return listOf(keep)
             // Ranked as if [keep] were still needed, with its own priority intact: a hunt caught

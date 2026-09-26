@@ -37,11 +37,15 @@ import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.DexFilter
+import net.pokedex.core.model.FarmFilter
+import net.pokedex.core.model.FarmPlan
+import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
+import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.huntPlan
 import net.pokedex.core.model.progressOf
 import net.pokedex.core.model.searchDex
@@ -86,10 +90,14 @@ class BoxesViewModel @Inject constructor(
     private val records = catches.observeRecords()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
 
-    // Shared for the same reason as records: both derivations read it, and it should be
-    // one Room observer, not two.
-    private val myGames = settings.observeMyGames()
+    // Shared for the same reason as records: several derivations read it, and it should be
+    // one Room observer, not several.
+    private val farmRanks = settings.observeFarmRanks()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), replay = 1)
+
+    // The set alone, so a reorder -- which changes no slot's status -- does not rebuild the
+    // pager's 1394 tiles.
+    private val myGames = farmRanks.map { it.keys }.distinctUntilChanged()
 
     private val searching = savedState.getStateFlow(KEY_SEARCHING, false)
     private val filter = savedState.getStateFlow(KEY_FILTER, "").map(::decodeFilter)
@@ -101,14 +109,20 @@ class BoxesViewModel @Inject constructor(
         loaded?.let { boxesOf(it, records, games) }
     }.flowOn(default)
 
+    // Where each slot is farmed. Built when my games or their order change, so a keystroke
+    // pays an array read per slot for the farm filter rather than a walk of my games.
+    private val farmPlan = combine(loaded, farmRanks) { loaded, ranks ->
+        loaded?.let { FarmPlan(it.dex, farmOrderOf(it.dex.games, ranks)) }
+    }.flowOn(default)
+
     private val search = combine(
         loaded,
         records,
-        myGames,
+        farmPlan,
         searching,
         filter,
-    ) { loaded, records, games, active, filter ->
-        loaded?.let { searchOf(it, records, games, active, filter) } ?: SearchUiState()
+    ) { loaded, records, plan, active, filter ->
+        if (loaded == null || plan == null) SearchUiState() else searchOf(loaded, records, plan, active, filter)
     }.flowOn(default)
 
     private val guide = MutableStateFlow<HuntGuide?>(null)
@@ -173,14 +187,24 @@ class BoxesViewModel @Inject constructor(
             }
             BoxesEvent.OpenSearch -> savedState[KEY_SEARCHING] = true
             BoxesEvent.CloseSearch -> closeSearch()
-            is BoxesEvent.QueryChanged -> editFilter { copy(query = event.query) }
-            is BoxesEvent.CaughtFilterChanged -> editFilter { copy(caught = event.value) }
-            is BoxesEvent.GameSetToggled -> editFilter { copy(gameSets = gameSets.toggle(event.id)) }
-            is BoxesEvent.TypeToggled -> editFilter { copy(types = types.toggle(event.id)) }
-            is BoxesEvent.NoShinyChanged -> editFilter { copy(noShiny = event.value) }
-            BoxesEvent.ClearRefinements -> editFilter { DexFilter(query = query) }
+            is BoxesEvent.FilterEdit -> editFilter { edited(event) }
             BoxesEvent.Retry -> load()
         }
+    }
+
+    private fun DexFilter.edited(event: BoxesEvent.FilterEdit): DexFilter = when (event) {
+        is BoxesEvent.QueryChanged -> copy(query = event.query)
+        is BoxesEvent.CaughtFilterChanged -> copy(caught = event.value)
+        is BoxesEvent.GameSetToggled -> copy(gameSets = gameSets.toggle(event.id))
+        is BoxesEvent.TypeToggled -> copy(types = types.toggle(event.id))
+        is BoxesEvent.NoShinyChanged -> copy(noShiny = event.value)
+        // Switching game keeps the scope: "only here" in Arceus, then "only here" in Violet.
+        is BoxesEvent.FarmGameToggled -> {
+            val scope = farm?.scope ?: FarmScope.HereFirst
+            copy(farm = if (farm?.gameId == event.gameId) null else FarmFilter(event.gameId, scope))
+        }
+        is BoxesEvent.FarmScopeChanged -> copy(farm = farm?.copy(scope = event.scope))
+        BoxesEvent.ClearRefinements -> DexFilter(query = query)
     }
 
     private fun load() {
@@ -304,12 +328,15 @@ class BoxesViewModel @Inject constructor(
     private fun searchOf(
         loaded: Loaded,
         records: Map<CatchKey, CatchRecord>,
-        myGames: Set<GameId>,
+        plan: FarmPlan,
         active: Boolean,
         filter: DexFilter,
     ): SearchUiState {
-        if (!active) return SearchUiState(gameSets = loaded.gameSets, types = loaded.types)
-        val results = searchDex(loaded.dex, records, filter).map { entry ->
+        val names = loaded.dex.games.associate { it.id to it.name }
+        val farmGames = plan.order.map { FilterChoice(it.value, names[it] ?: it.value) }
+        if (!active) return SearchUiState(gameSets = loaded.gameSets, types = loaded.types, farmGames = farmGames)
+        val myGames = plan.games
+        val results = searchDex(loaded.dex, records, filter, farm = plan).map { entry ->
             SearchResult(
                 slotKey = entry.key.toString(),
                 key = entry.key,
@@ -328,6 +355,7 @@ class BoxesViewModel @Inject constructor(
             results = results,
             gameSets = loaded.gameSets,
             types = loaded.types,
+            farmGames = farmGames,
         )
     }
 

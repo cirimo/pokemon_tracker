@@ -62,6 +62,9 @@ data class FarmPlace(val game: GameId, val onlyHere: Boolean)
  * [DexEntry.shinyGames] already means "farm it, or what it evolves from, here".
  */
 class FarmPlan(dex: Dex, val order: List<GameId>) {
+    /** My games, for [statusOf]. */
+    val games: Set<GameId> = order.toHashSet()
+
     private val places: Array<FarmPlace?> = arrayOfNulls<FarmPlace>(dex.entries.size).also { places ->
         for (entry in dex.entries) {
             // A variant no game has released a shiny of can still be "obtainable and not
