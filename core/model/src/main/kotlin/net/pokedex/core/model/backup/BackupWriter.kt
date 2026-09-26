@@ -66,14 +66,15 @@ class BackupWriter(private val prefix: String) {
     }
 
     /**
-     * Records and games, the two things a user chooses. The rest of the file (the export
-     * time, the app version) changes on every write and says nothing new.
+     * Records, games and their order: the things a user chooses. The rest of the file (the
+     * export time, the app version) changes on every write and says nothing new.
      */
     private fun sameContent(folder: BackupFolder, name: BackupName, file: BackupFile): Boolean {
         val existing = runCatching { BackupCodec.decode(folder.read(name.fileName)) }.getOrNull()
         return existing is Outcome.Ok &&
             existing.value.records == file.records &&
-            existing.value.settings.myGames == file.settings.myGames
+            existing.value.settings.myGames == file.settings.myGames &&
+            existing.value.settings.gameOrder == file.settings.gameOrder
     }
 
     private fun prune(folder: BackupFolder, keepAuto: Int?) {

@@ -17,6 +17,7 @@ import net.pokedex.core.data.user.BackupLogDao
 import net.pokedex.core.data.user.BackupLogEntity
 import net.pokedex.core.data.user.MyGameDao
 import net.pokedex.core.data.user.UserDatabase
+import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.backup.AppInfo
 import net.pokedex.core.model.backup.BackupCodec
@@ -29,6 +30,7 @@ import net.pokedex.core.model.backup.ImportPlan
 import net.pokedex.core.model.backup.RestorePreview
 import net.pokedex.core.model.backup.SettingsInfo
 import net.pokedex.core.model.backup.toRecordInfo
+import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.getOrNull
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -67,6 +69,7 @@ class BackupRepository @Inject constructor(
     /** The current records as a backup file. */
     suspend fun currentFile(now: Instant = Instant.now()): BackupFile = withContext(io) {
         val settings = settingsRepository.get()
+        val ranks = settingsRepository.farmRanks()
         val meta = referenceRepository.datasetMeta().getOrNull()
         BackupFile(
             schema = BackupFile.CURRENT_SCHEMA,
@@ -81,7 +84,8 @@ class BackupRepository @Inject constructor(
                 activePresetId = settings.activePresetId.value,
                 autoBackupEnabled = settings.autoBackupEnabled,
                 autoBackupKeepCount = settings.autoBackupKeepCount,
-                myGames = settingsRepository.farmRanks().keys.map { it.value }.sorted(),
+                myGames = ranks.keys.map { it.value }.sorted(),
+                gameOrder = gameOrderOf(ranks).map { it.value },
             ),
             // Sorted so two exports of the same data are byte-identical and diffable.
             records = catchRepository.allRecords()
@@ -148,7 +152,7 @@ class BackupRepository @Inject constructor(
                     val folder = location.current()
                     db.withTransaction {
                         val local = catchRepository.allRecords().associateBy { it.key }
-                        val plan = ImportPlan.of(local, settingsRepository.farmRanks().keys, parsed.value, mode)
+                        val plan = ImportPlan.of(local, settingsRepository.farmRanks(), parsed.value, mode)
                         val snapshot = if (plan.snapshotFirst) {
                             val current = currentFile(now)
                             writer.writeSnapshot(folder, current, now).also { record(it, current, "pre-import") }
@@ -160,11 +164,21 @@ class BackupRepository @Inject constructor(
                         } else {
                             catchRepository.merge(plan.write)
                         }
-                        plan.myGames?.let { games -> myGames.replaceAll(games.associate { it.value to 0 }) }
+                        plan.myGames?.let { games -> myGames.replaceAll(games.mapKeys { it.key.value }) }
                         ImportResult(written = plan.write.size, snapshot = snapshot)
                     }
                 }
             }
+        }
+
+    /**
+     * The order as the app reads it, ties resolved, so the file says it in full. Without a
+     * dex to break ties it falls back to the id, which only a broken install ever sees.
+     */
+    private suspend fun gameOrderOf(ranks: Map<GameId, Int>): List<GameId> =
+        when (val dex = dexRepository.dex()) {
+            is Outcome.Ok -> farmOrderOf(dex.value.games, ranks)
+            is Outcome.Err -> ranks.entries.sortedWith(compareBy({ it.value }, { it.key.value })).map { it.key }
         }
 
     data class ImportResult(val written: Int, val snapshot: BackupName?)

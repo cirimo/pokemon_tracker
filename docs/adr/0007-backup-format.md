@@ -54,6 +54,13 @@ copyIndex)` so two exports of the same data are byte-identical and diffable.
   `schema` stayed 1. A file without it says nothing about games and leaves the local set
   alone; otherwise replace takes the file's set and merge takes the union. An automatic
   backup counts a change of games as a change, not only a change of records.
+- `settings.gameOrder` (the same games, first to farm first) was added in prompt 7,
+  additively, so `schema` stayed 1. It is a key of its own because every earlier file has
+  `myGames` sorted alphabetically, which a newer build could not tell from a chosen order.
+  An older build ignores it and restores the games unordered. A file without it leaves the
+  order here alone. Replace takes the file's order; merge keeps the order here and appends
+  games new to this device in the file's order. A reorder alone counts as a change for an
+  automatic backup. See `0014-game-order.md`.
 
 Import is one transaction, merge by default with an explicit replace option, and always
 writes a pre-import snapshot to the rolling backup directory first.

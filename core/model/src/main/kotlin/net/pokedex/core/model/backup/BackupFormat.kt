@@ -55,6 +55,11 @@ data class DatasetInfo(
  * [myGames] was added in M4 without a schema bump, like `updatedAt`: it is additive, an
  * older build ignores it, and a file without it restores as "says nothing about games".
  * Sorted, so two exports of the same choice are byte-identical.
+ *
+ * [gameOrder] is the same games in the order they are farmed, added in prompt 7, again
+ * without a bump. It is a key of its own rather than [myGames] reordered because every file
+ * written before it has [myGames] in alphabetical order, which a newer build could not tell
+ * from a chosen one. Missing means "says nothing about the order".
  */
 @Serializable
 data class SettingsInfo(
@@ -62,6 +67,7 @@ data class SettingsInfo(
     val autoBackupEnabled: Boolean = true,
     val autoBackupKeepCount: Int = 10,
     val myGames: List<String> = emptyList(),
+    val gameOrder: List<String> = emptyList(),
 )
 
 /**

@@ -63,18 +63,20 @@ data class RestorePreview(
  *   and after a reinstall there may be no folder to write to yet.
  * @property write the records to upsert.
  * @property clearFirst replace mode: the table is emptied in the same transaction.
- * @property myGames the games to hold afterwards, or null to leave them as they are.
+ * @property myGames the games to hold afterwards, each with its farm order, or null to
+ *   leave them as they are.
  */
 data class ImportPlan(
     val snapshotFirst: Boolean,
     val write: List<CatchRecord>,
     val clearFirst: Boolean,
-    val myGames: Set<GameId>?,
+    val myGames: Map<GameId, Int>?,
 ) {
     companion object {
+        /** @param localGames my games here, with their stored farm order. */
         fun of(
             local: Map<CatchKey, CatchRecord>,
-            localGames: Set<GameId>,
+            localGames: Map<GameId, Int>,
             file: BackupFile,
             mode: ImportMode,
         ): ImportPlan {
@@ -100,15 +102,37 @@ data class ImportPlan(
          * A file without games -- every file from before M4 -- says nothing about them, so
          * it never clears the ones set here. Otherwise replace takes the file's set and merge
          * takes both: owning a game is not something a merge should quietly undo.
+         *
+         * The order follows the same idea. Replace takes the file's order when it has one. A
+         * merge keeps the order here, which is the one in use, and puts games new to this
+         * device after it, in the file's order. Games nothing places tie, and a tie reads in
+         * release order (`farmOrderOf`).
          */
-        private fun gamesAfterImport(local: Set<GameId>, file: BackupFile, mode: ImportMode): Set<GameId>? {
-            val incoming = file.settings.myGames.mapTo(HashSet()) { GameId(it) }
+        private fun gamesAfterImport(
+            local: Map<GameId, Int>,
+            file: BackupFile,
+            mode: ImportMode,
+        ): Map<GameId, Int>? {
+            val incoming = file.settings.myGames.mapTo(LinkedHashSet()) { GameId(it) }
             if (incoming.isEmpty()) return null
-            val after = when (mode) {
-                ImportMode.MERGE -> local + incoming
-                ImportMode.REPLACE -> incoming
+            val fileOrder = file.settings.gameOrder.map { GameId(it) }.filter { it in incoming }.distinct()
+            val after = when {
+                mode == ImportMode.REPLACE && fileOrder.isNotEmpty() ->
+                    incoming.associateWith { game -> fileOrder.indexOf(game).takeIf { it >= 0 } ?: fileOrder.size }
+                mode == ImportMode.REPLACE -> appended(local.filterKeys { it in incoming }, incoming, fileOrder)
+                else -> appended(local, incoming, fileOrder)
             }
             return after.takeIf { it != local }
+        }
+
+        /** [kept] as it is, then the rest of [games] after it: [order]'s first, then tied. */
+        private fun appended(kept: Map<GameId, Int>, games: Set<GameId>, order: List<GameId>): Map<GameId, Int> {
+            val next = (kept.values.maxOrNull() ?: -1) + 1
+            val added = games.filter { it !in kept }
+            val placed = order.filter { it in added }
+            return kept +
+                placed.mapIndexed { i, game -> game to next + i } +
+                added.filter { it !in placed }.map { it to next + placed.size }
         }
     }
 }
