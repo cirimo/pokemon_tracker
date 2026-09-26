@@ -241,6 +241,10 @@ private fun SlotDetailContent(
         },
     )
 
+    state.farmLine?.let { line ->
+        Text(text = line, style = MaterialTheme.typography.bodyLarge, color = colors.onCase)
+    }
+
     if (!state.shinyReleased) {
         // Enabled anyway: the dataset can lag a real distribution, and refusing to record a
         // Pokemon the user is holding would be the app contradicting a fact.

@@ -67,6 +67,14 @@ internal fun errorBody(error: AppError): String = when (error) {
     else -> error.toString()
 }
 
+/** Slot detail's line under the name: which of my games to farm it in, and why that one. */
+internal fun farmLine(game: String, onlyHere: Boolean): String =
+    if (onlyHere) {
+        "Farm in $game, the only one of your games that has it shiny"
+    } else {
+        "Farm in $game, first of your games"
+    }
+
 internal fun farmScopeLabel(scope: FarmScope): String = when (scope) {
     FarmScope.HereFirst -> "Here first"
     FarmScope.OnlyHere -> "Only here"

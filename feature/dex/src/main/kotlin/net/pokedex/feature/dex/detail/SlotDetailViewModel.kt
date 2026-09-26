@@ -29,6 +29,7 @@ import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.Encounter
+import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
@@ -43,6 +44,7 @@ import net.pokedex.core.model.prefillOrigin
 import net.pokedex.core.model.standingOf
 import net.pokedex.core.model.statusOf
 import net.pokedex.feature.dex.SlotDetailRoute
+import net.pokedex.feature.dex.farmLine
 import net.pokedex.feature.dex.locationOf
 import net.pokedex.feature.dex.oddsSentence
 import net.pokedex.feature.dex.sourceLabel
@@ -92,6 +94,11 @@ data class SlotDetailUiState(
     /** How to get it in each of my games; every Switch game while none are chosen. */
     val hunting: List<GameHuntUi> = emptyList(),
     val gamesChosen: Boolean = false,
+    /**
+     * Which of my games this slot is farmed in, as one line under the name. Null once caught,
+     * with no games chosen, or when none of my games has it shiny: "In your games" says why.
+     */
+    val farmLine: String? = null,
 )
 
 /** One game, for this slot: whether it can be shiny there, and every recorded way. */
@@ -230,7 +237,12 @@ class SlotDetailViewModel @Inject constructor(
     /** Frozen once, when the detail opens; null until then. */
     private val keys = MutableStateFlow<List<CatchKey>?>(null)
 
-    private val inputs = combine(dex, catches.observeRecords(), settings.observeMyGames(), guide, ::Inputs)
+    // The plan is rebuilt only when the dex or my order changes, not with every record.
+    private val farm = combine(dex, settings.observeFarmRanks()) { dex, ranks ->
+        (dex as? Outcome.Ok)?.value?.let { FarmPlan(it, farmOrderOf(it.games, ranks)) }
+    }
+
+    private val inputs = combine(dex, catches.observeRecords(), farm, guide, ::Inputs)
 
     val state: StateFlow<SlotDetailPagesState> = combine(inputs, current, keys) { inputs, current, keys ->
         when (val dex = inputs.dex) {
@@ -300,7 +312,7 @@ class SlotDetailViewModel @Inject constructor(
     private class Inputs(
         val dex: Outcome<Dex>?,
         val records: Map<CatchKey, CatchRecord>,
-        val myGames: Set<GameId>,
+        val farm: FarmPlan?,
         val guide: HuntGuide?,
     )
 
@@ -311,7 +323,9 @@ class SlotDetailViewModel @Inject constructor(
             loading = false,
             keys = keys,
             current = current,
-            pages = near.associateWith { build(dex, inputs.records, inputs.myGames, inputs.guide, it) },
+            pages = near.associateWith { key ->
+                build(dex, inputs.records, inputs.farm ?: FarmPlan(dex, emptyList()), inputs.guide, key)
+            },
             browse = browse?.takeIf { keys.size > 1 }?.let { browseUiOf(it, dex) },
         )
     }
@@ -325,10 +339,11 @@ class SlotDetailViewModel @Inject constructor(
     private fun build(
         dex: Dex,
         records: Map<CatchKey, CatchRecord>,
-        myGames: Set<GameId>,
+        farm: FarmPlan,
         guide: HuntGuide?,
         key: CatchKey,
     ): SlotDetailUiState {
+        val myGames = farm.games
         // A key the dataset no longer has is a link from an older screen state -- say so
         // rather than crash. The record itself, if any, is untouched.
         val entry = dex.entry(key) ?: return SlotDetailUiState(
@@ -379,19 +394,26 @@ class SlotDetailViewModel @Inject constructor(
             },
             origins = originsFor(dex, variant.id),
             priority = Priority.of(records[key]?.priority ?: 0),
-            hunting = huntingFor(dex, variant.id, myGames, guide),
+            hunting = huntingFor(dex, variant.id, farm.order, guide),
             gamesChosen = myGames.isNotEmpty(),
+            farmLine = farm.placeOf(entry)
+                ?.takeIf { statusOf(entry, records) == SlotStatus.Needed }
+                ?.let { farmLine(gameNames[it.game] ?: it.game.value, it.onlyHere) },
         )
     }
 
     /**
      * Per game: where it stands, then every recorded encounter, locked ones included so a
      * locked gift is seen as locked rather than missing. With no games chosen, every game
-     * the variant appears in, so the screen is still useful before setup.
+     * the variant appears in, so the screen is still useful before setup. My games are in my
+     * farm order, so the game the farm line names comes first among those that have it.
      */
-    private fun huntingFor(dex: Dex, variant: VariantId, myGames: Set<GameId>, guide: HuntGuide?): List<GameHuntUi> {
-        val games = dex.games.filter { it.gameSet != Dex.HOME_GAME_SET }.filter { game ->
-            if (myGames.isEmpty()) standingOf(dex, variant, game.id) != Standing.Absent else game.id in myGames
+    private fun huntingFor(dex: Dex, variant: VariantId, farmOrder: List<GameId>, guide: HuntGuide?): List<GameHuntUi> {
+        val byId = dex.games.associateBy { it.id }
+        val games = if (farmOrder.isEmpty()) {
+            dex.games.filter { it.gameSet != Dex.HOME_GAME_SET && standingOf(dex, variant, it.id) != Standing.Absent }
+        } else {
+            farmOrder.mapNotNull { byId[it] }
         }
         val lockReasons = dex.availability(variant).associate { it.gameId to it.shinyLockReason }
         return games.map { game ->
