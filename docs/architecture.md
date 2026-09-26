@@ -218,13 +218,14 @@ than a destination (`docs/adr/0010-search-is-a-mode.md`):
 
 ```
 Boxes (start; search is a mode) ──→ SlotDetail(catchKey, browse?) ──→ VariantDetail(variantId)
-Boxes ──→ Progress ──→ (back to Boxes, on a box or on search "Needed in <game>")
+Boxes ──→ Progress ──→ (back to Boxes, on a box or on a search: "Needed in <game>",
+                         or a farm-plan count, handed over as an encoded DexFilter)
 Boxes ──→ Hunt(gameId?) ──→ SlotDetail          (M4; Hunt ⇄ Progress link both ways)
 Boxes ──→ Settings ──→ BackupRestore(fileUri?)
 Settings ──→ MyGames ←── Hunt and SlotDetail, before any game is chosen (via :app)
 RestoreOffer: a sheet beside the NavHost, shown only on an empty database ──→ BackupRestore
 
-SlotDetail pages through browse = Box(i) | Search(filter) | Hunt(gameId?)   (prompt 6)
+SlotDetail pages through browse = Box(i) | Search(filter) | Hunt(gameId?, scope?)   (prompt 6, 7)
   and leaves "browsedTo" on the entry that opened it, so back lands on the last slot shown
 ```
 
@@ -239,6 +240,17 @@ and `browseKeys` in `:core:model` asks it again with `dex.layout`, `searchDex` o
 `huntPlan`, so it survives process death. The list is frozen while the detail is open, and
 the slot on screen is always kept in it. Progress's recent catches, the species page and
 the "Needed N times" copies open a slot on its own, with no pager stepper.
+
+**Where to farm** (prompt 7, `docs/adr/0014-game-order.md`). My games have an order, the
+one I work through them in, stored as `my_game.farmOrder` (user.db v5); ties read in release
+order. `FarmPlan` in `:core:model` gives every slot the first of my games, in that order,
+that has it shiny, and whether it is the only one. It depends on the dex and the order and
+not on records, so screens build it when the order changes and a search keystroke pays one
+array read per slot for it. It drives four things: "Farm in" in the search sheet
+(`DexFilter.farm`), the hunt list's per-game scope (`huntPlanFor`, `Browse.Hunt.scope`),
+the line under the name on slot detail, and the farm plan on Progress (`farmCounts`).
+Evolutions need no case of their own: upstream marks an evolved form obtainable only in the
+games where it can be evolved.
 
 Two features never name each other's routes. The box view reaches Settings through a
 callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view
@@ -257,6 +269,7 @@ is **refused outright** rather than partially imported, with both version number
 Unknown keys are ignored, so additive changes do not bump `schema`. Records are sorted on
 export so two exports of the same data are byte-identical and diffable. Each record carries
 `updatedAt` (added in M3, additively), and a merge keeps whichever side changed a record last.
+Settings carry `myGames` (M4) and `gameOrder` (prompt 7), both additive.
 
 **Durability** (M3, `docs/adr/0011-backups-outside-the-sandbox.md`). On 2026-09-23 an
 uninstall took every record, because the only copy lived inside the app's sandbox. Now:

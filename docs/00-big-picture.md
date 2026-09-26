@@ -129,7 +129,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    (`docs/architecture.md` §8, state 7 was taken warm).
 7. [`prompts/07-where-to-farm.md`](prompts/07-where-to-farm.md) — I farm game by game (Legends
    Z-A, then Arceus, then Violet): an ordered list of my games, and filters for what I can get
-   shiny only in one of them, or should get in it first by that order.
+   shiny only in one of them, or should get in it first by that order. **Built 2026-09-26**:
+   a farm order on my games (`user.db` v5, `docs/adr/0014-game-order.md`), "Farm in" in search,
+   a per-game share on the hunt list, a farm line on slot detail and a farm plan on Progress.
 8. [`prompts/08-regular-dex.md`](prompts/08-regular-dex.md) — the regular dex: record owning the
    regular Pokémon in a slot, count the living dex beside the shiny one, and hunt upgrades. A
    `user.db` migration of the real records, so it goes slowly.
