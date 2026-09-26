@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.pokedex.designsystem.component.LoadingState
+import net.pokedex.designsystem.component.OrderRow
 import net.pokedex.designsystem.component.ScreenScaffold
 import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SettingSwitch
@@ -30,6 +31,24 @@ internal fun MyGamesScreen(state: MyGamesUiState, onEvent: (MyGamesEvent) -> Uni
         if (state.loading) {
             LoadingState()
         } else {
+            // One game has no order to set, so the section waits for a second.
+            if (state.order.size > 1) {
+                ScreenSection(
+                    title = "Farm order",
+                    body = "The order you work through your games in. A slot you still need belongs to the " +
+                        "first of them that has it shiny.",
+                ) {
+                    state.order.forEachIndexed { index, game ->
+                        OrderRow(
+                            title = game.name,
+                            position = index + 1,
+                            count = state.order.size,
+                            onMoveEarlier = { onEvent(MyGamesEvent.Move(game.id, -1)) },
+                            onMoveLater = { onEvent(MyGamesEvent.Move(game.id, 1)) },
+                        )
+                    }
+                }
+            }
             state.sets.forEach { set ->
                 ScreenSection(title = set.title) {
                     set.games.forEach { game ->

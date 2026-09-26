@@ -19,6 +19,8 @@ import net.pokedex.core.model.Dex
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.SlotStatus
+import net.pokedex.core.model.farmOrderOf
+import net.pokedex.core.model.moveInOrder
 import net.pokedex.core.model.statusOf
 import javax.inject.Inject
 
@@ -26,7 +28,12 @@ import javax.inject.Inject
 data class MyGamesUiState(
     val loading: Boolean = true,
     val sets: List<GameSetChoice> = emptyList(),
+    /** My games, first to farm first. */
+    val order: List<OrderedGame> = emptyList(),
 )
+
+@Immutable
+data class OrderedGame(val id: String, val name: String)
 
 /** One pair of versions, e.g. Scarlet and Violet, as the screen groups them. */
 @Immutable
@@ -43,6 +50,9 @@ data class GameChoice(
 
 sealed interface MyGamesEvent {
     data class Toggle(val gameId: String, val owned: Boolean) : MyGamesEvent
+
+    /** [by] places, later for positive. */
+    data class Move(val gameId: String, val by: Int) : MyGamesEvent
 }
 
 /**
@@ -65,9 +75,18 @@ class MyGamesViewModel @Inject constructor(
     val state: StateFlow<MyGamesUiState> = combine(
         dex,
         catches.observeRecords(),
-        settings.observeMyGames(),
-    ) { dex, records, owned ->
-        if (dex == null) MyGamesUiState() else MyGamesUiState(loading = false, sets = setsOf(dex, records, owned))
+        settings.observeFarmRanks(),
+    ) { dex, records, ranks ->
+        if (dex == null) {
+            MyGamesUiState()
+        } else {
+            val order = farmOrderOf(dex.games, ranks)
+            MyGamesUiState(
+                loading = false,
+                sets = setsOf(dex, records, ranks.keys),
+                order = order.mapNotNull { id -> dex.games.firstOrNull { it.id == id }?.let { OrderedGame(id.value, it.name) } },
+            )
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), MyGamesUiState())
 
     init {
@@ -80,6 +99,12 @@ class MyGamesViewModel @Inject constructor(
         when (event) {
             is MyGamesEvent.Toggle -> viewModelScope.launch {
                 settings.setMyGame(GameId(event.gameId), event.owned)
+            }
+            // The whole order is written, not a swap: before anyone has moved a game every
+            // rank is 0, and only the resolved order says which two games are trading places.
+            is MyGamesEvent.Move -> viewModelScope.launch {
+                val order = state.value.order.map { GameId(it.id) }
+                settings.setFarmOrder(moveInOrder(order, GameId(event.gameId), event.by))
             }
         }
     }

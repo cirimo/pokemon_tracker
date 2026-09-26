@@ -2,6 +2,7 @@ package net.pokedex.core.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.pokedex.core.data.di.IoDispatcher
@@ -40,14 +41,27 @@ class SettingsRepository @Inject constructor(
      * treats that as nothing being out of reach rather than everything.
      */
     fun observeMyGames(): Flow<Set<GameId>> =
-        myGameDao.observe().map { ids -> ids.mapTo(LinkedHashSet()) { GameId(it) } }
+        // Set equality ignores order, so a reorder does not re-emit: the box grid, which
+        // only cares what is owned, is not redrawn because the farm order changed.
+        myGameDao.observe().map { rows -> rows.mapTo(HashSet()) { GameId(it.gameId) } }.distinctUntilChanged()
 
-    suspend fun myGames(): Set<GameId> = withContext(io) {
-        myGameDao.all().mapTo(LinkedHashSet()) { GameId(it) }
-    }
+    /**
+     * My games with their stored farm order. Ties are expected (every game chosen before the
+     * order existed is 0) and are resolved in release order by `farmOrderOf`, which knows the
+     * games; this layer does not.
+     */
+    fun observeFarmRanks(): Flow<Map<GameId, Int>> =
+        myGameDao.observe().map { rows -> rows.toRanks() }.distinctUntilChanged()
+
+    suspend fun farmRanks(): Map<GameId, Int> = withContext(io) { myGameDao.all().toRanks() }
 
     suspend fun setMyGame(gameId: GameId, owned: Boolean) = withContext(io) {
-        if (owned) myGameDao.insert(MyGameEntity(gameId.value)) else myGameDao.delete(gameId.value)
+        if (owned) myGameDao.insertLast(gameId.value) else myGameDao.delete(gameId.value)
+    }
+
+    /** [order] is every game of mine, first to farm first. */
+    suspend fun setFarmOrder(order: List<GameId>) = withContext(io) {
+        myGameDao.reorder(order.map { it.value })
     }
 
     suspend fun setLastBox(boxIndex: Int) = edit { it.copy(lastBoxIndex = boxIndex) }
@@ -59,3 +73,5 @@ class SettingsRepository @Inject constructor(
         if (next != current) dao.upsert(next.toEntity())
     }
 }
+
+private fun List<MyGameEntity>.toRanks(): Map<GameId, Int> = associate { GameId(it.gameId) to it.farmOrder }

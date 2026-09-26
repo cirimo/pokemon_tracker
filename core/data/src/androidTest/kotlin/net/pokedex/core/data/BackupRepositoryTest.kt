@@ -145,7 +145,7 @@ class BackupRepositoryTest {
 
         backups.import(exported, ImportMode.REPLACE, now)
 
-        assertThat(settings.myGames()).containsExactly(GameId("la"), GameId("sv-s"))
+        assertThat(settings.farmRanks().keys).containsExactly(GameId("la"), GameId("sv-s"))
     }
 
     @Test

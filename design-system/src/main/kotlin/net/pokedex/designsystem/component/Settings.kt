@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -21,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import net.pokedex.designsystem.icon.PokedexIcons
 import net.pokedex.designsystem.theme.PokedexShapes
@@ -131,6 +134,69 @@ fun SettingSwitch(
 }
 
 /**
+ * One entry in a short list the user puts in order: its place, its name, and a button to
+ * move it each way.
+ *
+ * Buttons rather than drag. The lists this is for are ten rows at most, so dragging would
+ * not be slow, but a button is one tap, needs no long-press to discover, and TalkBack moves
+ * it with the same two actions a finger does. The first row's "earlier" and the last row's
+ * "later" are disabled rather than hidden, so the buttons do not shift under a thumb.
+ *
+ * @param position 1-based, as it is shown.
+ */
+@Composable
+fun OrderRow(
+    title: String,
+    position: Int,
+    count: Int,
+    onMoveEarlier: () -> Unit,
+    onMoveLater: () -> Unit,
+    modifier: Modifier = Modifier,
+    summary: String? = null,
+) {
+    val colors = PokedexTheme.colors
+    val dimens = PokedexTheme.dimens
+    // M3 draws an IconButton at 40dp and widens only its touch area; sizing it to the minimum
+    // target makes the button itself 48dp, which is what TalkBack's focus box shows.
+    val target = Modifier.size(dimens.touchTargetMin)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = dimens.touchTargetMin)
+            .padding(vertical = dimens.spaceXs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+    ) {
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .semantics(mergeDescendants = true) {},
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(dimens.spaceMd),
+        ) {
+            Text(
+                text = "$position",
+                style = PokedexTheme.text.dexNumber,
+                color = colors.onCaseMuted,
+                modifier = Modifier.semantics { contentDescription = "$position of $count" },
+            )
+            Column {
+                Text(text = title, style = MaterialTheme.typography.bodyLarge, color = colors.onCase)
+                if (summary != null) {
+                    Text(text = summary, style = MaterialTheme.typography.bodyMedium, color = colors.onCaseMuted)
+                }
+            }
+        }
+        IconButton(onClick = onMoveEarlier, enabled = position > 1, modifier = target) {
+            Icon(PokedexIcons.ChevronUp, contentDescription = "Move $title earlier")
+        }
+        IconButton(onClick = onMoveLater, enabled = position < count, modifier = target) {
+            Icon(PokedexIcons.ChevronDown, contentDescription = "Move $title later")
+        }
+    }
+}
+
+/**
  * Something the user should know about a setting's consequences: "backups stay inside the
  * app, so an uninstall deletes them".
  *
@@ -235,6 +301,16 @@ internal fun SettingsSamples() {
             onAction = {},
         )
         NoticeCard(title = "Backed up", body = "412 caught, 5 minutes ago, to Documents/Pokedex.")
+        listOf("Legends Z-A", "Legends Arceus", "Violet").forEachIndexed { index, game ->
+            OrderRow(
+                title = game,
+                position = index + 1,
+                count = 3,
+                summary = if (index == 1) "Farm next" else null,
+                onMoveEarlier = {},
+                onMoveLater = {},
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm)) {
             ActionButton(label = "Merge", onClick = {})
             ActionButton(label = "Replace", onClick = {}, primary = false, destructive = true)

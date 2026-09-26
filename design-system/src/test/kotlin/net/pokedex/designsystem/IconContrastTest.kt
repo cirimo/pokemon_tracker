@@ -3,6 +3,7 @@ package net.pokedex.designsystem
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.view.View
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -67,7 +68,12 @@ class IconContrastTest {
         composeRule.setContent {
             view = LocalView.current
             PokedexTheme(darkTheme = dark) {
-                Column(Modifier.verticalScroll(rememberScrollState())) { GallerySections() }
+                // On the case, as the gallery and every screen draw it. Without it a button with no
+                // container of its own is measured against transparent pixels, which read as
+                // black: a pass in dark by accident and a failure in light.
+                Column(
+                    Modifier.background(PokedexTheme.colors.case).verticalScroll(rememberScrollState()),
+                ) { GallerySections() }
             }
         }
 

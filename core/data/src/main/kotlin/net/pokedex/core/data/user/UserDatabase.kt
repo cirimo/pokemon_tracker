@@ -31,7 +31,7 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun myGameDao(): MyGameDao
 
     companion object {
-        const val VERSION = 4
+        const val VERSION = 5
         const val FILE_NAME = "user.db"
 
         /**
@@ -75,11 +75,22 @@ abstract class UserDatabase : RoomDatabase() {
         }
 
         /**
+         * 4 -> 5: my_game.farmOrder, the order the user farms their games in. Every existing
+         * row gets 0, and a tie reads in release order, so the games already chosen come out
+         * in the order they did before and no catch_record row is touched.
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE my_game ADD COLUMN farmOrder INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        /**
          * Migrations, in order.
          *
          * When you add one, add a MigrationTestHelper test alongside it. An untested
          * migration on this database is a data-loss bug waiting for a release.
          */
-        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
     }
 }

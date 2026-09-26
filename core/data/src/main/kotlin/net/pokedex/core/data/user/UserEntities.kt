@@ -58,6 +58,13 @@ data class UserSettingsEntity(
 @Entity(tableName = "my_game")
 data class MyGameEntity(
     @PrimaryKey val gameId: String,
+    /**
+     * Added in version 5: where this game comes in the order the user farms their games,
+     * lowest first. Equal values fall back to release order, which only the reference data
+     * knows, so games chosen before the order existed all migrate to 0 and read in release
+     * order until the user moves one. docs/adr/0014-game-order.md.
+     */
+    @ColumnInfo(defaultValue = "0") val farmOrder: Int = 0,
 )
 
 /** One row per rolling local backup written, so the UI can offer a restore list. */

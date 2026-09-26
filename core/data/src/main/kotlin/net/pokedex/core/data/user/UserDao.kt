@@ -69,23 +69,39 @@ interface UserSettingsDao {
 @Dao
 interface MyGameDao {
 
-    @Query("SELECT gameId FROM my_game ORDER BY gameId")
-    fun observe(): Flow<List<String>>
+    @Query("SELECT * FROM my_game ORDER BY farmOrder, gameId")
+    fun observe(): Flow<List<MyGameEntity>>
 
-    @Query("SELECT gameId FROM my_game ORDER BY gameId")
-    suspend fun all(): List<String>
+    @Query("SELECT * FROM my_game ORDER BY farmOrder, gameId")
+    suspend fun all(): List<MyGameEntity>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(game: MyGameEntity)
+    /** A newly ticked game goes to the end of the farm order: it is the one you have not started. */
+    @Query(
+        "INSERT OR IGNORE INTO my_game (gameId, farmOrder) " +
+            "SELECT :gameId, COALESCE(MAX(farmOrder) + 1, 0) FROM my_game",
+    )
+    suspend fun insertLast(gameId: String)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(game: MyGameEntity)
 
     @Query("DELETE FROM my_game WHERE gameId = :gameId")
     suspend fun delete(gameId: String)
 
+    @Query("UPDATE my_game SET farmOrder = :farmOrder WHERE gameId = :gameId")
+    suspend fun setFarmOrder(gameId: String, farmOrder: Int)
+
+    /** The whole order at once, so a move never leaves two games claiming the same place. */
+    @Transaction
+    suspend fun reorder(gameIds: List<String>) {
+        gameIds.forEachIndexed { index, id -> setFarmOrder(id, index) }
+    }
+
     /** A restore that brings a set of games: one transaction, so no half-applied set. */
     @Transaction
-    suspend fun replaceAll(gameIds: Collection<String>) {
+    suspend fun replaceAll(games: Map<String, Int>) {
         deleteAll()
-        gameIds.forEach { insert(MyGameEntity(it)) }
+        games.forEach { (id, farmOrder) -> upsert(MyGameEntity(id, farmOrder)) }
     }
 
     @Query("DELETE FROM my_game")

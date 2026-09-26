@@ -160,6 +160,44 @@ class UserDatabaseMigrationTest {
     }
 
     @Test
+    fun migration4To5KeepsRecordsAndGamesAndStartsEveryGameAtTheSameRank() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            insertSecondUnown(this)
+            // The real install's shape: games chosen in M4, in no particular order.
+            execSQL("INSERT INTO my_game (gameId) VALUES ('sv-v')")
+            execSQL("INSERT INTO my_game (gameId) VALUES ('lza')")
+            execSQL("INSERT INTO my_game (gameId) VALUES ('la')")
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, 5, true, UserDatabase.MIGRATION_4_5)
+
+        migrated.query("SELECT variantId, copyIndex, caught, notes FROM catch_record").use { cursor ->
+            assertThat(cursor.count).isEqualTo(1)
+            cursor.moveToFirst()
+            assertThat(cursor.getString(0)).isEqualTo("unown")
+            assertThat(cursor.getInt(1)).isEqualTo(1)
+            assertThat(cursor.getInt(2)).isEqualTo(1)
+            assertThat(cursor.getString(3)).isEqualTo("the second copy")
+        }
+        // Every game kept, all tied at 0: release order decides until the user moves one.
+        migrated.query("SELECT gameId, farmOrder FROM my_game ORDER BY gameId").use { cursor ->
+            val rows = buildList { while (cursor.moveToNext()) add(cursor.getString(0) to cursor.getInt(1)) }
+            assertThat(rows).containsExactly("la" to 0, "lza" to 0, "sv-v" to 0).inOrder()
+        }
+        // A game ticked after the migration goes to the end, the way the DAO inserts it.
+        migrated.execSQL(
+            "INSERT OR IGNORE INTO my_game (gameId, farmOrder) " +
+                "SELECT 'sv-s', COALESCE(MAX(farmOrder) + 1, 0) FROM my_game",
+        )
+        migrated.query("SELECT farmOrder FROM my_game WHERE gameId = 'sv-s'").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(1)
+        }
+        migrated.close()
+    }
+
+    @Test
     fun everyMigrationInOrderTakesVersion1ToCurrent() {
         helper.createDatabase(TEST_DB, 1).apply {
             insertSecondUnown(this)
