@@ -44,8 +44,13 @@ data class GameChoice(
     val id: String,
     val name: String,
     val owned: Boolean,
-    /** Slots still needed that this game offers shiny. What owning it would put in reach. */
+    /** Slots still needed that this game offers shiny. */
     val neededHere: Int,
+    /**
+     * For a game I do not own, while I own some: needed slots it offers shiny that none of
+     * mine does. The "which one extra game" answer. Null otherwise.
+     */
+    val newlyInReach: Int? = null,
 )
 
 sealed interface MyGamesEvent {
@@ -113,6 +118,7 @@ class MyGamesViewModel @Inject constructor(
         // Needed regardless of games: this screen is where games are chosen, so it counts
         // against all of them.
         val needed = dex.entries.filter { statusOf(it, records) == SlotStatus.Needed }
+        val outOfReach = if (owned.isEmpty()) emptyList() else needed.filter { e -> e.shinyGames.none { it in owned } }
         return dex.gameSets.map { set ->
             GameSetChoice(
                 title = set.games.joinToString(" and ") { it.name },
@@ -122,6 +128,11 @@ class MyGamesViewModel @Inject constructor(
                         name = game.name,
                         owned = game.id in owned,
                         neededHere = needed.count { game.id in it.shinyGames },
+                        newlyInReach = if (owned.isEmpty() || game.id in owned) {
+                            null
+                        } else {
+                            outOfReach.count { game.id in it.shinyGames }
+                        },
                     )
                 },
             )

@@ -54,7 +54,7 @@ internal fun MyGamesScreen(state: MyGamesUiState, onEvent: (MyGamesEvent) -> Uni
                     set.games.forEach { game ->
                         SettingSwitch(
                             title = game.name,
-                            summary = neededSummary(game.neededHere),
+                            summary = game.newlyInReach?.let(::reachSummary) ?: neededSummary(game.neededHere),
                             checked = game.owned,
                             onCheckedChange = { onEvent(MyGamesEvent.Toggle(game.id, it)) },
                         )
@@ -63,6 +63,13 @@ internal fun MyGamesScreen(state: MyGamesUiState, onEvent: (MyGamesEvent) -> Uni
             }
         }
     }
+}
+
+/** For a game I do not own: what it would add, not what it has. */
+private fun reachSummary(count: Int): String = when (count) {
+    0 -> "Would put nothing new in reach"
+    1 -> "Would put 1 more slot in reach"
+    else -> "Would put $count more slots in reach"
 }
 
 private fun neededSummary(count: Int): String = when (count) {
