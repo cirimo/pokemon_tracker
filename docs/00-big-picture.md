@@ -124,7 +124,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
 6. [`prompts/06-browse-and-dark-icons.md`](prompts/06-browse-and-dark-icons.md) — found by
    using M4 on the phone: back and settings icons are invisible in dark mode, and slot detail
    should swipe to the previous and next slot of the box or search list it came from.
-   **In progress**: icon fix, browsing and ADR 0013 built; profile and §8 remain.
+   **Built 2026-09-26**: icon fix with a drawn-contrast check, browsing from a box, search and
+   the hunt list (`docs/adr/0013-browse-context.md`). Open: the pager re-measure on a cool phone
+   (`docs/architecture.md` §8, state 7 was taken warm).
 7. [`prompts/07-where-to-farm.md`](prompts/07-where-to-farm.md) — I farm game by game (Legends
    Z-A, then Arceus, then Violet): an ordered list of my games, and filters for what I can get
    shiny only in one of them, or should get in it first by that order.

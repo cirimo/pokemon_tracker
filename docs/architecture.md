@@ -386,6 +386,7 @@ read immediately before each run.
 | 4. After M3: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 215–238 ms | 5.3–6.1% | 7 ms | 15–17 ms |
 | 5. After the settle-frame fix: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 231–293 ms | 3.1–3.5% | 7–9 ms | 11–13 ms |
 | 6. After M4: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 197–247 ms | 3.0–3.5% | 9 ms | 12–13 ms |
+| 7. After prompt 6, **warm, provisional** (2026-09-26; see below) | speed-profile, install-dm | 192–244 ms | 3.7–4.1% | 9 ms | 13–20 ms |
 
 State 4 is the M3 build after regenerating the profile with the journey extended to the catch
 sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
@@ -544,7 +545,42 @@ attributed. The phone reported thermal status 0 throughout, but its battery rose
 to 34.6 °C across the default run, and the tight run followed it with no cool-down. Re-run
 `TIGHT=1` alone on a cool phone before reading it as a regression.
 
+*Re-run on 2026-09-25, before prompt 6 changed anything:* `TIGHT=1` alone, state 6 as installed,
+thermal status 0, battery 31.4 °C falling. 2.84–3.40% janky, P90 7 ms, P99 12–13 ms, slow UI
+17–26, slow draw 6–9; cold start 189–276 ms. That is state 5's spread. The M4 tight run's 14–15 ms
+was the warm phone, not M4.
+
 The pager is still over the 8.3 ms P99 budget, for the reasons state 5 gives.
+
+### Measured after prompt 6 (2026-09-26), warm, provisional
+
+The prompt 6 build, profile regenerated with the journey extended to page slot detail from a box,
+search and the hunt list, installed over the real install with `installRelease`. The phone had
+just spent 27 minutes generating that profile and was **not** allowed to cool: battery 34.1 °C at
+the start, 35.0 °C after the default run and 35.9 °C after the tight run, which followed it
+directly. Every earlier table was taken at 31–34 °C.
+
+| `net.pokedex`, state 7 (warm) | Cold start | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| Default run | 192–244 ms | 3.7–4.1% | 9 ms | 13–20 ms | 13–28 | 27–52 |
+| Tight run (`TIGHT=1`) | 210–297 ms | 3.0–4.0% | 8–10 ms | 13–17 ms | 16–27 | 3–26 |
+
+**Not a verdict.** The pager looks worse than state 6, and the prompt required that its P99 not
+get worse, so this has to be re-run alone on a cool phone before it is read either way. What the
+numbers do and do not say:
+
+- Slow-UI counts, the main thread where app code runs, are inside state 6's spread (default
+  19–25, tight 25–29). Prompt 6 put one screen-level value on the box view and nothing per tile;
+  the grid, the pager and their tiles are unchanged.
+- The excess is slow-draw frames, which are RenderThread. That is the swipe-start cluster §8
+  attributes to the CPU governor, and the one a warm phone shifts. One run of each has an
+  outlier (default run 1: 52 slow draw; default run 2: P99 20 ms).
+- The step-0 re-run above is the evidence that heat alone moves these numbers by this much: the
+  same build measured 2 ms of P99 better on a cool phone than warm at M4.
+
+Open: re-run `measure-pager.sh` and `TIGHT=1` on state 7, each alone on a cool phone (battery
+below 32 °C, thermal status 0), and replace this table. If slow UI then rises, or P99 stays above
+state 6's spread while cool, it is a regression and needs a trace before anything else.
 
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
