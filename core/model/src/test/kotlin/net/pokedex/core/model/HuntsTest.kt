@@ -271,4 +271,40 @@ class HuntsTest {
         assertThat(record.withPriority(Priority.Later, now = 2L).priority).isEqualTo(-1)
         assertThat(record.withPriority(Priority.Later, now = 2L).updatedAt).isEqualTo(2L)
     }
+
+    @Test
+    fun `one game's share of the hunt list follows the farm order`() {
+        val sword = GameId("swsh-sw")
+        val scarlet = GameId("sv-s")
+        val violet = GameId("sv-v")
+        fun leads(order: List<GameId>, game: GameId?, scope: FarmScope?) =
+            huntPlanFor(DexFixtures.dex, emptyMap(), order, game, scope, noGuide).hunts.map { it.lead.variant.id.value }
+
+        // Everything Scarlet offers includes Pikachu whatever the order.
+        assertThat(leads(listOf(sword, scarlet), scarlet, null)).containsExactly("pikachu")
+        // But with Sword first, Pikachu is Sword's job, and Scarlet has nothing it is first for.
+        assertThat(leads(listOf(sword, scarlet), scarlet, FarmScope.HereFirst)).isEmpty()
+        assertThat(leads(listOf(scarlet, sword), scarlet, FarmScope.HereFirst)).containsExactly("pikachu")
+        // Pikachu is in both, so it is only-here in neither.
+        assertThat(leads(listOf(scarlet, sword), scarlet, FarmScope.OnlyHere)).isEmpty()
+        // Raichu and Flabebe are Violet's alone.
+        assertThat(leads(listOf(scarlet, violet), violet, FarmScope.OnlyHere)).containsExactly("raichu", "flabebe")
+        // All my games ignores the scope: every slot is some game's share.
+        assertThat(leads(listOf(scarlet, violet), null, FarmScope.OnlyHere))
+            .containsExactlyElementsIn(leads(listOf(scarlet, violet), null, null))
+    }
+
+    @Test
+    fun `leaving a slot out of a game's share does not list it as out of reach`() {
+        val plan = huntPlanFor(
+            DexFixtures.dex,
+            emptyMap(),
+            listOf(GameId("swsh-sw"), GameId("sv-s")),
+            GameId("sv-s"),
+            FarmScope.HereFirst,
+            noGuide,
+        )
+
+        assertThat(plan.outOfReach.map { it.entry.variant.id.value }).doesNotContain("pikachu")
+    }
 }

@@ -209,12 +209,16 @@ data class HuntPlan(val hunts: List<Hunt>, val outOfReach: List<OutOfReach>)
  *
  * @param myGames the chosen games. Empty is handled by the caller, which asks the user to
  *   choose; here it simply makes every slot out of reach.
+ * @param include which reachable slots to hunt at all; the rest are left out, not listed as
+ *   out of reach, because they are reachable, just not asked about. Box nearness still counts
+ *   them: a box is as close to done as it is.
  */
 fun huntPlan(
     dex: Dex,
     records: Map<CatchKey, CatchRecord>,
     myGames: Set<GameId>,
     guide: HuntGuide,
+    include: (DexEntry) -> Boolean = { true },
 ): HuntPlan {
     val needed = dex.entries.filter { statusOf(it, records) == SlotStatus.Needed }
     val myGamesInOrder = dex.games.map { it.id }.filter { it in myGames }
@@ -224,6 +228,7 @@ fun huntPlan(
     val (reachable, unreachable) = needed.partition { entry -> entry.shinyGames.any { it in myGames } }
 
     val hunts = reachable
+        .filter(include)
         .groupBy { HuntKey(it.variant.dexNum, regionalFormOf(it.variant)) }
         .map { (key, slots) ->
             val sorted = slots.sortedBy { it.order }
@@ -253,6 +258,36 @@ fun huntPlan(
         )
 
     return HuntPlan(hunts = hunts, outOfReach = unreachable.map { outOfReach(it, dex) })
+}
+
+/**
+ * The hunt list as the hunt screen asks for it: all my games, or one of them, and for one
+ * game, which of its slots. The screen and browsing both call this, so the list you swipe
+ * through is the list you were looking at.
+ *
+ * @param farmOrder my games, first to farm first.
+ * @param selected one game to narrow to. Dropped if it is no longer one of mine, rather than
+ *   showing nothing.
+ * @param scope for one game: null for everything it offers shiny, otherwise only the slots
+ *   that are farmed there (see [FarmPlan]). Ignored for all my games, where every slot is
+ *   in exactly one game's share anyway.
+ */
+fun huntPlanFor(
+    dex: Dex,
+    records: Map<CatchKey, CatchRecord>,
+    farmOrder: List<GameId>,
+    selected: GameId?,
+    scope: FarmScope?,
+    guide: HuntGuide,
+): HuntPlan {
+    val myGames = farmOrder.toSet()
+    val game = selected?.takeIf { it in myGames }
+    val share: ((DexEntry) -> Boolean)? = if (game != null && scope != null) {
+        FarmPlan(dex, farmOrder).let { plan -> { entry -> plan.matches(entry, game, scope) } }
+    } else {
+        null
+    }
+    return huntPlan(dex, records, huntGames(myGames, game), guide, include = share ?: { true })
 }
 
 /**

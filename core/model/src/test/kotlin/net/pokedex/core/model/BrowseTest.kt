@@ -141,6 +141,7 @@ class BrowseTest {
             Browse.Search(DexFilter(query = "mew", caught = CaughtFilter.Needed, gameSets = setOf("sv"))),
             Browse.Search(DexFilter(farm = FarmFilter("sv-v", FarmScope.OnlyHere))),
             Browse.Hunt(gameId = "sv-s"),
+            Browse.Hunt(gameId = "sv-v", scope = FarmScope.OnlyHere),
             Browse.Hunt(),
         )
 
@@ -175,5 +176,24 @@ class BrowseTest {
         val after = keys(browse, keep = key("flabebe"), records = caught(key("flabebe")))
 
         assertThat(after).containsExactly(key("raichu"), key("flabebe")).inOrder()
+    }
+
+    @Test
+    fun `a hunt context written before scopes still decodes, as everything the game offers`() {
+        assertThat(Browse.decode("""{"type":"hunt","gameId":"sv-s"}""")).isEqualTo(Browse.Hunt("sv-s", scope = null))
+    }
+
+    @Test
+    fun `a hunt list narrowed to a game's share browses that share`() {
+        // Scarlet first, then Violet: Pikachu is Scarlet's; Raichu and Flabebe are Violet's.
+        val order = listOf(GameId("sv-s"), GameId("sv-v"))
+        val violetFirst = Browse.Hunt("sv-v", FarmScope.HereFirst)
+
+        val keys = browseKeys(violetFirst, dex, emptyMap(), order, noGuide, keep = key("raichu"))
+
+        assertThat(keys).isEqualTo(
+            huntPlanFor(dex, emptyMap(), order, GameId("sv-v"), FarmScope.HereFirst, noGuide).hunts.map { it.lead.key },
+        )
+        assertThat(keys).doesNotContain(key("pikachu"))
     }
 }

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
+import net.pokedex.core.model.FarmScope
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChip
@@ -30,6 +31,7 @@ import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
 import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
+import net.pokedex.feature.dex.farmScopeLabel
 import net.pokedex.feature.dex.typesOf
 
 /**
@@ -104,7 +106,10 @@ internal fun HuntScreen(
                 onOpenSlot = onOpenSlot,
                 // The hunts in the order shown, under the game filter shown. Out-of-reach rows are
                 // not hunts, so they open a slot on its own.
-                onOpenHunt = { lead -> onBrowseSlot(lead, Browse.Hunt(state.selectedGame)) },
+                onOpenHunt = { lead ->
+                    val scope = state.scope.takeIf { state.selectedGame != null }
+                    onBrowseSlot(lead, Browse.Hunt(state.selectedGame, scope))
+                },
                 onOpenMyGames = onOpenMyGames,
                 onOpenProgress = onOpenProgress,
                 returnedTo = returnedTo,
@@ -213,6 +218,22 @@ private fun Summary(state: HuntUiState, onEvent: (HuntEvent) -> Unit) {
                         label = game.name,
                         selected = state.selectedGame == game.id,
                         onSelectedChange = { onEvent(HuntEvent.SelectGame(game.id)) },
+                    )
+                }
+            }
+        }
+        if (state.selectedGame != null && state.games.size > 1) {
+            // Which of the game's slots: the ones it is first for in my order (the default),
+            // the ones only it has, or everything it offers shiny.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+                verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+            ) {
+                listOf(FarmScope.HereFirst, FarmScope.OnlyHere, null).forEach { scope ->
+                    FilterChip(
+                        label = scope?.let(::farmScopeLabel) ?: "Everything here",
+                        selected = state.scope == scope,
+                        onSelectedChange = { onEvent(HuntEvent.SelectScope(scope)) },
                     )
                 }
             }

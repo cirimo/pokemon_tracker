@@ -22,13 +22,14 @@ import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
+import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Hunt
 import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Priority
-import net.pokedex.core.model.huntGames
-import net.pokedex.core.model.huntPlan
+import net.pokedex.core.model.farmOrderOf
+import net.pokedex.core.model.huntPlanFor
 import net.pokedex.feature.dex.locationOf
 import net.pokedex.feature.dex.oddsLabel
 import net.pokedex.feature.dex.outOfReachSentence
@@ -43,6 +44,8 @@ data class HuntUiState(
     /** My games, as filter choices. Empty or one game shows no chips. */
     val games: List<GameChoice> = emptyList(),
     val selectedGame: String? = null,
+    /** For one game: null for everything it offers, or which share of it. */
+    val scope: FarmScope? = null,
     val sections: List<HuntSection> = emptyList(),
     val huntCount: Int = 0,
     val slotCount: Int = 0,
@@ -90,6 +93,9 @@ data class OutOfReachRow(
 
 sealed interface HuntEvent {
     data class SelectGame(val gameId: String?) : HuntEvent
+
+    /** Null for everything the selected game offers. */
+    data class SelectScope(val scope: FarmScope?) : HuntEvent
     data class ShowOutOfReach(val show: Boolean) : HuntEvent
     data object Retry : HuntEvent
 }
@@ -111,17 +117,22 @@ class HuntViewModel @Inject constructor(
 
     private val loaded = MutableStateFlow<Outcome<Pair<Dex, HuntGuide>>?>(null)
 
+    private val view = combine(
+        savedState.getStateFlow<String?>(KEY_GAME, null),
+        savedState.getStateFlow(KEY_SCOPE, DEFAULT_SCOPE),
+        savedState.getStateFlow(KEY_OUT_OF_REACH, false),
+    ) { game, scope, showOut -> View(game, FarmScope.entries.firstOrNull { it.name == scope }, showOut) }
+
     val state: StateFlow<HuntUiState> = combine(
         loaded,
         catches.observeRecords(),
-        settings.observeMyGames(),
-        savedState.getStateFlow<String?>(KEY_GAME, null),
-        savedState.getStateFlow(KEY_OUT_OF_REACH, false),
-    ) { loaded, records, myGames, game, showOut ->
+        settings.observeFarmRanks(),
+        view,
+    ) { loaded, records, ranks, view ->
         when (loaded) {
             null -> HuntUiState()
             is Outcome.Err -> HuntUiState(loading = false, error = loaded.error)
-            is Outcome.Ok -> build(loaded.value.first, loaded.value.second, records, myGames, game, showOut)
+            is Outcome.Ok -> build(loaded.value.first, loaded.value.second, records, ranks, view)
         }
     }.flowOn(default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), HuntUiState())
 
@@ -132,6 +143,7 @@ class HuntViewModel @Inject constructor(
     fun onEvent(event: HuntEvent) {
         when (event) {
             is HuntEvent.SelectGame -> savedState[KEY_GAME] = event.gameId
+            is HuntEvent.SelectScope -> savedState[KEY_SCOPE] = event.scope?.name ?: EVERYTHING
             is HuntEvent.ShowOutOfReach -> savedState[KEY_OUT_OF_REACH] = event.show
             HuntEvent.Retry -> load()
         }
@@ -150,21 +162,23 @@ class HuntViewModel @Inject constructor(
         }
     }
 
-    @Suppress("LongParameterList") // One call site; every input is a separate stream.
+    /** What the user chose to look at: a game or all, its share, and the folded list. */
+    private class View(val game: String?, val scope: FarmScope?, val showOutOfReach: Boolean)
+
     private fun build(
         dex: Dex,
         guide: HuntGuide,
         records: Map<CatchKey, CatchRecord>,
-        myGames: Set<GameId>,
-        selected: String?,
-        showOutOfReach: Boolean,
+        ranks: Map<GameId, Int>,
+        view: View,
     ): HuntUiState {
-        if (myGames.isEmpty()) return HuntUiState(loading = false, needsGames = true)
+        if (ranks.isEmpty()) return HuntUiState(loading = false, needsGames = true)
         val names = dex.games.associate { it.id to it.name }
-        val mine = dex.games.filter { it.id in myGames }
+        val order = farmOrderOf(dex.games, ranks)
         // A filter left over from a game since unticked is dropped rather than showing nothing.
-        val game = selected?.let(::GameId)?.takeIf { it in myGames }
-        val plan = huntPlan(dex, records, huntGames(myGames, game), guide)
+        val game = view.game?.let(::GameId)?.takeIf { it in ranks }
+        val plan = huntPlanFor(dex, records, order, game, view.scope, guide)
+        val showOutOfReach = view.showOutOfReach
 
         var explained = false
         val sections = Priority.entries.flatMap { bucket ->
@@ -194,8 +208,10 @@ class HuntViewModel @Inject constructor(
 
         return HuntUiState(
             loading = false,
-            games = mine.map { GameChoice(it.id.value, it.name) },
+            // In farm order, so the chips read the way I work through my games.
+            games = order.map { GameChoice(it.value, names[it] ?: it.value) },
             selectedGame = game?.value,
+            scope = view.scope,
             sections = sections,
             huntCount = plan.hunts.size,
             slotCount = plan.hunts.sumOf { it.slots.size },
@@ -270,6 +286,13 @@ class HuntViewModel @Inject constructor(
         /** The same name as [net.pokedex.feature.dex.HuntRoute]'s argument, so a route can preselect it. */
         const val KEY_GAME = "gameId"
         const val KEY_OUT_OF_REACH = "outOfReach"
+        const val KEY_SCOPE = "scope"
+
+        /** Stored for "everything the game offers", since a saved-state null reads as unset. */
+        const val EVERYTHING = "Everything"
+
+        /** A game picked from the chips shows what it is first for: the question I farm by. */
+        val DEFAULT_SCOPE = FarmScope.HereFirst.name
         const val STOP_TIMEOUT_MS = 5_000L
     }
 }

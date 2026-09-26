@@ -25,10 +25,14 @@ sealed interface Browse {
     @SerialName("search")
     data class Search(val filter: DexFilter) : Browse
 
-    /** The hunt list, one page per hunt on its lead slot, narrowed to [gameId] if set. */
+    /**
+     * The hunt list, one page per hunt on its lead slot, narrowed to [gameId] if set and, for
+     * one game, to its [scope]. [scope] was added in prompt 7; a route without it is the list
+     * as it was before, everything the game offers.
+     */
     @Serializable
     @SerialName("hunt")
-    data class Hunt(val gameId: String? = null) : Browse
+    data class Hunt(val gameId: String? = null, val scope: FarmScope? = null) : Browse
 
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
@@ -45,8 +49,8 @@ sealed interface Browse {
 
 /**
  * The games the hunt list draws on: the one it is filtered to, if that is still one of my
- * games, otherwise all of them. The hunt screen and browsing both call this, so the list you
- * swipe through is the list you were looking at.
+ * games, otherwise all of them. Through [huntPlanFor], which the hunt screen and browsing
+ * both call, so the list you swipe through is the list you were looking at.
  */
 fun huntGames(myGames: Set<GameId>, selected: GameId?): Set<GameId> =
     selected?.takeIf { it in myGames }?.let(::setOf) ?: myGames
@@ -70,7 +74,6 @@ fun browseKeys(
     guide: HuntGuide?,
     keep: CatchKey,
 ): List<CatchKey> {
-    val myGames = farmOrder.toSet()
     val keys = when (browse) {
         is Browse.Box -> dex.layout(browse.boxIndex).mapNotNull { it?.key }
         is Browse.Search -> {
@@ -82,7 +85,8 @@ fun browseKeys(
             // Ranked as if [keep] were still needed, with its own priority intact: a hunt caught
             // while browsing keeps the place it had rather than falling to the end.
             val asNeeded = records[keep]?.let { records + (keep to it.copy(caught = false)) } ?: records
-            huntPlan(dex, asNeeded, huntGames(myGames, browse.gameId?.let(::GameId)), guide).hunts.map { it.lead.key }
+            huntPlanFor(dex, asNeeded, farmOrder, browse.gameId?.let(::GameId), browse.scope, guide)
+                .hunts.map { it.lead.key }
         }
     }
     return if (keep in keys) keys else listOf(keep)
