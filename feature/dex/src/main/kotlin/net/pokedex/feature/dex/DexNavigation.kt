@@ -8,6 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
 import net.pokedex.feature.dex.boxes.BoxesDestination
@@ -61,8 +62,8 @@ data object ProgressRoute
 /** A result a detail screen leaves on the box destination's back stack entry. */
 private const val SHOW_BOX_KEY = "showBox"
 
-/** The game pair Progress asked to see the needed slots of; the box view opens search on it. */
-private const val SHOW_NEEDED_KEY = "showNeeded"
+/** A search Progress asked for, as an encoded DexFilter; the box view opens search on it. */
+private const val SHOW_SEARCH_KEY = "showSearch"
 
 /**
  * The slot a browsing detail came to rest on, as a CatchKey string, left on the entry that
@@ -100,8 +101,8 @@ fun NavGraphBuilder.dexGraph(
                 onOpenHunt = { navController.navigate(HuntRoute()) },
                 jumpRequests = entry.savedStateHandle.getStateFlow<Int?>(SHOW_BOX_KEY, null),
                 onJumpForwarded = { entry.savedStateHandle[SHOW_BOX_KEY] = null },
-                neededRequests = entry.savedStateHandle.getStateFlow<String?>(SHOW_NEEDED_KEY, null),
-                onNeededForwarded = { entry.savedStateHandle[SHOW_NEEDED_KEY] = null },
+                searchRequests = entry.savedStateHandle.getStateFlow<String?>(SHOW_SEARCH_KEY, null),
+                onSearchForwarded = { entry.savedStateHandle[SHOW_SEARCH_KEY] = null },
                 browsedTo = entry.savedStateHandle.getStateFlow<String?>(BROWSED_TO_KEY, null),
                 onBrowsedToHandled = { entry.savedStateHandle[BROWSED_TO_KEY] = null },
             )
@@ -142,7 +143,7 @@ fun NavGraphBuilder.dexGraph(
             onBack = back,
             onOpenHunt = { navController.navigate(HuntRoute()) },
             onShowBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
-            onShowNeededIn = { gameSetId -> returnToBoxes(SHOW_NEEDED_KEY, gameSetId) },
+            onShowSearch = { filter -> returnToBoxes(SHOW_SEARCH_KEY, Json.encodeToString(filter)) },
             onOpenSlot = openSlot,
         )
     }

@@ -72,8 +72,8 @@ internal fun BoxesDestination(
     onOpenHunt: () -> Unit,
     jumpRequests: StateFlow<Int?>,
     onJumpForwarded: () -> Unit,
-    neededRequests: StateFlow<String?>,
-    onNeededForwarded: () -> Unit,
+    searchRequests: StateFlow<String?>,
+    onSearchForwarded: () -> Unit,
     browsedTo: StateFlow<String?>,
     onBrowsedToHandled: () -> Unit,
     viewModel: BoxesViewModel = hiltViewModel(),
@@ -81,7 +81,7 @@ internal fun BoxesDestination(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val nextHunt by viewModel.nextHunt.collectAsStateWithLifecycle()
     val jump by jumpRequests.collectAsStateWithLifecycle()
-    val needed by neededRequests.collectAsStateWithLifecycle()
+    val search by searchRequests.collectAsStateWithLifecycle()
     // Read synchronously on the first frame back, before any effect runs: the return transition
     // looks for its tile in that frame.
     val returnedTo by browsedTo.collectAsStateWithLifecycle()
@@ -91,10 +91,10 @@ internal fun BoxesDestination(
             onJumpForwarded()
         }
     }
-    LaunchedEffect(needed) {
-        needed?.let {
-            viewModel.onEvent(BoxesEvent.ShowNeededIn(it))
-            onNeededForwarded()
+    LaunchedEffect(search) {
+        search?.let {
+            viewModel.onEvent(BoxesEvent.ShowSearch(it))
+            onSearchForwarded()
         }
     }
     BoxesScreen(

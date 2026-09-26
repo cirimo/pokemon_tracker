@@ -12,14 +12,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.BoxProgress
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.Dex
+import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.dashboardOf
+import net.pokedex.core.model.farmCounts
+import net.pokedex.core.model.farmOrderOf
 import net.pokedex.feature.dex.gameSetLabel
 import javax.inject.Inject
 
@@ -32,6 +36,8 @@ data class ProgressUiState(
     val closest: List<BoxRow> = emptyList(),
     val regions: List<RegionRow> = emptyList(),
     val games: List<GameRow> = emptyList(),
+    /** My games in farm order, with what each is first for. Empty until games are chosen. */
+    val farm: List<FarmRow> = emptyList(),
     val recent: List<RecentRow> = emptyList(),
     val orphans: List<OrphanRow> = emptyList(),
 )
@@ -44,6 +50,12 @@ data class RegionRow(val name: String, val caught: Int, val total: Int, val boxe
 
 @Immutable
 data class GameRow(val gameSetId: String, val label: String, val needed: Int)
+
+/** One of my games' share: needed slots only it offers, and those it is first for. */
+@Immutable
+data class FarmRow(val gameId: String, val name: String, val onlyHere: Int, val hereFirst: Int) {
+    val done: Boolean get() = hereFirst == 0
+}
 
 @Immutable
 data class RecentRow(
@@ -76,15 +88,21 @@ sealed interface ProgressEvent {
 class ProgressViewModel @Inject constructor(
     private val dexRepository: DexRepository,
     private val catches: CatchRepository,
+    settings: SettingsRepository,
 ) : ViewModel() {
 
     private val dex = MutableStateFlow<Outcome<Dex>?>(null)
 
-    val state: StateFlow<ProgressUiState> = combine(dex, catches.observeRecords()) { dex, records ->
+    // Rebuilt only when the dex or my order changes; the counts below follow every record.
+    private val farm = combine(dex, settings.observeFarmRanks()) { dex, ranks ->
+        (dex as? Outcome.Ok)?.value?.let { FarmPlan(it, farmOrderOf(it.games, ranks)) }
+    }
+
+    val state: StateFlow<ProgressUiState> = combine(dex, catches.observeRecords(), farm) { dex, records, farm ->
         when (dex) {
             null -> ProgressUiState()
             is Outcome.Err -> ProgressUiState(loading = false, error = dex.error)
-            is Outcome.Ok -> build(dex.value, records)
+            is Outcome.Ok -> build(dex.value, records, farm)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), ProgressUiState())
 
@@ -103,7 +121,7 @@ class ProgressViewModel @Inject constructor(
         viewModelScope.launch { dex.value = dexRepository.dex() }
     }
 
-    private fun build(dex: Dex, records: Map<CatchKey, CatchRecord>): ProgressUiState {
+    private fun build(dex: Dex, records: Map<CatchKey, CatchRecord>, farm: FarmPlan?): ProgressUiState {
         val board = dashboardOf(dex, records)
         val gameNames = dex.games.associate { it.id to it.name }
         fun box(b: BoxProgress) = BoxRow(b.boxIndex, b.name, b.progress.caught, b.progress.total)
@@ -116,6 +134,11 @@ class ProgressViewModel @Inject constructor(
                 RegionRow(r.name, r.progress.caught, r.progress.total, r.boxes.map(::box))
             },
             games = board.neededByGame.map { GameRow(it.gameSet.id, gameSetLabel(it.gameSet), it.needed) },
+            farm = farm?.let { plan ->
+                farmCounts(dex, records, plan).map {
+                    FarmRow(it.game.value, gameNames[it.game] ?: it.game.value, it.onlyHere, it.hereFirst)
+                }
+            }.orEmpty(),
             recent = board.recent.map { (entry, record) ->
                 RecentRow(
                     key = entry.key,

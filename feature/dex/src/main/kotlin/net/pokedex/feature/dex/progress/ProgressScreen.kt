@@ -2,6 +2,7 @@ package net.pokedex.feature.dex.progress
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.pokedex.core.model.CatchKey
+import net.pokedex.core.model.CaughtFilter
+import net.pokedex.core.model.DexFilter
+import net.pokedex.core.model.FarmFilter
+import net.pokedex.core.model.FarmScope
 import net.pokedex.designsystem.component.ActionButton
 import net.pokedex.designsystem.component.BoxSummary
 import net.pokedex.designsystem.component.ErrorState
@@ -43,12 +48,12 @@ internal fun ProgressDestination(
     onBack: () -> Unit,
     onOpenHunt: () -> Unit,
     onShowBox: (Int) -> Unit,
-    onShowNeededIn: (gameSetId: String) -> Unit,
+    onShowSearch: (DexFilter) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowNeededIn, onOpenSlot, onOpenHunt)
+    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowSearch, onOpenSlot, onOpenHunt)
 }
 
 /**
@@ -62,7 +67,7 @@ internal fun ProgressScreen(
     onEvent: (ProgressEvent) -> Unit,
     onBack: () -> Unit,
     onShowBox: (Int) -> Unit,
-    onShowNeededIn: (gameSetId: String) -> Unit,
+    onShowSearch: (DexFilter) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     onOpenHunt: () -> Unit = {},
 ) {
@@ -89,6 +94,7 @@ internal fun ProgressScreen(
                         }
                     }
                 }
+                if (state.farm.isNotEmpty()) FarmPlan(state.farm, onShowSearch)
                 ScreenSection(title = "Still needed, by game", body = NEEDED_BODY) {
                     state.games.forEach { game ->
                         SettingRow(
@@ -98,12 +104,65 @@ internal fun ProgressScreen(
                             } else {
                                 "${game.needed} still needed"
                             },
-                            onClick = { onShowNeededIn(game.gameSetId) },
+                            onClick = {
+                                onShowSearch(DexFilter(caught = CaughtFilter.Needed, gameSets = setOf(game.gameSetId)))
+                            },
                         )
                     }
                 }
                 Regions(state.regions, onShowBox)
                 Recent(state.recent, onOpenSlot)
+            }
+        }
+    }
+}
+
+/**
+ * My games in farm order, each with its share of what is left. The two numbers open search on
+ * exactly those slots. A game with nothing left that it is first for says it is done: calmly,
+ * on the raised surface with a rim. Not gold, which means a shiny, and not the box completion
+ * rule, which marks a box; this is a to-do list running out.
+ */
+@Composable
+private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
+    val dimens = PokedexTheme.dimens
+    ScreenSection(
+        title = "Farm plan",
+        body = "Your games in your farm order. A slot you still need belongs to the first of them that has it " +
+            "shiny.",
+    ) {
+        rows.forEach { row ->
+            fun show(scope: FarmScope) =
+                onShowSearch(DexFilter(caught = CaughtFilter.Needed, farm = FarmFilter(row.gameId, scope)))
+            if (row.done) {
+                NoticeCard(
+                    title = "${row.name}: done",
+                    body = "Everything you still need that it is first for is caught.",
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(dimens.spaceXs)) {
+                    Text(
+                        text = row.name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = PokedexTheme.colors.onCase,
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+                        verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+                    ) {
+                        ActionButton(
+                            label = "${row.hereFirst} here first",
+                            onClick = { show(FarmScope.HereFirst) },
+                            primary = false,
+                        )
+                        ActionButton(
+                            label = if (row.onlyHere == 0) "None only here" else "${row.onlyHere} only here",
+                            onClick = { show(FarmScope.OnlyHere) },
+                            primary = false,
+                            enabled = row.onlyHere > 0,
+                        )
+                    }
+                }
             }
         }
     }

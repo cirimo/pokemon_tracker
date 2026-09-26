@@ -103,8 +103,11 @@ sealed interface BoxesEvent {
     data class JumpRequested(val boxIndex: Int) : BoxesEvent
     data object JumpHandled : BoxesEvent
 
-    /** From Progress: open search on the slots still needed that are shiny in this game pair. */
-    data class ShowNeededIn(val gameSetId: String) : BoxesEvent
+    /**
+     * From Progress: open search on this filter, e.g. the needed slots Arceus is first for.
+     * Encoded, as it travelled; one that no longer decodes opens an unfiltered search.
+     */
+    data class ShowSearch(val encodedFilter: String) : BoxesEvent
     data object OpenSearch : BoxesEvent
     data object CloseSearch : BoxesEvent
 
