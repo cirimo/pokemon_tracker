@@ -595,6 +595,27 @@ Open: re-run `measure-pager.sh` and `TIGHT=1` on state 7, each alone on a cool p
 below 32 °C, thermal status 0), and replace this table. If slow UI then rises, or P99 stays above
 state 6's spread while cool, it is a regression and needs a trace before anything else.
 
+### Measured after prompt 7 (2026-09-30), default run only
+
+The prompt 7 build over the real install with `installRelease` (`user.db` v5, 460 caught), with
+the prompt 6 profile: prompt 7 added no profile journey and the profile was not regenerated
+(`speed-profile`, `install-dm`). The phone had cooled, but was charging over USB: battery
+32.0 °C at the start and 33.7 °C at the end, at the top of the 31–34 °C every earlier table was
+taken at.
+
+| `net.pokedex`, state 8 | Cold start | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| Default run | 205–247 ms | 3.1–3.3% | 8–9 ms | 11–12 ms | 19–25 | 22–24 |
+
+The pager did not get worse. P99 is inside state 6's cool spread (12–13 ms) and slow UI, the
+main thread, is the same 19–25. That was the prompt's constraint: nothing was added to the tiles,
+and the box view now reads my games as a set derived from the farm order, so a reorder does not
+rebuild them. It also settles state 7's warm table: the slow-draw excess there was heat, as
+suspected, since the same prompt 6 code with prompt 7 on top reads normally here.
+
+Open: `TIGHT=1` on state 8, alone, on a phone that is not charging. It was not run after the
+default run because charging had already warmed the battery by 1.7 °C.
+
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
 This app is sideloaded, so the profile reaches ART without a store:
