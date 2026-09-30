@@ -227,6 +227,84 @@ class RestoreTest {
         assertThat(older.myGames).containsExactly("la", "lza").inOrder()
     }
 
+    @Test
+    fun `an older build restoring a newer file keeps every shiny and drops only the regular marks`() {
+        val file = fileOf(
+            Fixtures.caught("bulbasaur").copy(notes = "sandwich"),
+            Fixtures.caught("ivysaur").copy(regular = true),
+            CatchRecord.empty(CatchKey(VariantId("venusaur"), 0), lastWeek).copy(regular = true),
+        )
+        val text = BackupCodec.encode(file)
+
+        // Not a bump: a build from before regular catches still accepts the file.
+        assertThat((Json.parseToJsonElement(text) as JsonObject).getValue("schema").toString()).isEqualTo("1")
+        // What that build decodes each record as: its own shape, unknown keys ignored.
+        val records = (Json.parseToJsonElement(text) as JsonObject).getValue("records").toString()
+        val older = Json { ignoreUnknownKeys = true }.decodeFromString<List<OlderRecord>>(records)
+        assertThat(older.filter { it.caught }.map { it.variantId }).containsExactly("bulbasaur", "ivysaur")
+        // The regular-only slot arrives as an uncaught record: needed, which is what that
+        // build can say about it, and never mistaken for a shiny.
+        assertThat(older.single { it.variantId == "venusaur" }.caught).isFalse()
+        assertThat(older.single { it.variantId == "bulbasaur" }.notes).isEqualTo("sandwich")
+    }
+
+    @Test
+    fun `a file from before regular catches reads as holding no regulars`() {
+        val text = BackupCodec.encode(fileOf(Fixtures.caught("bulbasaur")))
+            .replace(Regex(""",\s*"regular": false"""), "")
+        assertThat(text).doesNotContain("regular")
+
+        val decoded = (BackupCodec.decode(text) as Outcome.Ok).value
+        val plan = ImportPlan.of(emptyMap(), emptyMap(), decoded, ImportMode.MERGE)
+
+        assertThat(plan.write.single().ownership).isEqualTo(Ownership.Shiny)
+        assertThat(plan.write.single().regular).isFalse()
+    }
+
+    @Test
+    fun `regular marks survive encode, decode and restore`() {
+        val records = listOf(
+            CatchRecord.empty(CatchKey(VariantId("bulbasaur"), 0), lastWeek).copy(regular = true),
+            Fixtures.caught("ivysaur").copy(regular = true),
+        )
+        val decoded = (BackupCodec.decode(BackupCodec.encode(fileOf(*records.toTypedArray()))) as Outcome.Ok).value
+
+        val plan = ImportPlan.of(emptyMap(), emptyMap(), decoded, ImportMode.MERGE)
+
+        assertThat(plan.write).containsExactlyElementsIn(records)
+        assertThat(plan.write.map { it.ownership }).containsExactly(Ownership.Regular, Ownership.Shiny)
+    }
+
+    @Test
+    fun `the preview counts regulars and what a replace would unmark`() {
+        val bulbasaur = CatchKey(VariantId("bulbasaur"), 0)
+        val ivysaur = CatchKey(VariantId("ivysaur"), 0)
+        val local = Fixtures.records(
+            CatchRecord.empty(bulbasaur, tonight).copy(regular = true),
+            CatchRecord.empty(ivysaur, tonight).copy(regular = true),
+        )
+        // The file upgrades ivysaur to shiny, and knows nothing of bulbasaur.
+        val file = fileOf(
+            Fixtures.caught("ivysaur"),
+            CatchRecord.empty(CatchKey(VariantId("venusaur"), 0), lastWeek).copy(regular = true),
+        )
+
+        val preview = RestorePreview.of(file, local, preset)
+
+        assertThat(preview.caughtCount).isEqualTo(1)
+        assertThat(preview.regularCount).isEqualTo(1)
+        assertThat(preview.replaceUnmarksRegular).isEqualTo(1)
+        assertThat(preview.replaceUncatches).isEqualTo(0)
+    }
+
+    @Serializable
+    private data class OlderRecord(
+        val variantId: String,
+        val copyIndex: Int = 0,
+        val caught: Boolean,
+        val notes: String? = null,
+    )
+
     @Serializable
     private data class OlderSettings(val activePresetId: String, val myGames: List<String> = emptyList())
 }

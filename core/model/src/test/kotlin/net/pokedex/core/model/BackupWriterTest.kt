@@ -25,14 +25,15 @@ class BackupWriterTest {
     private val t0 = Instant.parse("2026-09-24T07:15:00Z")
     private fun at(minutes: Long) = t0.plusSeconds(minutes * 60)
 
-    private fun file(caught: Int, uncaught: Int = 0) = BackupFile(
+    private fun file(caught: Int, uncaught: Int = 0, regular: Int = 0) = BackupFile(
         schema = BackupFile.CURRENT_SCHEMA,
         exportedAt = "2026-09-24T07:15:00Z",
         app = AppInfo("0.1.0", 1),
         dataset = DatasetInfo("grouped-balanced", 1, 1),
         settings = SettingsInfo("grouped-balanced"),
         records = List(caught) { RecordInfo(variantId = "v$it", caught = true) } +
-            List(uncaught) { RecordInfo(variantId = "u$it", caught = false) },
+            List(uncaught) { RecordInfo(variantId = "u$it", caught = false) } +
+            List(regular) { RecordInfo(variantId = "r$it", caught = false, regular = true) },
     )
 
     private fun folder() = FileBackupFolder(tmp.newFolder())
@@ -97,6 +98,38 @@ class BackupWriterTest {
         )
 
         assertThat(again).isInstanceOf(BackupWriter.AutoResult.Written::class.java)
+    }
+
+    @Test
+    fun `a change to regular marks alone is still written`() {
+        val folder = folder()
+        writer.writeAuto(folder, file(caught = 3), at(0), keep = 10)
+
+        val again = writer.writeAuto(folder, file(caught = 3, regular = 1), at(5), keep = 10)
+
+        assertThat(again).isInstanceOf(BackupWriter.AutoResult.Written::class.java)
+    }
+
+    @Test
+    fun `a name counts shinies only, never regular marks`() {
+        val folder = folder()
+
+        val written = writer.writeAuto(folder, file(caught = 3, regular = 200), at(0), keep = 10)
+
+        assertThat((written as BackupWriter.AutoResult.Written).name.caughtCount).isEqualTo(3)
+    }
+
+    @Test
+    fun `regular marks cannot make a file that lost shinies the one kept`() {
+        val folder = folder()
+        writer.writeAuto(folder, file(caught = 400), at(0), keep = 3)
+        // Shinies lost, and hundreds of regulars marked since: far more records, fewer shinies.
+        for (i in 1..6) writer.writeAuto(folder, file(caught = 390, regular = 300 + i), at(i.toLong()), keep = 3)
+
+        val left = writer.restorable(folder)
+
+        assertThat(left.map { it.caughtCount }).contains(400)
+        assertThat(left).hasSize(4)
     }
 
     @Test

@@ -33,6 +33,7 @@ fun CatchRecord.toRecordInfo() = RecordInfo(
     favourite = favourite,
     priority = priority,
     updatedAt = isoInstant(updatedAt),
+    regular = regular,
 )
 
 fun RecordInfo.toCatchRecord() = CatchRecord(
@@ -44,6 +45,7 @@ fun RecordInfo.toCatchRecord() = CatchRecord(
     favourite = favourite,
     priority = priority,
     updatedAt = updatedAt?.let(::parseInstant) ?: UNKNOWN_UPDATED_AT,
+    regular = regular,
 )
 
 /**

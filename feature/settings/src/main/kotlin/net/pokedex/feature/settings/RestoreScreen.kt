@@ -126,7 +126,11 @@ private fun ColumnScope.ChooseBackup(
 private fun PreviewContent(phase: RestorePhase.Preview, onEvent: (RestoreEvent) -> Unit) {
     val preview = phase.preview
     ScreenSection(title = phase.source) {
-        SettingRow(title = recordsLabel(preview.recordCount), summary = caughtLabel(preview.caughtCount))
+        SettingRow(
+            title = recordsLabel(preview.recordCount),
+            summary = caughtLabel(preview.caughtCount) +
+                if (preview.regularCount > 0) ", ${preview.regularCount} in regular only" else "",
+        )
         SettingRow(title = "Exported", summary = preview.exportedAt?.let(::formatWhen) ?: "Unknown")
         SettingRow(
             title = "Written by",
@@ -187,7 +191,14 @@ private fun mergeConsequence(preview: RestorePreview): String = when (preview.me
 private fun replaceConsequence(preview: RestorePreview): String {
     val removes = if (preview.replaceRemoves > 0) "removes ${recordsLabel(preview.replaceRemoves)}" else null
     val uncatches = if (preview.replaceUncatches > 0) "un-catches ${preview.replaceUncatches}" else null
-    val cost = listOfNotNull(removes, uncatches).joinToString(" and ")
+    val unmarks = if (preview.replaceUnmarksRegular > 0) {
+        "leaves ${preview.replaceUnmarksRegular} held in regular with nothing"
+    } else {
+        null
+    }
+    val cost = listOfNotNull(removes, uncatches, unmarks).let { parts ->
+        if (parts.size <= 1) parts.joinToString() else parts.dropLast(1).joinToString(", ") + " and " + parts.last()
+    }
     return if (cost.isEmpty()) {
         "Makes this phone match the file exactly. Nothing here would be lost."
     } else {

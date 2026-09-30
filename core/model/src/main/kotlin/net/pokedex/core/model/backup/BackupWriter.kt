@@ -12,7 +12,9 @@ import java.time.Instant
  *   rotate every good one out.
  * - **The high-water mark is never pruned.** The newest file holding the most caught
  *   records survives any number of later writes, so a database that lost records cannot
- *   back itself up over the last copy that still has them.
+ *   back itself up over the last copy that still has them. Caught means shiny here, and
+ *   only shiny: a regular mark never counts towards it, so marking a few hundred regulars
+ *   cannot make a file that lost shinies look like the one to keep.
  * - **Unchanged data is not written again.** Otherwise opening the app ten times keeps ten
  *   copies of one state, and "keep 10" means nothing.
  * - **Pre-import snapshots have their own pool.** Ten sessions after a bad replace must not
@@ -55,6 +57,7 @@ class BackupWriter(private val prefix: String) {
         folder.list().mapNotNull(BackupName::parse).sortedByDescending { it.createdAt }
 
     private fun write(folder: BackupFolder, kind: BackupName.Kind, file: BackupFile, now: Instant): BackupName {
+        // Shinies only, never regular marks: this count is the high-water mark.
         val name = BackupName(prefix, kind, now, file.records.count { it.caught })
         val text = BackupCodec.encode(file)
         folder.write(name.fileName, text)

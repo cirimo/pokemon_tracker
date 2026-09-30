@@ -3,6 +3,7 @@ package net.pokedex.core.model.backup
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.Ownership
 import java.time.Instant
 
 enum class ImportMode { MERGE, REPLACE }
@@ -19,13 +20,18 @@ data class RestorePreview(
     val exportedAt: Instant?,
     val appVersionName: String,
     val recordCount: Int,
+    /** Shinies in the file. */
     val caughtCount: Int,
+    /** Slots the file holds in regular only, the shiny still needed. */
+    val regularCount: Int,
     /** Records a merge would write: new here, or changed in the file after this device. */
     val mergeWrites: Int,
     /** Records on this device that are absent from the file, which replace would delete. */
     val replaceRemoves: Int,
     /** Caught here, and a replace would leave them uncaught or gone. */
     val replaceUncatches: Int,
+    /** Held in regular here, and a replace would leave them held in nothing. */
+    val replaceUnmarksRegular: Int,
     /** Records the active preset has no slot for. Kept, never dropped (ADR 0001). */
     val orphanCount: Int,
     /** Nothing here yet, so there is nothing to merge into or snapshot. */
@@ -45,9 +51,14 @@ data class RestorePreview(
                 appVersionName = file.app.versionName,
                 recordCount = incoming.size,
                 caughtCount = incoming.count { it.caught },
+                regularCount = incoming.count { it.ownership == Ownership.Regular },
                 mergeWrites = mergeRecords(local, incoming).size,
                 replaceRemoves = local.keys.count { it !in incomingByKey },
                 replaceUncatches = local.values.count { it.caught && incomingByKey[it.key]?.caught != true },
+                replaceUnmarksRegular = local.values.count {
+                    it.ownership == Ownership.Regular &&
+                        (incomingByKey[it.key]?.ownership ?: Ownership.None) == Ownership.None
+                },
                 orphanCount = incoming.count { it.key !in presetKeys },
                 localIsEmpty = local.isEmpty(),
             )

@@ -79,6 +79,12 @@ data class SettingsInfo(
  * [updatedAt] was added in M3 without a schema bump (it is additive, and older builds
  * ignore it). A merge import compares it per record; without it, restoring an old file
  * would overwrite newer catches. Missing means "older than anything local".
+ *
+ * [regular] was added in prompt 8, again without a bump, because [caught] did not change
+ * meaning: it is the shiny, as it always was. An older build ignores the key and restores
+ * every shiny; what it loses is the regular marks, which HOME itself still shows. A bump
+ * would have made that build refuse the file, shinies included. Missing means "not held
+ * in regular", which is what every earlier file meant. docs/adr/0015-regular-catches.md.
  */
 @Serializable
 data class RecordInfo(
@@ -91,4 +97,5 @@ data class RecordInfo(
     val favourite: Boolean = false,
     val priority: Int = 0,
     val updatedAt: String? = null,
+    val regular: Boolean = false,
 )
