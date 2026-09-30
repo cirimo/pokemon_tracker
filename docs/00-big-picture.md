@@ -140,4 +140,7 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    entering a box at a time with undo, "have regular" in search, and upgrade counts on the
    hunt list and the farm plan. The real install migrated the same day; the pager measured as
    before (`docs/architecture.md` §8, state 9).
-9. Further feature prompts, one per milestone, written as each one comes up.
+9. [`prompts/09-hunt-engine.md`](prompts/09-hunt-engine.md) — M5, the hunt engine: a counter I
+   can hold while I grind, odds against my count, phases, sessions, and history that ends in the
+   catch record. **Next.**
+10. Further feature prompts, one per milestone, written as each one comes up.
