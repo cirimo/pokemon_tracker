@@ -4,6 +4,7 @@ import net.pokedex.core.model.AppError
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameSet
+import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.SlotState
 import net.pokedex.designsystem.theme.PokemonType
@@ -21,6 +22,14 @@ internal fun SlotStatus.toSlotState(): SlotState = when (this) {
     SlotStatus.NoShinyExists -> SlotState.ShinyLocked
     SlotStatus.Unavailable -> SlotState.Unavailable
 }
+
+/**
+ * A slot as drawn: the shiny's status, unless the regular one is held and the shiny is not.
+ * Then it is the regular slot, whatever the shiny's status: what a slot holds is what the
+ * grid shows. Shiny progress, the hunt list and "needed" all read [SlotStatus] and never this.
+ */
+internal fun slotStateOf(status: SlotStatus, ownership: Ownership): SlotState =
+    if (ownership == Ownership.Regular) SlotState.Regular else status.toSlotState()
 
 internal fun typesOf(type1: String, type2: String?): List<PokemonType?> =
     listOfNotNull(type1, type2).map(PokemonType::fromId)

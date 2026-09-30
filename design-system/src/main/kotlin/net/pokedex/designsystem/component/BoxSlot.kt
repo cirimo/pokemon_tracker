@@ -141,6 +141,8 @@ fun BoxSlot(
     label: String? = null,
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
+    /** What TalkBack says a tap does, when it is not simply "activate". */
+    onClickLabel: String? = null,
     sprite: @Composable (SlotSpriteRendering) -> Unit = {},
 ) {
     val colors = PokedexTheme.colors
@@ -206,6 +208,7 @@ fun BoxSlot(
                         interactionSource = interactionSource,
                         // Deliberately null. See the no-ripple constraint above.
                         indication = null,
+                        onClickLabel = onClickLabel,
                         onClick = tap,
                     )
                 } else {
@@ -348,7 +351,7 @@ private const val MARK_RADIUS = 0.085f
 private const val MARK_STROKE = 0.7f
 private const val RING_STROKE = 0.4f
 
-private fun SlotState.spriteRendering(colors: PokedexColors) = when (this) {
+internal fun SlotState.spriteRendering(colors: PokedexColors) = when (this) {
     SlotState.Caught -> SlotSpriteRendering(colorFilter = null, alpha = 1f)
     SlotState.Regular -> SlotSpriteRendering(ColorFilter.tint(colors.silhouetteRegular), alpha = 1f)
     SlotState.Unavailable -> SlotSpriteRendering(ColorFilter.tint(colors.silhouette), alpha = 0.45f)

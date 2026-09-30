@@ -73,6 +73,8 @@ fun BoxGrid(
     slots: List<BoxSlotItem>,
     modifier: Modifier = Modifier,
     onSlotClick: ((Int) -> Unit)? = null,
+    /** One label for every tile: what a tap does. The same string for all thirty, never per tile. */
+    onSlotClickLabel: String? = null,
     sprite: @Composable (BoxSlotItem, SlotSpriteRendering) -> Unit = { _, _ -> },
 ) {
     val dimens = PokedexTheme.dimens
@@ -91,6 +93,7 @@ fun BoxGrid(
                             state = item.state,
                             label = item.label,
                             onClick = onSlotClick?.let { { it(index) } },
+                            onClickLabel = onSlotClickLabel,
                             modifier = Modifier.weight(1f),
                             sprite = { rendering -> sprite(item, rendering) },
                         )

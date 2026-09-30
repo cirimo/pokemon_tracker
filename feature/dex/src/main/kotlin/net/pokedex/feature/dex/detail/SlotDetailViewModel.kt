@@ -33,6 +33,7 @@ import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.HuntGuide
 import net.pokedex.core.model.Outcome
+import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.Priority
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.core.model.Standing
@@ -40,6 +41,7 @@ import net.pokedex.core.model.VariantId
 import net.pokedex.core.model.browseKeys
 import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.hasDetails
+import net.pokedex.core.model.ownershipOf
 import net.pokedex.core.model.prefillOrigin
 import net.pokedex.core.model.standingOf
 import net.pokedex.core.model.statusOf
@@ -155,6 +157,7 @@ data class SlotUi(
     val type2: String?,
     val spriteFile: String,
     val status: SlotStatus,
+    val ownership: Ownership,
     val location: String,
     val boxIndex: Int,
 )
@@ -170,6 +173,7 @@ data class CopyUi(
     val type2: String?,
     val spriteFile: String,
     val status: SlotStatus,
+    val ownership: Ownership,
     val location: String,
 )
 
@@ -184,6 +188,7 @@ data class GameUi(
 /** Every edit names its slot: with paging, "this slot" is whichever page sent it. */
 sealed interface SlotDetailEvent {
     data class SetCaught(val key: CatchKey, val caught: Boolean) : SlotDetailEvent
+    data class SetRegular(val key: CatchKey, val regular: Boolean) : SlotDetailEvent
     data class SaveDetails(
         val key: CatchKey,
         val originGameId: String?,
@@ -265,6 +270,9 @@ class SlotDetailViewModel @Inject constructor(
                 val availability = (dex.value as? Outcome.Ok)?.value?.availability(event.key.variantId).orEmpty()
                 val prefill = if (event.caught) prefillOrigin(settings.get().lastOriginGameId, availability) else null
                 catches.setCaught(event.key, event.caught, prefill)
+            }
+            is SlotDetailEvent.SetRegular -> viewModelScope.launch {
+                catches.setRegular(mapOf(event.key to event.regular))
             }
             is SlotDetailEvent.SaveDetails -> viewModelScope.launch {
                 val origin = event.originGameId?.let(::GameId)
@@ -366,6 +374,7 @@ class SlotDetailViewModel @Inject constructor(
                 type2 = variant.type2,
                 spriteFile = variant.spriteFile,
                 status = statusOf(entry, records, myGames),
+                ownership = ownershipOf(entry, records),
                 location = locationOf(entry),
                 boxIndex = entry.slot.boxIndex,
             ),
@@ -474,5 +483,6 @@ internal fun DexEntry.toCopyUi(records: Map<CatchKey, CatchRecord>) = CopyUi(
     type2 = variant.type2,
     spriteFile = variant.spriteFile,
     status = statusOf(this, records),
+    ownership = ownershipOf(this, records),
     location = locationOf(this),
 )

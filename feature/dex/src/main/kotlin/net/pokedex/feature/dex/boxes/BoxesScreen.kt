@@ -16,8 +16,11 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +43,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
+import net.pokedex.designsystem.component.BoxPage
 import net.pokedex.designsystem.component.BoxPager
 import net.pokedex.designsystem.component.BoxSummary
 import net.pokedex.designsystem.component.ErrorState
@@ -54,6 +58,7 @@ import net.pokedex.designsystem.component.TopBarAction
 import net.pokedex.designsystem.icon.PokedexIcons
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
+import net.pokedex.feature.dex.detail.ChipFlow
 import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
 import net.pokedex.feature.dex.slotOrigin
@@ -151,6 +156,8 @@ internal fun BoxesScreen(
         focusManager.clearFocus()
         onEvent(BoxesEvent.CloseSearch)
     }
+    // Back leaves mark mode rather than the app: the marks are already saved, so this is Done.
+    BackHandler(enabled = state.mark.active && !state.search.active) { onEvent(BoxesEvent.Marking(on = false)) }
 
     Column(
         modifier = modifier
@@ -302,21 +309,24 @@ private fun BoxContent(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(dimens.spaceMd),
     ) {
-        OverallHeader(state = state, onOpenOverview = { overviewOpen = true }, onOpenProgress = onOpenProgress)
+        if (state.mark.active) {
+            MarkHeader(page = state.pages.getOrNull(pager.currentPage), mark = state.mark, onEvent = onEvent)
+        } else {
+            OverallHeader(state = state, onOpenOverview = { overviewOpen = true }, onOpenProgress = onOpenProgress)
+        }
 
         BoxPager(
             pages = state.pages,
             state = pager,
             onSlotClick = { box, position ->
-                val item = state.pages.getOrNull(box)?.slots?.getOrNull(position)
-                val key = item?.let { state.slots.key(it.key) }
-                if (item != null && key != null) {
+                slotTapped(state, box, position, onEvent) { slotKey, key ->
                     // Set in the same event as the navigation, so the origin and the
                     // destination enter composition in the same frame and match.
-                    openedKey = item.key
+                    openedKey = slotKey
                     onOpenSlot(key, Browse.Box(box))
                 }
             },
+            onSlotClickLabel = if (state.mark.active) "Mark or unmark the regular one" else null,
             sprite = { item, rendering ->
                 val file = state.slots.sprite(item.key)
                 if (file != null) {
@@ -333,11 +343,19 @@ private fun BoxContent(
         )
 
         // Below the pager, outside it: nothing here is per page or per tile.
-        if (nextHunt != null) {
+        if (nextHunt != null && !state.mark.active) {
             SettingRow(
                 title = "Hunt next",
                 summary = nextHunt.summary,
                 onClick = onOpenHunt,
+                modifier = Modifier.padding(horizontal = dimens.spaceLg),
+            )
+        }
+        if (!state.mark.active) {
+            SettingRow(
+                title = "Mark regulars",
+                summary = "Tap the slots you hold in HOME, box by box",
+                onClick = { onEvent(BoxesEvent.Marking(on = true)) },
                 modifier = Modifier.padding(horizontal = dimens.spaceLg),
             )
         }
@@ -379,7 +397,81 @@ private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpe
             }
         }
         ProgressBar(caught = state.overall.caught, total = state.overall.total, label = "Whole dex")
+        // The living dex: a second number, muted, never gold. Shiny stays the headline.
+        Text(
+            text = "Living dex ${state.living.caught} / ${state.living.total}, regular or shiny",
+            style = PokedexTheme.text.dexNumber,
+            color = PokedexTheme.colors.onCaseMuted,
+        )
     }
+}
+
+/**
+ * Mark mode's header, in place of the progress header: what a tap does now, how this box
+ * stands, and the ways out. The box count is the living dex's, regular or shiny, and muted,
+ * because this is the one moment it is the number that matters.
+ */
+@Composable
+private fun MarkHeader(page: BoxPage?, mark: MarkUi, onEvent: (BoxesEvent) -> Unit) {
+    val dimens = PokedexTheme.dimens
+    val colors = PokedexTheme.colors
+    Column(
+        modifier = Modifier.padding(horizontal = dimens.spaceLg),
+        verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+    ) {
+        Text(text = "Marking regulars", style = MaterialTheme.typography.titleMedium, color = colors.onCase)
+        Text(
+            text = "Tap a slot you hold in HOME to mark it; tap again to take it off. Shinies stay as they are.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.onCaseMuted,
+        )
+        if (page != null) {
+            Text(
+                text = "${page.name}: ${page.owned} of ${page.filled} held",
+                style = PokedexTheme.text.dexNumber,
+                color = colors.onCase,
+            )
+        }
+        ChipFlow {
+            if (page != null) {
+                OutlinedButton(
+                    onClick = { onEvent(BoxesEvent.MarkBox(page.index)) },
+                    enabled = page.owned < page.filled,
+                ) {
+                    Text("Mark all of ${page.name}", style = PokedexTheme.text.badgeLabel)
+                }
+            }
+            OutlinedButton(onClick = { onEvent(BoxesEvent.UndoMarks) }, enabled = mark.changed > 0) {
+                Text(
+                    text = if (mark.changed == 0) "Undo" else "Undo ${mark.changed}",
+                    style = PokedexTheme.text.badgeLabel,
+                )
+            }
+            Button(
+                onClick = { onEvent(BoxesEvent.Marking(on = false)) },
+                colors = ButtonDefaults.buttonColors(containerColor = colors.onCase, contentColor = colors.case),
+            ) {
+                Text("Done", style = PokedexTheme.text.badgeLabel)
+            }
+        }
+    }
+}
+
+/**
+ * What a tap on a tile does. One screen-level switch: in mark mode it marks, otherwise it
+ * opens. Nothing about mark mode is per tile; the tile's state is the one it always had,
+ * from the record.
+ */
+private inline fun slotTapped(
+    state: BoxesUiState,
+    box: Int,
+    position: Int,
+    onEvent: (BoxesEvent) -> Unit,
+    open: (slotKey: String, key: CatchKey) -> Unit,
+) {
+    val item = state.pages.getOrNull(box)?.slots?.getOrNull(position) ?: return
+    val key = state.slots.key(item.key) ?: return
+    if (state.mark.active) onEvent(BoxesEvent.MarkToggled(key)) else open(item.key, key)
 }
 
 private suspend fun PagerState.step(by: Int, spec: FiniteAnimationSpec<Float>) =

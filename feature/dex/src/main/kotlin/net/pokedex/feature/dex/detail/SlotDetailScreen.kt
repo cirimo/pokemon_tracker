@@ -26,12 +26,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
 import net.pokedex.core.model.CatchKey
+import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.GameBadge
 import net.pokedex.designsystem.component.ScreenScaffold
 import net.pokedex.designsystem.component.ScreenSection
+import net.pokedex.designsystem.component.SettingSwitch
 import net.pokedex.designsystem.component.SkeletonBox
 import net.pokedex.designsystem.component.SpeciesCard
 import net.pokedex.designsystem.component.SpeciesHeader
@@ -41,7 +43,7 @@ import net.pokedex.feature.dex.DexSprite
 import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
 import net.pokedex.feature.dex.slotDestination
-import net.pokedex.feature.dex.toSlotState
+import net.pokedex.feature.dex.slotStateOf
 import net.pokedex.feature.dex.typesOf
 
 @Composable
@@ -233,6 +235,7 @@ private fun SlotDetailContent(
         dexNumber = slot.dexNumber,
         types = typesOf(slot.type1, slot.type2),
         caught = caught,
+        regular = slot.ownership == Ownership.Regular,
         // The display name already carries the form for most variants ("Venusaur (Female)");
         // repeating it underneath would say it twice.
         formName = slot.formName?.takeUnless { slot.name.contains(it, ignoreCase = true) },
@@ -257,6 +260,17 @@ private fun SlotDetailContent(
     }
 
     CaughtToggle(caught = caught, onCaughtChange = { onEvent(SlotDetailEvent.SetCaught(slot.key, it)) })
+    // Until the shiny is caught. After that the regular one is history: one HOME slot holds
+    // one Pokemon, and the record keeps the mark only so an accidental untick gives it back.
+    if (!caught) {
+        val regular = slot.ownership == Ownership.Regular
+        SettingSwitch(
+            title = "I have the regular one",
+            summary = if (regular) "In HOME, not shiny. The shiny would be an upgrade." else "Not shiny, in HOME",
+            checked = regular,
+            onCheckedChange = { onEvent(SlotDetailEvent.SetRegular(slot.key, it)) },
+        )
+    }
     CatchDetails(
         caught = caught,
         record = state.record,
@@ -276,7 +290,7 @@ private fun SlotDetailContent(
                     name = copy.name,
                     dexNumber = copy.dexNumber,
                     types = typesOf(copy.type1, copy.type2),
-                    state = copy.status.toSlotState(),
+                    state = slotStateOf(copy.status, copy.ownership),
                     formName = copy.location,
                     onClick = { onOpenSlot(copy.key) },
                     sprite = { rendering -> DexSprite(copy.spriteFile, rendering) },

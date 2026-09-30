@@ -70,6 +70,8 @@ fun BoxPager(
     modifier: Modifier = Modifier,
     state: PagerState = rememberPagerState { pages.size },
     onSlotClick: ((boxIndex: Int, slotIndex: Int) -> Unit)? = null,
+    /** What a tap on a tile does, for TalkBack. One value for the whole pager. */
+    onSlotClickLabel: String? = null,
     sprite: @Composable (BoxSlotItem, SlotSpriteRendering) -> Unit = { _, _ -> },
 ) {
     val dimens = PokedexTheme.dimens
@@ -86,6 +88,7 @@ fun BoxPager(
                 BoxGrid(
                     slots = box.slots,
                     onSlotClick = onSlotClick?.let { click -> { slot -> click(box.index, slot) } },
+                    onSlotClickLabel = onSlotClickLabel,
                     sprite = sprite,
                 )
             }

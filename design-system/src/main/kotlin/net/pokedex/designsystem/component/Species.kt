@@ -50,18 +50,18 @@ fun SpeciesHeader(
     caught: Boolean,
     modifier: Modifier = Modifier,
     formName: String? = null,
+    /** The regular one is held and the shiny is not: drawn and spoken as the grid's regular slot. */
+    regular: Boolean = false,
     sprite: @Composable (SlotSpriteRendering) -> Unit = {},
 ) {
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
-    val rendering = if (caught) {
-        SlotSpriteRendering(colorFilter = null, alpha = 1f)
-    } else {
-        SlotSpriteRendering(
-            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(colors.silhouette),
-            alpha = 1f,
-        )
+    val state = when {
+        caught -> SlotState.Caught
+        regular -> SlotState.Regular
+        else -> SlotState.Needed
     }
+    val rendering = state.spriteRendering(colors)
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -78,12 +78,13 @@ fun SpeciesHeader(
                     color = if (caught) colors.rimCaught else colors.rim,
                     shape = PokedexShapes.card,
                 )
-                .clearAndSetSemantics {
-                    contentDescription = if (caught) "$name, shiny caught" else "$name, not yet caught"
-                },
+                .clearAndSetSemantics { contentDescription = state.describe(name) },
             contentAlignment = Alignment.Center,
         ) {
             sprite(rendering)
+            // The ring only: the caught hero already says shiny with its gold rim, and the
+            // regular one needs a signal that is not the silhouette's tone alone.
+            if (state == SlotState.Regular) SlotMarkGlyph(state.mark, colors, Modifier.matchParentSize())
         }
 
         Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -23,6 +23,7 @@ import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
 import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
+import net.pokedex.feature.dex.slotStateOf
 import net.pokedex.feature.dex.toSlotState
 import net.pokedex.feature.dex.typesOf
 
@@ -87,7 +88,7 @@ private fun VariantDetailContent(
                 name = copy.name,
                 dexNumber = copy.dexNumber,
                 types = typesOf(copy.type1, copy.type2),
-                state = copy.status.toSlotState(),
+                state = slotStateOf(copy.status, copy.ownership),
                 formName = copy.location,
                 onClick = { onOpenSlot(copy.key) },
                 sprite = { rendering -> DexSprite(copy.spriteFile, rendering) },

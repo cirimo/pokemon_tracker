@@ -7,6 +7,7 @@ import net.pokedex.core.model.CaughtFilter
 import net.pokedex.core.model.DexFilter
 import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.NoShinyFilter
+import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.designsystem.component.BoxPage
@@ -24,6 +25,8 @@ data class BoxesUiState(
     val error: AppError? = null,
     val pages: List<BoxPage> = emptyList(),
     val overall: Progress = Progress.ZERO,
+    /** The living dex, regular or shiny. The second number: never the headline, never gold. */
+    val living: Progress = Progress.ZERO,
     /** Uncaught slots whose variant has no released shiny. Counted in [overall], never hidden. */
     val noShinyRemaining: Int = 0,
     val slots: SlotIndex = SlotIndex.EMPTY,
@@ -32,7 +35,16 @@ data class BoxesUiState(
     /** A one-shot request to page to a box, from "Show in box" on a detail screen. */
     val jumpToBox: Int? = null,
     val search: SearchUiState = SearchUiState(),
+    val mark: MarkUi = MarkUi(),
 )
+
+/**
+ * Mark mode: entering regulars from HOME, box by box. A tap marks or unmarks the regular one
+ * instead of opening the slot, and is written at once. [changed] is how many slots this
+ * session touched, all of which Undo puts back.
+ */
+@Immutable
+data class MarkUi(val active: Boolean = false, val changed: Int = 0)
 
 /**
  * The one-line answer to "what next", under the pager. Its own state, not a field of
@@ -53,6 +65,7 @@ data class SearchUiState(
 ) {
     val needed: Boolean get() = filter.caught == CaughtFilter.Needed
     val caught: Boolean get() = filter.caught == CaughtFilter.Caught
+    val regular: Boolean get() = filter.caught == CaughtFilter.Regular
     val hideNoShiny: Boolean get() = filter.noShiny == NoShinyFilter.Hide
     val onlyNoShiny: Boolean get() = filter.noShiny == NoShinyFilter.Only
 }
@@ -70,6 +83,7 @@ data class SearchResult(
     val type1: String,
     val type2: String?,
     val status: SlotStatus,
+    val ownership: Ownership,
     /** "Kanto 1, slot 3". What tells the two copies of a duplicated variant apart. */
     val location: String,
     val spriteFile: String,
@@ -124,4 +138,19 @@ sealed interface BoxesEvent {
     data class FarmScopeChanged(val scope: FarmScope) : FilterEdit
     data object ClearRefinements : FilterEdit
     data object Retry : BoxesEvent
+
+    /** Into mark mode, or out of it ("Done"). Out keeps every mark and ends the session's undo. */
+    data class Marking(val on: Boolean) : BoxesEvent
+
+    /** A write in mark mode. */
+    sealed interface MarkEdit : BoxesEvent
+
+    /** The regular one in this slot, on if it was off and off if it was on. */
+    data class MarkToggled(val key: CatchKey) : MarkEdit
+
+    /** Every slot in this box holding nothing, marked regular. */
+    data class MarkBox(val boxIndex: Int) : MarkEdit
+
+    /** Everything this mark session changed, put back. */
+    data object UndoMarks : MarkEdit
 }

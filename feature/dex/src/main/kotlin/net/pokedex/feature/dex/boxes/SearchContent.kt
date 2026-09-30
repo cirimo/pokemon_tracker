@@ -47,14 +47,14 @@ import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
 import net.pokedex.feature.dex.farmScopeLabel
 import net.pokedex.feature.dex.slotOrigin
-import net.pokedex.feature.dex.toSlotState
+import net.pokedex.feature.dex.slotStateOf
 import net.pokedex.feature.dex.typesOf
 
 /**
  * Search mode: quick filters, a count, and the results.
  *
- * The two most-used refinements -- needed and caught -- sit in the row under the field
- * because they are the ones you flip mid-hunt. Games, types and the no-shiny switch live in
+ * The most-used refinements -- needed, have regular (the upgrades) and caught -- sit in the
+ * row under the field because they are the ones you flip mid-hunt. Games, types and the no-shiny switch live in
  * a sheet: 24 chips on screen at once would push the results off it.
  */
 @Composable
@@ -85,36 +85,7 @@ internal fun SearchContent(
     }
 
     Column(modifier = Modifier.fillMaxSize().imePadding()) {
-        FlowRow(
-            modifier = Modifier.padding(horizontal = dimens.spaceLg),
-            horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
-            verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
-        ) {
-            FilterChip(
-                label = "Needed",
-                selected = search.needed,
-                onSelectedChange = { on ->
-                    onEvent(BoxesEvent.CaughtFilterChanged(if (on) CaughtFilter.Needed else CaughtFilter.All))
-                },
-            )
-            FilterChip(
-                label = "Caught",
-                selected = search.caught,
-                onSelectedChange = { on ->
-                    onEvent(BoxesEvent.CaughtFilterChanged(if (on) CaughtFilter.Caught else CaughtFilter.All))
-                },
-            )
-            OutlinedButton(onClick = { sheetOpen = true }) {
-                Icon(PokedexIcons.Filter, contentDescription = null)
-                // What the sheet holds: every refinement but the caught chips beside this button.
-                val extra = search.filter.refinementCount - if (search.filter.caught != CaughtFilter.All) 1 else 0
-                Text(
-                    text = if (extra == 0) "More filters" else "More filters, $extra on",
-                    style = PokedexTheme.text.badgeLabel,
-                    modifier = Modifier.padding(start = dimens.spaceXs),
-                )
-            }
-        }
+        QuickFilters(search = search, onEvent = onEvent, onOpenSheet = { sheetOpen = true })
 
         Text(
             text = resultCountSentence(search.results.size),
@@ -151,7 +122,7 @@ internal fun SearchContent(
                         name = result.name,
                         dexNumber = result.dexNumber,
                         types = typesOf(result.type1, result.type2),
-                        state = result.status.toSlotState(),
+                        state = slotStateOf(result.status, result.ownership),
                         // Where it sits, not the form name: the form is already in the name,
                         // and the location is what separates the two copies of a duplicate.
                         formName = result.location,
@@ -167,6 +138,49 @@ internal fun SearchContent(
 
     if (sheetOpen) {
         FilterSheet(search = search, onEvent = onEvent, onDismiss = { sheetOpen = false })
+    }
+}
+
+/** The refinements flipped mid-hunt, beside the button to the rest. */
+@Composable
+private fun QuickFilters(search: SearchUiState, onEvent: (BoxesEvent) -> Unit, onOpenSheet: () -> Unit) {
+    val dimens = PokedexTheme.dimens
+    FlowRow(
+        modifier = Modifier.padding(horizontal = dimens.spaceLg),
+        horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+        verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+    ) {
+        FilterChip(
+            label = "Needed",
+            selected = search.needed,
+            onSelectedChange = { on ->
+                onEvent(BoxesEvent.CaughtFilterChanged(if (on) CaughtFilter.Needed else CaughtFilter.All))
+            },
+        )
+        FilterChip(
+            label = "Have regular",
+            selected = search.regular,
+            onSelectedChange = { on ->
+                onEvent(BoxesEvent.CaughtFilterChanged(if (on) CaughtFilter.Regular else CaughtFilter.All))
+            },
+        )
+        FilterChip(
+            label = "Caught",
+            selected = search.caught,
+            onSelectedChange = { on ->
+                onEvent(BoxesEvent.CaughtFilterChanged(if (on) CaughtFilter.Caught else CaughtFilter.All))
+            },
+        )
+        OutlinedButton(onClick = onOpenSheet) {
+            Icon(PokedexIcons.Filter, contentDescription = null)
+            // What the sheet holds: every refinement but the caught chips beside this button.
+            val extra = search.filter.refinementCount - if (search.filter.caught != CaughtFilter.All) 1 else 0
+            Text(
+                text = if (extra == 0) "More filters" else "More filters, $extra on",
+                style = PokedexTheme.text.badgeLabel,
+                modifier = Modifier.padding(start = dimens.spaceXs),
+            )
+        }
     }
 }
 

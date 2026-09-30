@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -46,6 +47,8 @@ import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
 import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.huntPlan
+import net.pokedex.core.model.livingProgressOf
+import net.pokedex.core.model.ownershipOf
 import net.pokedex.core.model.progressOf
 import net.pokedex.core.model.searchDex
 import net.pokedex.core.model.statusOf
@@ -55,7 +58,7 @@ import net.pokedex.designsystem.component.SlotState
 import net.pokedex.feature.dex.gameSetLabel
 import net.pokedex.feature.dex.locationOf
 import net.pokedex.feature.dex.oddsLabel
-import net.pokedex.feature.dex.toSlotState
+import net.pokedex.feature.dex.slotStateOf
 import net.pokedex.feature.dex.typeLabel
 import javax.inject.Inject
 
@@ -76,7 +79,7 @@ import javax.inject.Inject
 class BoxesViewModel @Inject constructor(
     private val dexRepository: DexRepository,
     private val guides: GuideRepository,
-    catches: CatchRepository,
+    private val catches: CatchRepository,
     private val settings: SettingsRepository,
     private val savedState: SavedStateHandle,
     @DefaultDispatcher private val default: CoroutineDispatcher,
@@ -99,6 +102,11 @@ class BoxesViewModel @Inject constructor(
     private val myGames = farmRanks.map { it.keys }.distinctUntilChanged()
 
     private val searching = savedState.getStateFlow(KEY_SEARCHING, false)
+    private val marking = savedState.getStateFlow(KEY_MARKING, false)
+    private val markSession = MarkSession(catches, viewModelScope) { box ->
+        loaded.value?.dex?.layout(box).orEmpty().filterNotNull()
+    }
+    private val mark = combine(marking, markSession.ledger) { active, ledger -> MarkUi(active, ledger.changed) }
     private val filter = savedState.getStateFlow(KEY_FILTER, "").map(::decodeFilter)
     private val jump = savedState.getStateFlow(KEY_JUMP_TO_BOX, NO_JUMP)
 
@@ -139,18 +147,22 @@ class BoxesViewModel @Inject constructor(
         if (loaded == null || guide == null) null else nextHuntOf(loaded.dex, guide, records, games)
     }.flowOn(default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
 
+    private val jumpAndMark = combine(jump, mark, ::Pair)
+
     val state: StateFlow<BoxesUiState> =
-        combine(loaded, error, boxes, search, jump) { loaded, error, boxes, search, jump ->
+        combine(loaded, error, boxes, search, jumpAndMark) { loaded, error, boxes, search, (jump, mark) ->
             BoxesUiState(
                 loading = loaded == null && error == null,
                 error = error,
                 pages = boxes?.pages.orEmpty(),
                 overall = boxes?.overall ?: Progress.ZERO,
+                living = boxes?.living ?: Progress.ZERO,
                 noShinyRemaining = boxes?.noShinyRemaining ?: 0,
                 slots = loaded?.slots ?: SlotIndex.EMPTY,
                 startBox = loaded?.startBox ?: 0,
                 jumpToBox = jump.takeIf { it != NO_JUMP },
                 search = search,
+                mark = mark,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), BoxesUiState())
 
@@ -165,6 +177,9 @@ class BoxesViewModel @Inject constructor(
             .debounce(LAST_BOX_DEBOUNCE_MS)
             .onEach { settings.setLastBox(it) }
             .launchIn(viewModelScope)
+        // Leaving mark mode, by Done, back or opening search, ends the session: the marks stay
+        // and Undo starts again from nothing next time.
+        marking.filter { !it }.onEach { markSession.clear() }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: BoxesEvent) {
@@ -179,13 +194,19 @@ class BoxesViewModel @Inject constructor(
             }
             BoxesEvent.JumpHandled -> savedState[KEY_JUMP_TO_BOX] = NO_JUMP
             is BoxesEvent.ShowSearch -> {
+                savedState[KEY_MARKING] = false
                 savedState[KEY_FILTER] = event.encodedFilter
                 savedState[KEY_SEARCHING] = true
             }
-            BoxesEvent.OpenSearch -> savedState[KEY_SEARCHING] = true
+            BoxesEvent.OpenSearch -> {
+                savedState[KEY_MARKING] = false
+                savedState[KEY_SEARCHING] = true
+            }
             BoxesEvent.CloseSearch -> closeSearch()
             is BoxesEvent.FilterEdit -> editFilter { edited(event) }
             BoxesEvent.Retry -> load()
+            is BoxesEvent.Marking -> savedState[KEY_MARKING] = event.on
+            is BoxesEvent.MarkEdit -> markSession.on(event)
         }
     }
 
@@ -272,7 +293,12 @@ class BoxesViewModel @Inject constructor(
         }
     }
 
-    private class Boxes(val pages: List<BoxPage>, val overall: Progress, val noShinyRemaining: Int)
+    private class Boxes(
+        val pages: List<BoxPage>,
+        val overall: Progress,
+        val living: Progress,
+        val noShinyRemaining: Int,
+    )
 
     private fun boxesOf(loaded: Loaded, records: Map<CatchKey, CatchRecord>, myGames: Set<GameId>): Boxes {
         val dex = loaded.dex
@@ -285,7 +311,7 @@ class BoxesViewModel @Inject constructor(
                         BoxSlotItem(state = SlotState.Empty, key = "hole-${box.boxIndex}-$position")
                     } else {
                         BoxSlotItem(
-                            state = statusOf(entry, records, myGames).toSlotState(),
+                            state = slotStateOf(statusOf(entry, records, myGames), ownershipOf(entry, records)),
                             label = entry.variant.displayName,
                             key = entry.key.toString(),
                         )
@@ -296,6 +322,7 @@ class BoxesViewModel @Inject constructor(
         return Boxes(
             pages = pages,
             overall = progressOf(dex.entries.map { it.slot }, records),
+            living = livingProgressOf(dex.entries.map { it.slot }, records),
             noShinyRemaining = dex.entries.count { statusOf(it, records) == SlotStatus.NoShinyExists },
         )
     }
@@ -342,6 +369,7 @@ class BoxesViewModel @Inject constructor(
                 type1 = entry.variant.type1,
                 type2 = entry.variant.type2,
                 status = statusOf(entry, records, myGames),
+                ownership = ownershipOf(entry, records),
                 location = locationOf(entry),
                 spriteFile = entry.variant.spriteFile,
             )
@@ -360,6 +388,7 @@ class BoxesViewModel @Inject constructor(
         /** Kept in this ViewModel's own handle, so a pending jump survives process death. */
         const val KEY_JUMP_TO_BOX = "jumpToBox"
         const val KEY_SEARCHING = "searching"
+        const val KEY_MARKING = "marking"
         const val KEY_FILTER = "filter"
         const val NO_JUMP = -1
         const val STOP_TIMEOUT_MS = 5_000L
