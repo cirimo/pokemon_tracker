@@ -14,7 +14,7 @@ data class PresetDiff(
     val added: List<CatchKey>,
     val removed: List<CatchKey>,
     val moved: List<Moved>,
-    /** Removed keys the user actually has a caught record for. The only lossy case. */
+    /** Removed keys the user holds something in, shiny or regular. The only lossy case. */
     val strandedRecords: List<CatchKey>,
 ) {
     data class Moved(
@@ -63,7 +63,7 @@ fun diffPresets(
         }
     }
 
-    val stranded = removed.filter { records[it]?.caught == true }
+    val stranded = removed.filter { (records[it]?.ownership ?: Ownership.None) != Ownership.None }
 
     return PresetDiff(
         added = added.sortedBy { it.toString() },

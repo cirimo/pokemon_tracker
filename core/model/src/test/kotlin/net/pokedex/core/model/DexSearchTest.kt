@@ -144,4 +144,20 @@ class DexSearchTest {
         assertThat(filter.hasRefinements).isTrue()
         assertThat(filter.refinementCount).isEqualTo(1)
     }
+
+    @Test
+    fun `have regular is the upgrade list, and is part of needed`() {
+        val records = Fixtures.records(
+            Fixtures.regular("pikachu"),
+            // Upgraded: the regular bit stays behind the shiny, and it is not an upgrade any more.
+            Fixtures.caught("raichu").copy(regular = true),
+            Fixtures.caught("flabebe"),
+        )
+
+        val regular = search(DexFilter(caught = CaughtFilter.Regular), records)
+
+        assertThat(regular).containsExactly("pikachu")
+        assertThat(search(DexFilter(caught = CaughtFilter.Needed), records)).contains("pikachu")
+        assertThat(search(DexFilter(caught = CaughtFilter.Caught), records)).doesNotContain("pikachu")
+    }
 }

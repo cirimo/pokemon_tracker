@@ -47,7 +47,11 @@ data class DexFilter(
 data class FarmFilter(val gameId: String, val scope: FarmScope = FarmScope.HereFirst)
 
 @Serializable
-enum class CaughtFilter { All, Needed, Caught }
+/**
+ * [Regular] is the upgrade list: the regular one held, the shiny still needed. It is a
+ * subset of [Needed], because a regular catch does not make a slot less needed.
+ */
+enum class CaughtFilter { All, Needed, Regular, Caught }
 
 /** The 39 variants no game has released a shiny of. */
 @Serializable
@@ -95,14 +99,7 @@ internal fun matchesRefinements(
     filter: DexFilter,
     farm: FarmPlan?,
 ): Boolean {
-    val status = statusOf(entry, records)
-    val caughtOk = when (filter.caught) {
-        CaughtFilter.All -> true
-        CaughtFilter.Caught -> status == SlotStatus.Caught
-        // A slot with no shiny in existence is still a slot you need. Whether to see it is
-        // the no-shiny filter's question, not this one's.
-        CaughtFilter.Needed -> status != SlotStatus.Caught
-    }
+    val caughtOk = matchesCaught(entry, records, filter.caught)
     val gameOk = filter.gameSets.isEmpty() || filter.gameSets.any { it in entry.shinyGameSets }
     val typeOk = filter.types.isEmpty() ||
         entry.variant.type1 in filter.types ||
@@ -114,6 +111,16 @@ internal fun matchesRefinements(
     }
     return caughtOk && gameOk && typeOk && noShinyOk && matchesFarm(entry, filter.farm, farm)
 }
+
+private fun matchesCaught(entry: DexEntry, records: Map<CatchKey, CatchRecord>, filter: CaughtFilter): Boolean =
+    when (filter) {
+        CaughtFilter.All -> true
+        CaughtFilter.Caught -> statusOf(entry, records) == SlotStatus.Caught
+        // A slot with no shiny in existence is still a slot you need. Whether to see it is
+        // the no-shiny filter's question, not this one's.
+        CaughtFilter.Needed -> statusOf(entry, records) != SlotStatus.Caught
+        CaughtFilter.Regular -> ownershipOf(entry, records) == Ownership.Regular
+    }
 
 private fun matchesFarm(entry: DexEntry, filter: FarmFilter?, plan: FarmPlan?): Boolean =
     filter == null || plan?.matches(entry, GameId(filter.gameId), filter.scope) == true

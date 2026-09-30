@@ -135,4 +135,15 @@ class FarmTest {
         assertThat(counts).containsExactly(GameFarm(scarlet, 0, 1), GameFarm(sword, 0, 0)).inOrder()
         assertThat(counts.last().done).isTrue()
     }
+
+    @Test
+    fun `a game counts the upgrades among what it comes first for`() {
+        val plan = FarmPlan(dex, listOf(sword, violet))
+        val records = Fixtures.records(Fixtures.regular("raichu"), Fixtures.caught("flabebe").copy(regular = true))
+
+        val counts = farmCounts(dex, records, plan)
+
+        // Raichu is still needed, and held in regular; Flabebe is caught, so it counts nowhere.
+        assertThat(counts).containsExactly(GameFarm(sword, 1, 1, 0), GameFarm(violet, 1, 1, 1)).inOrder()
+    }
 }

@@ -22,5 +22,9 @@ object Fixtures {
         updatedAt = 1_700_000_000_000,
     )
 
+    /** The regular one only: no shiny, and no game or date, as a regular mark records none. */
+    fun regular(variant: String, copy: Int = 0) =
+        CatchRecord.empty(CatchKey(VariantId(variant), copy), 1_700_000_000_000).copy(regular = true)
+
     fun records(vararg r: CatchRecord): Map<CatchKey, CatchRecord> = r.associateBy { it.key }
 }

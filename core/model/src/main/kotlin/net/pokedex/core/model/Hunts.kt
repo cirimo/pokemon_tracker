@@ -114,6 +114,9 @@ data class HuntKey(val dexNum: Int, val regionalForm: String?)
  *   all when a hunt spans forms the method does not reach (an outbreak gives plain Rotom, not
  *   its appliance forms), and the row has to say so rather than imply the method fills them.
  * @property box the box that is closest to done among the boxes these slots are in.
+ * @property regular how many of [slots] are held in regular already. Said on the row, and
+ *   deliberately not a ranking input: an upgrade and a first catch are the same shiny, and
+ *   ADR 0012's order is about the shiny (docs/adr/0015-regular-catches.md).
  */
 data class Hunt(
     val key: HuntKey,
@@ -123,6 +126,7 @@ data class Hunt(
     val way: Way?,
     val slotsWithWay: Int,
     val box: BoxNeed,
+    val regular: Int = 0,
 ) {
     val lead: DexEntry get() = slots.first()
 }
@@ -247,6 +251,7 @@ fun huntPlan(
                         BoxNeed(box, boxNames[box].orEmpty(), remainingByBox.getValue(box), here.size)
                     }
                     .minWith(compareBy({ it.remaining - it.filledHere }, { it.boxIndex })),
+                regular = sorted.count { ownershipOf(it, records) == Ownership.Regular },
             )
         }
         .sortedWith(

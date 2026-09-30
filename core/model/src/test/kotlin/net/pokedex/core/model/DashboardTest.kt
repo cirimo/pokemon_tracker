@@ -77,4 +77,13 @@ class DashboardTest {
     private companion object {
         const val T0 = 1_700_000_000_000L
     }
+
+    @Test
+    fun `the living dex sits beside shiny progress and never changes it`() {
+        val board = dashboardOf(dex, records(caught("unown"), Fixtures.regular("unown", copy = 1)))
+
+        assertThat(board.overall).isEqualTo(Progress(caught = 1, total = 11))
+        assertThat(board.living).isEqualTo(Progress(caught = 2, total = 11))
+        assertThat(board.neededByGame).isEqualTo(dashboardOf(dex, records(caught("unown"))).neededByGame)
+    }
 }

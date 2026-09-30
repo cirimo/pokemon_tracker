@@ -220,6 +220,15 @@ fun statusOf(
 }
 
 /**
+ * What the user holds in one slot, shiny or regular. Deliberately apart from [statusOf]:
+ * [SlotStatus] is about the shiny, which is what is needed, hunted and counted in the
+ * headline, and a regular catch changes none of that. Keeping the two questions apart is
+ * what makes "a regular catch never moves shiny progress" true by construction.
+ */
+fun ownershipOf(entry: DexEntry, records: Map<CatchKey, CatchRecord>): Ownership =
+    records[entry.key]?.ownership ?: Ownership.None
+
+/**
  * The state of a variant across every slot demanding it -- what a species page or a form
  * list shows, where there is one row per variant rather than one per slot.
  *

@@ -100,4 +100,14 @@ class PresetDiffTest {
         val slots = listOf(Fixtures.slot(0, 0, "bulbasaur"), Fixtures.slot(0, 1, "ivysaur"))
         assertThat(diffPresets(slots, slots).isEmpty).isTrue()
     }
+
+    @Test
+    fun `removing a slot held in regular is a loss too`() {
+        val old = listOf(Fixtures.slot(0, 0, "bulbasaur"), Fixtures.slot(0, 1, "magearna-original"))
+        val new = listOf(Fixtures.slot(0, 0, "bulbasaur"))
+
+        val diff = diffPresets(old, new, Fixtures.records(Fixtures.regular("magearna-original")))
+
+        assertThat(diff.hasLoss).isTrue()
+    }
 }

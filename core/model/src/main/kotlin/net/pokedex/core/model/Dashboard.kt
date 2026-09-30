@@ -13,7 +13,10 @@ package net.pokedex.core.model
  * - recent catches, which is also where a wrong prefilled game gets noticed.
  */
 data class Dashboard(
+    /** Shiny. The headline. */
     val overall: Progress,
+    /** The living dex: slots holding anything, regular or shiny. Never gold, never a breakdown. */
+    val living: Progress,
     /** Uncaught slots whose variant has no released shiny. Part of [overall]'s total, and unreachable. */
     val noShinyYet: Int,
     val regions: List<RegionProgress>,
@@ -21,7 +24,7 @@ data class Dashboard(
     val closest: List<BoxProgress>,
     val neededByGame: List<GameNeed>,
     val recent: List<RecentCatch>,
-    /** Caught records the active preset has no slot for. Kept and shown, never dropped (ADR 0001). */
+    /** Held records, shiny or regular, the active preset has no slot for. Kept and shown, never dropped (ADR 0001). */
     val orphans: List<CatchRecord>,
 )
 
@@ -47,6 +50,7 @@ fun dashboardOf(
 
     return Dashboard(
         overall = progressOf(slots, records),
+        living = livingProgressOf(slots, records),
         noShinyYet = dex.entries.count { statusOf(it, records) == SlotStatus.NoShinyExists },
         regions = regionsOf(boxes),
         closest = boxes

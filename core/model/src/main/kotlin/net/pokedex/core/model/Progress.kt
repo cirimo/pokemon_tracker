@@ -40,6 +40,20 @@ fun progressOf(slots: Iterable<Slot>, records: Map<CatchKey, CatchRecord>): Prog
     return Progress(caught, total)
 }
 
+/**
+ * The living dex: slots holding anything, regular or shiny. The second number, never the
+ * headline, and never gold. Counts slots by key for the same reason [progressOf] does.
+ */
+fun livingProgressOf(slots: Iterable<Slot>, records: Map<CatchKey, CatchRecord>): Progress {
+    var owned = 0
+    var total = 0
+    for (slot in slots) {
+        total++
+        if ((records[slot.catchKey]?.ownership ?: Ownership.None) != Ownership.None) owned++
+    }
+    return Progress(owned, total)
+}
+
 fun progressByBox(
     slots: Iterable<Slot>,
     records: Map<CatchKey, CatchRecord>,
@@ -61,12 +75,12 @@ fun progressByBox(
  *
  * These are never deleted. If upstream drops a variant, you still own the Pokemon --
  * it just has nowhere to sit in this preset. The UI surfaces them rather than the app
- * quietly discarding them.
+ * quietly discarding them. A regular one counts: it is a Pokemon you own too.
  */
 fun orphanedRecords(
     slots: Iterable<Slot>,
     records: Map<CatchKey, CatchRecord>,
 ): List<CatchRecord> {
     val claimed = slots.mapTo(HashSet()) { it.catchKey }
-    return records.values.filter { it.key !in claimed && it.caught }
+    return records.values.filter { it.key !in claimed && it.ownership != Ownership.None }
 }

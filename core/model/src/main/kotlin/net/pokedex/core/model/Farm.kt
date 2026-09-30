@@ -86,8 +86,11 @@ class FarmPlan(dex: Dex, val order: List<GameId>) {
     }
 }
 
-/** One game's share of what I still need, as Progress shows it. */
-data class GameFarm(val game: GameId, val onlyHere: Int, val hereFirst: Int) {
+/**
+ * One game's share of what I still need, as Progress shows it. [regular] is how many of the
+ * [hereFirst] slots I already hold in regular: the upgrades waiting in this game.
+ */
+data class GameFarm(val game: GameId, val onlyHere: Int, val hereFirst: Int, val regular: Int = 0) {
     /** Nothing left that this game is first for: everything it can give me first is caught. */
     val done: Boolean get() = hereFirst == 0
 }
@@ -96,10 +99,12 @@ data class GameFarm(val game: GameId, val onlyHere: Int, val hereFirst: Int) {
 fun farmCounts(dex: Dex, records: Map<CatchKey, CatchRecord>, plan: FarmPlan): List<GameFarm> {
     val only = HashMap<GameId, Int>()
     val first = HashMap<GameId, Int>()
+    val regular = HashMap<GameId, Int>()
     for (entry in dex.entries) {
         val place = plan.placeOf(entry)?.takeIf { statusOf(entry, records) == SlotStatus.Needed } ?: continue
         first.merge(place.game, 1, Int::plus)
         if (place.onlyHere) only.merge(place.game, 1, Int::plus)
+        if (ownershipOf(entry, records) == Ownership.Regular) regular.merge(place.game, 1, Int::plus)
     }
-    return plan.order.map { GameFarm(it, only[it] ?: 0, first[it] ?: 0) }
+    return plan.order.map { GameFarm(it, only[it] ?: 0, first[it] ?: 0, regular[it] ?: 0) }
 }

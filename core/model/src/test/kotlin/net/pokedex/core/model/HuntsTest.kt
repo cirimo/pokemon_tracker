@@ -307,4 +307,17 @@ class HuntsTest {
 
         assertThat(plan.outOfReach.map { it.entry.variant.id.value }).doesNotContain("pikachu")
     }
+
+    @Test
+    fun `a regular catch leaves the hunt, its order and its box nearness alone, and is said`() {
+        val before = huntPlan(DexFixtures.dex, emptyMap(), scarletViolet, noGuide)
+        val records = Fixtures.records(Fixtures.regular("pikachu"), Fixtures.regular("flabebe"))
+
+        val after = huntPlan(DexFixtures.dex, records, scarletViolet, noGuide)
+
+        assertThat(names(after)).containsExactlyElementsIn(names(before)).inOrder()
+        assertThat(after.hunts.map { it.box }).isEqualTo(before.hunts.map { it.box })
+        assertThat(after.hunts.associate { it.lead.variant.id.value to it.regular })
+            .containsExactly("flabebe", 1, "pikachu", 1, "raichu", 0)
+    }
 }
