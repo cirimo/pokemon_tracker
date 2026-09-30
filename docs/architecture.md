@@ -409,6 +409,8 @@ read immediately before each run.
 | 5. After the settle-frame fix: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 231–293 ms | 3.1–3.5% | 7–9 ms | 11–13 ms |
 | 6. After M4: `installRelease` with the regenerated profile (2026-09-24) | speed-profile, install-dm | 197–247 ms | 3.0–3.5% | 9 ms | 12–13 ms |
 | 7. After prompt 6, **warm, provisional** (2026-09-26; see below) | speed-profile, install-dm | 192–244 ms | 3.7–4.1% | 9 ms | 13–20 ms |
+| 8. After prompt 7, default run (2026-09-30; see below) | speed-profile, install-dm | 205–247 ms | 3.1–3.3% | 8–9 ms | 11–12 ms |
+| 9. After prompt 8, `user.db` v6 (2026-09-30; see below) | speed-profile, install-dm | 239–290 ms | 3.2–3.9% | 7–9 ms | 12–13 ms |
 
 State 4 is the M3 build after regenerating the profile with the journey extended to the catch
 sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
@@ -623,7 +625,45 @@ rebuild them. It also settles state 7's warm table: the slow-draw excess there w
 suspected, since the same prompt 6 code with prompt 7 on top reads normally here.
 
 Open: `TIGHT=1` on state 8, alone, on a phone that is not charging. It was not run after the
-default run because charging had already warmed the battery by 1.7 °C.
+default run because charging had already warmed the battery by 1.7 °C. (Superseded: state 9's
+tight run below is that measurement, on the next build.)
+
+### Measured after prompt 8 (2026-09-30)
+
+The prompt 8 build over the real install with `installRelease`, which migrated `user.db` from
+v5 to v6 on first launch (461 shiny, unchanged). The profile is still prompt 6's; prompt 8 put
+nothing on the pager's tiles (`speed-profile`, `install-dm`). The phone was on USB with a full
+battery, drawing no charge, and thermal status 0 throughout. The default run went from 31.3 °C
+to 33.1 °C; the tight run was taken alone, after the phone had cooled back to 31.9 °C, and
+ended at 33.5 °C.
+
+| `net.pokedex`, state 9 | Cold start | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| Default run | 239–290 ms | 3.2–3.9% | 7–9 ms | 12–13 ms | 22–24 | 21–27 |
+| Tight run (`TIGHT=1`) | 201–277 ms | 2.8–3.3% | 7 ms | 12–13 ms | 24–27 | 2–6 |
+
+The pager did not get worse. P99 is state 6's cool spread (12–13 ms) in both runs, one
+millisecond above state 8's default run, and the slow-UI counts sit inside state 5's and
+state 6's (default 19–25, tight 24–28). The tight run's slow draw, 2–6, is the lowest yet,
+which is what a cool, non-charging phone does to the swipe-start cluster. It also closes
+state 8's open `TIGHT=1`. The default run's cold starts are 30–40 ms slower than state 8's
+and the tight run's, taken cooler, are not, so that reads as heat rather than code; the budget
+is 600 ms either way.
+
+*The new path: mark mode.* Measured on the profiling build (`net.pokedex.profiling`, an empty
+database, so no real record was written), with `dumpsys gfxinfo` reset before each action:
+
+| Action | Frames | P50 | P90 | P99 | Slow UI |
+|---|---|---|---|---|---|
+| 30 taps, one per slot, 0.4 s apart | 55 | 12 ms | 21 ms | 31 ms | 28 |
+| "Mark all" on a 30-slot box | 43 | 6 ms | — | 28 ms | 1 |
+| Undo of those 30 | 44 | 9 ms | — | 27 ms | 0 |
+
+Each tap costs about one slow UI-thread frame, 12–31 ms, where the tapped tile changes. That is
+inside the "mark caught → UI settled ≤ 100 ms" budget, and a tap in mark mode is the same
+record write a catch toggle is. What it spends is not attributed. The likely cause is that a
+record change rebuilds the page's tile callbacks, so all thirty tiles recompose rather than
+the one that changed; that predates prompt 8 and is a question for a trace, not a guess.
 
 ### Baseline profile: how it reaches the compiler, and regenerating it
 

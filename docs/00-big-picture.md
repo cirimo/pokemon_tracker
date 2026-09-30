@@ -138,5 +138,6 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    `regular` column beside `caught` (`user.db` v6, `docs/adr/0015-regular-catches.md`), carried
    in backups without a schema bump, a regular slot state in the grid, "mark regulars" for
    entering a box at a time with undo, "have regular" in search, and upgrade counts on the
-   hunt list and the farm plan.
+   hunt list and the farm plan. The real install migrated the same day; the pager measured as
+   before (`docs/architecture.md` §8, state 9).
 9. Further feature prompts, one per milestone, written as each one comes up.
