@@ -219,6 +219,7 @@ private const val DEMO_CAUGHT = 21
 private const val DEMO_HOLE = 29
 private const val DEMO_UNAVAILABLE = 15
 private val DEMO_LOCKED = setOf(7, 22)
+private val DEMO_REGULAR = setOf(21, 23, 24, 26)
 
 /** A demo box: 29 filled positions and one interior hole, the shape grouped-balanced has. */
 internal fun demoBox(caughtCount: Int = DEMO_CAUGHT): List<BoxSlotItem> = List(BOX_COLUMNS * BOX_ROWS) { i ->
@@ -227,6 +228,7 @@ internal fun demoBox(caughtCount: Int = DEMO_CAUGHT): List<BoxSlotItem> = List(B
         i in DEMO_LOCKED -> SlotState.ShinyLocked
         i == DEMO_UNAVAILABLE -> SlotState.Unavailable
         i < caughtCount -> SlotState.Caught
+        i in DEMO_REGULAR -> SlotState.Regular
         else -> SlotState.Needed
     }
     BoxSlotItem(state = state, label = "Slot ${i + 1}", key = "demo-$i")

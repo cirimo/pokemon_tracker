@@ -216,6 +216,7 @@ private fun GridSample(caught: Int) {
             i == 7 || i == 22 -> SlotState.ShinyLocked
             i == 15 -> SlotState.Unavailable
             i < caught -> SlotState.Caught
+            i in REGULAR -> SlotState.Regular
             else -> SlotState.Needed
         }
         BoxSlotItem(state = state, label = "Slot ${i + 1}", key = "shot-$i")
@@ -234,6 +235,7 @@ private fun GridSample(caught: Int) {
 }
 
 private const val THIRTY = 30
+private val REGULAR = setOf(21, 23, 24, 26)
 
 @Composable
 private fun Overview() {

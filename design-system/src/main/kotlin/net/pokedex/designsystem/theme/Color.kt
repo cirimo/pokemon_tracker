@@ -73,6 +73,15 @@ data class PokedexColors(
      */
     val silhouette: Color,
 
+    /**
+     * A sprite whose regular one is owned and whose shiny is not: still a flat silhouette,
+     * because colour arriving is what a shiny looks like, but a stronger one. Grey is owned,
+     * faint is missing, colour is shiny. Solved well past 3:1 against [slotWell], and about
+     * 2:1 against [silhouette], so the two read apart at grid density; the ring mark is
+     * what tells them apart for anyone who cannot see that step.
+     */
+    val silhouetteRegular: Color,
+
     val errorText: Color,
     val errorGraphic: Color,
 
@@ -104,6 +113,7 @@ val DarkCase = PokedexColors(
     onCase = Color(0xFFEDE7E3), // 15.47:1 on case
     onCaseMuted = Color(0xFFA9A19E), // 7.47:1 on case
     silhouette = Color(0xFF6A6461), // 3.35:1 on slotWell
+    silhouetteRegular = Color(0xFF9C9591), // 6.61:1 on slotWell, 1.97:1 against silhouette
     errorText = Color(0xFFF2B8B5), // 10.43:1 on caseSurface
     errorGraphic = Color(0xFFE0757A), // 5.93:1 on caseSurface
     scrim = Color(0xCC0A0909),
@@ -133,6 +143,7 @@ val LightCase = PokedexColors(
     onCase = Color(0xFF1E1A18), // 15.46:1 on case
     onCaseMuted = Color(0xFF5B534D), // 6.74:1 on case
     silhouette = Color(0xFF7A756E), // 3.51:1 on slotWell
+    silhouetteRegular = Color(0xFF45403B), // 7.87:1 on slotWell, 2.24:1 against silhouette
     errorText = Color(0xFF7A2C2C), // 7.60:1 on caseSurface
     errorGraphic = Color(0xFFA33B3B), // 5.21:1 on caseSurface
     scrim = Color(0x99201C19),

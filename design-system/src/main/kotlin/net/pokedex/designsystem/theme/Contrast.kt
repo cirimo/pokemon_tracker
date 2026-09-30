@@ -73,6 +73,10 @@ val ContrastPairs: List<ContrastPair> = listOf(
     ContrastPair("focus ring on case", { it.rimFocus }, { it.case }, ContrastKind.Graphical),
     ContrastPair("focus ring on well", { it.rimFocus }, { it.slotWell }, ContrastKind.Graphical),
     ContrastPair("uncaught silhouette on well", { it.silhouette }, { it.slotWell }, ContrastKind.Graphical),
+    ContrastPair("regular silhouette on well", { it.silhouetteRegular }, { it.slotWell }, ContrastKind.Graphical),
+    // The regular slot's ring. Its own pair, though the same colour as the cross and dash:
+    // it is the non-colour signal telling regular from needed, so it must be findable.
+    ContrastPair("regular ring on well", { it.onCaseMuted }, { it.slotWell }, ContrastKind.Graphical),
     ContrastPair("progress arc on surface", { it.accentGraphic }, { it.caseSurface }, ContrastKind.Graphical),
     // The one that would have been missed: an arc invisible against its own track is
     // still "on-surface compliant" and still unreadable.

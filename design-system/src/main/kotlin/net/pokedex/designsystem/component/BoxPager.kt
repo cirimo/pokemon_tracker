@@ -34,6 +34,9 @@ data class BoxPage(
 ) {
     val filled: Int get() = slots.count { it.state != SlotState.Empty }
     val caught: Int get() = slots.count { it.state == SlotState.Caught }
+
+    /** The living dex's count for this box: slots holding the regular one or the shiny. */
+    val owned: Int get() = slots.count { it.state == SlotState.Caught || it.state == SlotState.Regular }
 }
 
 /**

@@ -191,12 +191,14 @@ class AccessibilityTest {
             PokedexTheme {
                 Column {
                     BoxSlot(state = SlotState.Caught, label = "Charizard", onClick = {})
+                    BoxSlot(state = SlotState.Regular, label = "Bulbasaur", onClick = {})
                     BoxSlot(state = SlotState.ShinyLocked, label = "Zacian", onClick = {})
                     BoxSlot(state = SlotState.Empty)
                 }
             }
         }
         composeRule.onNodeWithContentDescription("Charizard, shiny caught").assertExists()
+        composeRule.onNodeWithContentDescription("Bulbasaur, regular caught, shiny still needed").assertExists()
         composeRule.onNodeWithContentDescription("Zacian, shiny locked in every game")
             .assertExists()
         composeRule.onNodeWithContentDescription("Empty slot").assertExists()

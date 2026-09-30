@@ -52,7 +52,7 @@ import net.pokedex.designsystem.theme.PokedexTheme
 /**
  * What a slot can be.
  *
- * Five states, and none of them is told apart by colour alone -- see [SlotMark] and the
+ * Six states, and none of them is told apart by colour alone -- see [SlotMark] and the
  * rim width in [BoxSlot]. That constraint is not decoration: in light theme the caught and
  * needed rims sit at 1.58:1 against each other, so if colour were the only signal the grid
  * would be unreadable for a good number of people, and unreadable in sunlight for everyone.
@@ -63,6 +63,14 @@ enum class SlotState {
 
     /** Wanted, not yet owned. The default state of most of the dex. */
     Needed,
+
+    /**
+     * The regular one is owned; the shiny is still needed. A stronger silhouette and a hollow
+     * ring, and no gold anywhere: a regular catch is not shiny progress. A shiny-locked or
+     * unavailable slot held in regular shows as this, because what a slot holds is what the
+     * grid is for.
+     */
+    Regular,
 
     /** Owned. The only state with gold in it. */
     Caught,
@@ -78,12 +86,13 @@ enum class SlotState {
 }
 
 /** The non-colour half of a slot's state. */
-internal enum class SlotMark { None, Pip, Cross, Dash }
+internal enum class SlotMark { None, Pip, Ring, Cross, Dash }
 
 internal val SlotState.mark: SlotMark
     get() = when (this) {
         SlotState.Empty, SlotState.Needed -> SlotMark.None
         SlotState.Caught -> SlotMark.Pip
+        SlotState.Regular -> SlotMark.Ring
         SlotState.ShinyLocked -> SlotMark.Cross
         SlotState.Unavailable -> SlotMark.Dash
     }
@@ -289,9 +298,9 @@ private fun Modifier.catchSweep(
 /**
  * The corner mark.
  *
- * Drawn rather than iconified on purpose: these are three, four and two vector operations
- * respectively, they need to stay crisp at 6dp, and pulling an icon font into the single
- * hottest component in the app to draw a dash would be a poor trade.
+ * Drawn rather than iconified on purpose: these are one to four vector operations each,
+ * they need to stay crisp at 6dp, and pulling an icon font into the single hottest
+ * component in the app to draw a dash would be a poor trade.
  */
 @Composable
 internal fun SlotMarkGlyph(mark: SlotMark, colors: PokedexColors, modifier: Modifier = Modifier) {
@@ -306,6 +315,9 @@ internal fun SlotMarkGlyph(mark: SlotMark, colors: PokedexColors, modifier: Modi
             onDrawBehind {
                 when (mark) {
                     SlotMark.Pip -> drawCircle(pip, radius = r, center = centre)
+                    // Hollow where the pip is solid: the same place, a different shape, and
+                    // never gold.
+                    SlotMark.Ring -> drawCircle(muted, r, centre, style = Stroke(r * RING_STROKE))
                     SlotMark.Cross -> drawCross(centre, r, muted)
                     SlotMark.Dash -> drawLine(
                         color = muted,
@@ -334,9 +346,11 @@ private fun DrawScope.drawCross(centre: Offset, r: Float, color: Color) {
 private const val MARK_INSET = 0.08f
 private const val MARK_RADIUS = 0.085f
 private const val MARK_STROKE = 0.7f
+private const val RING_STROKE = 0.4f
 
 private fun SlotState.spriteRendering(colors: PokedexColors) = when (this) {
     SlotState.Caught -> SlotSpriteRendering(colorFilter = null, alpha = 1f)
+    SlotState.Regular -> SlotSpriteRendering(ColorFilter.tint(colors.silhouetteRegular), alpha = 1f)
     SlotState.Unavailable -> SlotSpriteRendering(ColorFilter.tint(colors.silhouette), alpha = 0.45f)
     else -> SlotSpriteRendering(ColorFilter.tint(colors.silhouette), alpha = 1f)
 }
@@ -352,6 +366,7 @@ internal fun SlotState.describe(label: String?): String {
     return when (this) {
         SlotState.Empty -> "Empty slot"
         SlotState.Needed -> "$name, not yet caught"
+        SlotState.Regular -> "$name, regular caught, shiny still needed"
         SlotState.Caught -> "$name, shiny caught"
         SlotState.ShinyLocked -> "$name, shiny locked in every game"
         SlotState.Unavailable -> "$name, not available in your games"
@@ -368,18 +383,17 @@ internal fun SlotState.describe(label: String?): String {
 @Composable
 internal fun DemoSprite(rendering: SlotSpriteRendering, modifier: Modifier = Modifier) {
     val colors = PokedexTheme.colors
-    val silhouette = colors.silhouette
     val shiny = if (colors.isDark) DemoShinyDark else DemoShinyLight
-    val filtered = rendering.colorFilter != null
+    val filter = rendering.colorFilter
     val alpha = rendering.alpha
     Box(
         modifier = modifier
             .fillMaxSize()
             .padding(DEMO_SPRITE_INSET)
             .drawWithCache {
-                val body = if (filtered) silhouette else shiny
                 onDrawBehind {
-                    drawCircle(body, radius = size.minDimension / 2f, alpha = alpha)
+                    // The filter as given, so needed and regular each draw their own tone.
+                    drawCircle(shiny, radius = size.minDimension / 2f, alpha = alpha, colorFilter = filter)
                 }
             },
     )

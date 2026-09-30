@@ -102,6 +102,7 @@ private val SlotState.galleryLabel: String
     get() = when (this) {
         SlotState.Empty -> "Empty"
         SlotState.Needed -> "Needed"
+        SlotState.Regular -> "Regular"
         SlotState.Caught -> "Caught"
         SlotState.ShinyLocked -> "Shiny locked"
         SlotState.Unavailable -> "Not in my games"
@@ -158,8 +159,9 @@ private fun SlotStatesSection() {
             }
         }
         Text(
-            text = "Press and hold a slot to see the corner morph. Tapping a needed slot in the " +
-                "grid below runs the catch sweep.",
+            text = "Press and hold a slot to see the corner morph. Tapping a slot in the grid below " +
+                "steps it needed, regular, shiny: the step into shiny runs the catch sweep, the step " +
+                "into regular runs nothing.",
             style = PokedexTheme.text.dexNumber,
             color = PokedexTheme.colors.onCaseMuted,
         )
@@ -177,6 +179,7 @@ private fun SlotStatesSection() {
 private fun BoxSection() {
     val dimens = PokedexTheme.dimens
     var caught by remember { mutableStateOf(demoCaughtSet()) }
+    var regular by remember { mutableStateOf(demoRegularSet()) }
 
     // Built from the same demoBox the previews and screenshots use, with the caught set
     // swapped in -- so tapping in the gallery cannot drift from what the tests capture.
@@ -186,6 +189,7 @@ private fun BoxSection() {
             item.state == SlotState.ShinyLocked -> SlotState.ShinyLocked
             item.state == SlotState.Unavailable -> SlotState.Unavailable
             i in caught -> SlotState.Caught
+            i in regular -> SlotState.Regular
             else -> SlotState.Needed
         }
         item.copy(state = state, key = "gallery-$i")
@@ -199,8 +203,16 @@ private fun BoxSection() {
             Box(Modifier.padding(top = dimens.spaceMd)) {
                 BoxGrid(
                     slots = slots,
+                    // Needed, then regular, then shiny (the upgrade), then needed again.
                     onSlotClick = { index ->
-                        caught = if (index in caught) caught - index else caught + index
+                        when (index) {
+                            in caught -> caught = caught - index
+                            in regular -> {
+                                regular = regular - index
+                                caught = caught + index
+                            }
+                            else -> regular = regular + index
+                        }
                     },
                     sprite = { _, rendering -> DemoSprite(rendering) },
                 )
@@ -213,6 +225,10 @@ private const val GALLERY_CAUGHT = 21
 private val GALLERY_NOT_CAUGHT = setOf(7, 15)
 
 private fun demoCaughtSet(): Set<Int> = (0 until GALLERY_CAUGHT).toSet() - GALLERY_NOT_CAUGHT
+
+private fun demoRegularSet(): Set<Int> = demoBox().withIndex().filter { it.value.state == SlotState.Regular }
+    .map { it.index }
+    .toSet()
 
 @Composable
 private fun PagerSection() {
