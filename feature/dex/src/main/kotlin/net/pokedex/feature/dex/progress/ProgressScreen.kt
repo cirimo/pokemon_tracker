@@ -132,8 +132,8 @@ private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
             "shiny.",
     ) {
         rows.forEach { row ->
-            fun show(scope: FarmScope) =
-                onShowSearch(DexFilter(caught = CaughtFilter.Needed, farm = FarmFilter(row.gameId, scope)))
+            fun show(scope: FarmScope, caught: CaughtFilter = CaughtFilter.Needed) =
+                onShowSearch(DexFilter(caught = caught, farm = FarmFilter(row.gameId, scope)))
             if (row.done) {
                 NoticeCard(
                     title = "${row.name}: done",
@@ -161,6 +161,15 @@ private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
                             primary = false,
                             enabled = row.onlyHere > 0,
                         )
+                        // The upgrades waiting in this game: its "here first" slots already held
+                        // in regular. Only when there are some, so a game with none says nothing.
+                        if (row.regular > 0) {
+                            ActionButton(
+                                label = "${row.regular} you have in regular",
+                                onClick = { show(FarmScope.HereFirst, CaughtFilter.Regular) },
+                                primary = false,
+                            )
+                        }
                     }
                 }
             }
@@ -173,6 +182,12 @@ private fun Overall(state: ProgressUiState) {
     Column(verticalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm)) {
         ProgressReadout(caught = state.overall.caught, total = state.overall.total, label = "shiny")
         ProgressBar(caught = state.overall.caught, total = state.overall.total, label = "Whole dex")
+        // The living dex: one line, muted, never gold, and no breakdown of its own.
+        Text(
+            text = "Living dex ${state.living.caught} / ${state.living.total}, regular or shiny",
+            style = MaterialTheme.typography.bodyMedium,
+            color = PokedexTheme.colors.onCaseMuted,
+        )
         if (state.noShinyYet > 0) {
             Text(
                 text = "${state.noShinyYet} of the ${state.overall.remaining} left have no shiny released yet.",

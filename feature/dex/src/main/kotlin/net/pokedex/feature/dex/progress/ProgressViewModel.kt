@@ -32,6 +32,8 @@ data class ProgressUiState(
     val loading: Boolean = true,
     val error: AppError? = null,
     val overall: Progress = Progress.ZERO,
+    /** Regular or shiny. One muted line under the headline: shiny stays the only breakdown. */
+    val living: Progress = Progress.ZERO,
     val noShinyYet: Int = 0,
     val closest: List<BoxRow> = emptyList(),
     val regions: List<RegionRow> = emptyList(),
@@ -51,9 +53,12 @@ data class RegionRow(val name: String, val caught: Int, val total: Int, val boxe
 @Immutable
 data class GameRow(val gameSetId: String, val label: String, val needed: Int)
 
-/** One of my games' share: needed slots only it offers, and those it is first for. */
+/**
+ * One of my games' share: needed slots only it offers, those it is first for, and how many of
+ * those I already hold in regular.
+ */
 @Immutable
-data class FarmRow(val gameId: String, val name: String, val onlyHere: Int, val hereFirst: Int) {
+data class FarmRow(val gameId: String, val name: String, val onlyHere: Int, val hereFirst: Int, val regular: Int) {
     val done: Boolean get() = hereFirst == 0
 }
 
@@ -128,6 +133,7 @@ class ProgressViewModel @Inject constructor(
         return ProgressUiState(
             loading = false,
             overall = board.overall,
+            living = board.living,
             noShinyYet = board.noShinyYet,
             closest = board.closest.map(::box),
             regions = board.regions.map { r ->
@@ -136,7 +142,7 @@ class ProgressViewModel @Inject constructor(
             games = board.neededByGame.map { GameRow(it.gameSet.id, gameSetLabel(it.gameSet), it.needed) },
             farm = farm?.let { plan ->
                 farmCounts(dex, records, plan).map {
-                    FarmRow(it.game.value, gameNames[it.game] ?: it.game.value, it.onlyHere, it.hereFirst)
+                    FarmRow(it.game.value, gameNames[it.game] ?: it.game.value, it.onlyHere, it.hereFirst, it.regular)
                 }
             }.orEmpty(),
             recent = board.recent.map { (entry, record) ->

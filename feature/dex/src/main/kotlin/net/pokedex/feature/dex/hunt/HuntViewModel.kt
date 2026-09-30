@@ -275,8 +275,19 @@ class HuntViewModel @Inject constructor(
             } else {
                 "${locationOf(lead)} and ${hunt.slots.size - 1} more"
             },
-            reasons = listOf(how, fills + boxLine),
+            reasons = listOfNotNull(how, fills + boxLine, upgradeLine(hunt)),
         )
+    }
+
+    /**
+     * Said, never ranked on: an upgrade is the same shiny as a first catch, and ADR 0012's
+     * order is about the shiny (docs/adr/0015-regular-catches.md).
+     */
+    private fun upgradeLine(hunt: Hunt): String? = when {
+        hunt.regular == 0 -> null
+        hunt.slots.size == 1 -> "You have the regular one"
+        hunt.regular == hunt.slots.size -> "You have all of these in regular"
+        else -> "${hunt.regular} of these you have in regular"
     }
 
     private companion object {
