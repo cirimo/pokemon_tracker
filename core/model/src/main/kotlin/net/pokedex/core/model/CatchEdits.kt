@@ -15,6 +15,8 @@ package net.pokedex.core.model
  * - Re-ticking restores the original date rather than stamping a new one, for the same
  *   reason: the common re-tick is the correction of a mis-tap.
  * - [prefill] is a guess at the origin (see [prefillOrigin]). A recorded origin always beats it.
+ * - [CatchRecord.regular] is left alone. Catching the shiny of a slot held in regular reads
+ *   as shiny from then on, and unticking it by mistake gives the regular back.
  */
 fun CatchRecord.withCaught(caught: Boolean, now: Long, prefill: GameId? = null): CatchRecord = copy(
     caught = caught,
@@ -22,6 +24,15 @@ fun CatchRecord.withCaught(caught: Boolean, now: Long, prefill: GameId? = null):
     caughtAt = if (caught) caughtAt ?: now else caughtAt,
     updatedAt = now,
 )
+
+/**
+ * Marks the regular one owned or not, and touches nothing else: a regular mark records no
+ * game or date, so those keep meaning when the shiny was caught. Unchanged is returned as
+ * is, updatedAt included, like [withPriority], so tapping a slot already in that state is
+ * not a change a backup has to carry.
+ */
+fun CatchRecord.withRegular(regular: Boolean, now: Long): CatchRecord =
+    if (this.regular == regular) this else copy(regular = regular, updatedAt = now)
 
 /**
  * The catch sheet's save. Blank notes are stored as none, so "cleared the note" and "never

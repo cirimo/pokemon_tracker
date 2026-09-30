@@ -13,6 +13,7 @@ import net.pokedex.core.model.Priority
 import net.pokedex.core.model.withCaught
 import net.pokedex.core.model.withDetails
 import net.pokedex.core.model.withPriority
+import net.pokedex.core.model.withRegular
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -61,10 +62,6 @@ class CatchRepository @Inject constructor(
     }
 
     /**
-     * Deletes a record outright. The explicit action behind "Forget", never a side effect of
-     * unticking, and the rolling backups still hold it.
-     */
-    /**
      * Sets the hunt priority of every slot a hunt fills, in one transaction. A record is
      * created for a slot that has none, uncaught, holding only the priority.
      */
@@ -77,12 +74,27 @@ class CatchRepository @Inject constructor(
             if (changed.isNotEmpty()) dao.upsertAll(changed.map { it.toEntity() })
         }
 
+    /**
+     * Marks the regular one owned or not in each slot given, as one write: the bulk path
+     * ("mark this box", and each tap in mark mode) and its undo. A slot with no record gets
+     * one holding only the mark. Slots already in the asked-for state are not rewritten, so
+     * their updatedAt, and the next backup, do not move.
+     */
+    suspend fun setRegular(changes: Map<CatchKey, Boolean>, now: Long = System.currentTimeMillis()) =
+        withContext(io) {
+            val changed = changes.mapNotNull { (key, regular) ->
+                val existing = dao.find(key.variantId.value, key.copyIndex)?.toDomain() ?: CatchRecord.empty(key, now)
+                existing.withRegular(regular, now).takeIf { it !== existing }
+            }
+            if (changed.isNotEmpty()) dao.upsertAll(changed.map { it.toEntity() })
+        }
+
+    /**
+     * Deletes a record outright: shiny, regular, details and priority. The explicit action
+     * behind "Forget", never a side effect of unticking, and the rolling backups still hold it.
+     */
     suspend fun forget(key: CatchKey) = withContext(io) {
         dao.delete(key.variantId.value, key.copyIndex)
-    }
-
-    suspend fun update(record: CatchRecord) = withContext(io) {
-        dao.upsert(record.toEntity())
     }
 
     suspend fun allRecords(): List<CatchRecord> = withContext(io) {

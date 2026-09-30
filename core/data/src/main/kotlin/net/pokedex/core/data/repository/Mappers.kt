@@ -167,6 +167,7 @@ internal fun CatchRecordEntity.toDomain() = CatchRecord(
     favourite = favourite,
     priority = priority,
     updatedAt = updatedAt,
+    regular = regular,
 )
 
 internal fun CatchRecord.toEntity() = CatchRecordEntity(
@@ -179,6 +180,7 @@ internal fun CatchRecord.toEntity() = CatchRecordEntity(
     favourite = favourite,
     priority = priority,
     updatedAt = updatedAt,
+    regular = regular,
 )
 
 internal fun UserSettingsEntity.toDomain() = UserSettings(

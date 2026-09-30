@@ -30,6 +30,12 @@ data class CatchRecordEntity(
     val favourite: Boolean,
     val priority: Int,
     val updatedAt: Long,
+    /**
+     * Added in version 6: the regular one is in this slot. [caught] still means shiny, so
+     * every row written before this column existed migrates to 0 and means what it meant.
+     * docs/adr/0015-regular-catches.md.
+     */
+    @ColumnInfo(defaultValue = "0") val regular: Boolean = false,
 )
 
 @Entity(tableName = "user_settings")

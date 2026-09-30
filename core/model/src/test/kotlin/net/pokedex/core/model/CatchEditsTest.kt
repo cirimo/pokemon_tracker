@@ -89,4 +89,51 @@ class CatchEditsTest {
         assertThat(prefillOrigin(scarlet, listOf(availability(scarlet, obtainable = false)))).isNull()
         assertThat(prefillOrigin(null, listOf(availability(scarlet)))).isNull()
     }
+
+    @Test
+    fun `ownership reads shiny over regular, and nothing as none`() {
+        val empty = CatchRecord.empty(key, t1)
+
+        assertThat(empty.ownership).isEqualTo(Ownership.None)
+        assertThat(empty.withRegular(true, t2).ownership).isEqualTo(Ownership.Regular)
+        assertThat(empty.withCaught(true, t2).ownership).isEqualTo(Ownership.Shiny)
+        assertThat(empty.withRegular(true, t2).withCaught(true, t2).ownership).isEqualTo(Ownership.Shiny)
+    }
+
+    @Test
+    fun `marking regular records no game and no date`() {
+        val marked = CatchRecord.empty(key, t1).withRegular(true, t2)
+
+        assertThat(marked.regular).isTrue()
+        assertThat(marked.caught).isFalse()
+        assertThat(marked.originGameId).isNull()
+        assertThat(marked.caughtAt).isNull()
+        assertThat(marked.updatedAt).isEqualTo(t2)
+    }
+
+    @Test
+    fun `a mark already in place is not a change`() {
+        val marked = CatchRecord.empty(key, t1).withRegular(true, t1)
+
+        assertThat(marked.withRegular(true, t2)).isSameInstanceAs(marked)
+    }
+
+    @Test
+    fun `catching the shiny of a regular slot stamps a fresh catch and keeps the regular behind it`() {
+        val regular = CatchRecord.empty(key, t1).withRegular(true, t1)
+
+        val upgraded = regular.withCaught(true, t2, prefill = scarlet)
+
+        assertThat(upgraded.ownership).isEqualTo(Ownership.Shiny)
+        assertThat(upgraded.caughtAt).isEqualTo(t2)
+        assertThat(upgraded.originGameId).isEqualTo(scarlet)
+        assertThat(upgraded.regular).isTrue()
+    }
+
+    @Test
+    fun `an accidental untick of an upgrade gives the regular back`() {
+        val upgraded = CatchRecord.empty(key, t1).withRegular(true, t1).withCaught(true, t1, scarlet)
+
+        assertThat(upgraded.withCaught(false, t2).ownership).isEqualTo(Ownership.Regular)
+    }
 }

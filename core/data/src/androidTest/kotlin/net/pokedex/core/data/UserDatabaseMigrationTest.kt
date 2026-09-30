@@ -198,6 +198,67 @@ class UserDatabaseMigrationTest {
     }
 
     @Test
+    fun migration5To6KeepsEveryShinyAndStartsNothingAsRegular() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            insertSecondUnown(this)
+            // The real install's shape at v5: shinies with details, an uncaught row holding
+            // only a hunt priority, and an unticked row that kept its notes.
+            execSQL(
+                "INSERT INTO catch_record " +
+                    "(variantId, copyIndex, caught, originGameId, caughtAt, notes, favourite, priority, updatedAt) " +
+                    "VALUES ('bulbasaur', 0, 1, 'lza', 1759000000000, NULL, 0, 0, 1759000000000), " +
+                    "('ralts', 0, 0, NULL, NULL, NULL, 0, 1, 1759000000001), " +
+                    "('eevee', 0, 0, 'sv-v', 1758000000000, 'traded away', 0, -1, 1759000000002)",
+            )
+            execSQL("INSERT INTO my_game (gameId, farmOrder) VALUES ('lza', 0), ('la', 1)")
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, 6, true, UserDatabase.MIGRATION_5_6)
+
+        migrated.query(
+            "SELECT variantId, copyIndex, caught, originGameId, caughtAt, notes, priority, updatedAt, regular " +
+                "FROM catch_record ORDER BY variantId, copyIndex",
+        ).use { cursor ->
+            val rows = buildList {
+                while (cursor.moveToNext()) {
+                    add(
+                        listOf(
+                            cursor.getString(0), cursor.getInt(1), cursor.getInt(2), cursor.getString(3),
+                            cursor.getLong(4).takeUnless { cursor.isNull(4) }, cursor.getString(5),
+                            cursor.getInt(6), cursor.getLong(7), cursor.getInt(8),
+                        ),
+                    )
+                }
+            }
+            // Every column of every row exactly as it was, and regular 0 on all of them: at v5
+            // the app recorded only shinies, so nothing was ever a regular catch.
+            assertThat(rows).containsExactly(
+                listOf("bulbasaur", 0, 1, "lza", 1759000000000L, null, 0, 1759000000000L, 0),
+                listOf("eevee", 0, 0, "sv-v", 1758000000000L, "traded away", -1, 1759000000002L, 0),
+                listOf("ralts", 0, 0, null, null, null, 1, 1759000000001L, 0),
+                listOf("unown", 1, 1, "la", 1700000000000L, "the second copy", 0, 1700000000000L, 0),
+            ).inOrder()
+        }
+        migrated.query("SELECT gameId, farmOrder FROM my_game ORDER BY farmOrder").use { cursor ->
+            val rows = buildList { while (cursor.moveToNext()) add(cursor.getString(0) to cursor.getInt(1)) }
+            assertThat(rows).containsExactly("lza" to 0, "la" to 1).inOrder()
+        }
+        // A row written without the column, the way an insert from an older shape would be,
+        // takes the default rather than failing.
+        migrated.execSQL(
+            "INSERT INTO catch_record " +
+                "(variantId, copyIndex, caught, originGameId, caughtAt, notes, favourite, priority, updatedAt) " +
+                "VALUES ('pikachu', 0, 0, NULL, NULL, NULL, 0, 0, 1)",
+        )
+        migrated.query("SELECT regular FROM catch_record WHERE variantId = 'pikachu'").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(0)
+        }
+        migrated.close()
+    }
+
+    @Test
     fun everyMigrationInOrderTakesVersion1ToCurrent() {
         helper.createDatabase(TEST_DB, 1).apply {
             insertSecondUnown(this)

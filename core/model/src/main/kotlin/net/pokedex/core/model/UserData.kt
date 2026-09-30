@@ -6,9 +6,14 @@ package net.pokedex.core.model
  *
  * [originGameId] is intentionally a plain id, not a validated reference. If a future
  * dataset drops a game, the record still remembers where the Pokemon came from.
+ *
+ * [caught] means the shiny is caught, as it always has: in the record, in the column and
+ * in the backup key. The regular one is a fact of its own, [regular], added in prompt 8
+ * (docs/adr/0015-regular-catches.md). [ownership] is what every screen reads.
  */
 data class CatchRecord(
     val key: CatchKey,
+    /** The shiny is caught. */
     val caught: Boolean,
     val originGameId: GameId?,
     val caughtAt: Long?,
@@ -17,7 +22,21 @@ data class CatchRecord(
     /** 0 means unprioritised. Higher sorts earlier in the hunt queue. */
     val priority: Int,
     val updatedAt: Long,
+    /**
+     * The regular (non-shiny) one is in this slot. Kept when the shiny arrives, where it
+     * means "the regular one this shiny replaced": [ownership] reads the slot as shiny, and
+     * an accidental untick of the shiny returns the slot to regular rather than to nothing.
+     */
+    val regular: Boolean = false,
 ) {
+    /** What the slot holds. Shiny wins: one HOME slot holds one Pokemon. */
+    val ownership: Ownership
+        get() = when {
+            caught -> Ownership.Shiny
+            regular -> Ownership.Regular
+            else -> Ownership.None
+        }
+
     companion object {
         fun empty(key: CatchKey, now: Long): CatchRecord = CatchRecord(
             key = key,
@@ -31,6 +50,12 @@ data class CatchRecord(
         )
     }
 }
+
+/**
+ * What one slot holds. A living dex counts [Regular] and [Shiny]; the shiny dex, which is
+ * the headline and what the hunt list works towards, counts only [Shiny].
+ */
+enum class Ownership { None, Regular, Shiny }
 
 data class UserSettings(
     val activePresetId: PresetId,

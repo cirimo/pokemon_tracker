@@ -31,7 +31,7 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun myGameDao(): MyGameDao
 
     companion object {
-        const val VERSION = 5
+        const val VERSION = 6
         const val FILE_NAME = "user.db"
 
         /**
@@ -86,11 +86,28 @@ abstract class UserDatabase : RoomDatabase() {
         }
 
         /**
+         * 5 -> 6: catch_record.regular, the regular one owned in a slot. Every existing row
+         * gets 0. That is exactly right rather than merely safe: until now the app recorded
+         * only shinies, `caught` keeps meaning shiny, and no existing row is rewritten.
+         */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE catch_record ADD COLUMN regular INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        /**
          * Migrations, in order.
          *
          * When you add one, add a MigrationTestHelper test alongside it. An untested
          * migration on this database is a data-loss bug waiting for a release.
          */
-        val MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+        val MIGRATIONS: Array<Migration> = arrayOf(
+            MIGRATION_1_2,
+            MIGRATION_2_3,
+            MIGRATION_3_4,
+            MIGRATION_4_5,
+            MIGRATION_5_6,
+        )
     }
 }
