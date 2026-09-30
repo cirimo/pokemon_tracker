@@ -70,6 +70,12 @@ curated rows cite showed the reverse, so the app matches its sources.
 A method with no curated modifiers has no odds. Showing 1/4096 there would be a claim the
 data does not make.
 
+### Regular catches are not an input (prompt 8)
+
+A slot held in regular is still needed, and is ranked exactly as it was. The row says how
+many of its slots are held in regular. The order stays about the shiny; ranking upgrades
+either way would add a second goal to it. `0015-regular-catches.md`.
+
 ## Consequences
 
 - `huntPlan` in `:core:model` derives the whole list on read from the dex, the records, my

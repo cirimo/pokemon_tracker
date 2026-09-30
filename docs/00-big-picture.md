@@ -134,5 +134,9 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    a per-game share on the hunt list, a farm line on slot detail and a farm plan on Progress.
 8. [`prompts/08-regular-dex.md`](prompts/08-regular-dex.md) — the regular dex: record owning the
    regular Pokémon in a slot, count the living dex beside the shiny one, and hunt upgrades. A
-   `user.db` migration of the real records, so it goes slowly.
+   `user.db` migration of the real records, so it goes slowly. **Built 2026-09-30**: a
+   `regular` column beside `caught` (`user.db` v6, `docs/adr/0015-regular-catches.md`), carried
+   in backups without a schema bump, a regular slot state in the grid, "mark regulars" for
+   entering a box at a time with undo, "have regular" in search, and upgrade counts on the
+   hunt list and the farm plan.
 9. Further feature prompts, one per milestone, written as each one comes up.

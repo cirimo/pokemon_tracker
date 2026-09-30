@@ -53,6 +53,31 @@ It also means the *container* carries the craft — the case edge, the box heade
 completion rule — while the tiles stay cheap. That is how comparable apps make dense grids
 feel made rather than generated: decorating the tile is what produces a contact sheet.
 
+### A regular catch: a stronger silhouette and a ring (prompt 8)
+
+A slot can hold the regular Pokémon before its shiny (`docs/adr/0015-regular-catches.md`). It
+is drawn as a silhouette still, in `silhouetteRegular`, a stronger tone than a needed slot's,
+with a hollow ring where a caught slot's gold pip goes. Grey is owned, faint is missing,
+colour is shiny.
+
+It is not gold anywhere, and not a second rim colour: the rim and its width are a needed
+slot's. It is not colour either. Colour arriving is what a shiny looks like, and the rule
+only works while that stays true. Three options were rendered with the real sprites before
+choosing (prompt 8's research):
+
+- **Bundle regular sprites.** About 14.4 MB more, which takes the 18.0 MB release APK past
+  the 30 MB budget, and a second sprite source for ADR 0005. And a box of regulars in full
+  colour would read as a box of shinies.
+- **The shiny sprite in greyscale.** Rejected on the pictures. It shows the shiny's detail
+  in grey, which is not the regular's (a black shiny Charizard greys darker than an orange
+  one would), and a box of them is a grey contact sheet: detail everywhere, the thing the
+  silhouette rule exists to prevent.
+- **A stronger silhouette and a ring.** Chosen. It costs what a needed slot costs, one tint
+  and one drawn mark, and a box of regulars stays quiet until the shinies arrive.
+
+In light theme the roles invert as the needed silhouette does: `silhouetteRegular` is darker
+than `silhouette`, ink rather than a lighter grey.
+
 ---
 
 ## Colour
@@ -78,6 +103,7 @@ are in a comment beside each value and re-checked on every build.
 | `progressTrack` | `#38342F` | arc reads 6.17:1 against it |
 | `onCase` / `onCaseMuted` | `#EDE7E3` / `#A9A19E` | 15.47:1 / 7.47:1 |
 | `silhouette` | `#6A6461` | 3.35:1 on `slotWell` |
+| `silhouetteRegular` | `#9C9591` | 6.61:1 on `slotWell`, 1.97:1 against `silhouette` |
 
 The case is warm (`#121011`, not `#111111`) because a neutral near-black next to gold reads
 as blue, and the direction depends on gold looking like metal rather than like yellow.
@@ -86,7 +112,8 @@ as blue, and the direction depends on gold looking like metal rather than like y
 
 A real second palette: the case becomes paper and the wells become impressions. Two roles
 genuinely invert rather than lighten — `accentText` drops to bronze `#6B4E0C`, and
-`silhouette` goes *darker* than its surface.
+`silhouette` goes *darker* than its surface. `silhouetteRegular` goes darker still,
+`#45403B`: 7.87:1 on the well, 2.24:1 against `silhouette`.
 
 `accentGraphic` `#7A5A10` and `accentText` `#6B4E0C` exist as two tokens **because of this
 theme**. `#D8B26A` on paper is 1.9:1 and fails outright; in dark the two are the same
@@ -210,6 +237,9 @@ single glint runs once around the rim. This is the *only* shimmer in the app, an
 `Brush.sweepGradient` allocated once inside `drawWithCache` and then rotated — not a shader.
 One haptic.
 
+An upgrade, regular to shiny, is a catch like any other and plays it: it is the moment the
+app exists for. Marking a regular plays nothing and carries no gold.
+
 The hard constraint was that this runs four hundred times, so it is built out of what it
 does not do: no overlay, no particles, no sound, no blocked input, nothing outside the
 tile's own bounds. A celebration you can trigger twice in a second without wincing is the
@@ -310,8 +340,10 @@ operating systems. The procedure is in [`design-usage.md`](design-usage.md).
 a table that silently stops describing the app; a component that starts using a new pair
 needs somewhere honest to declare it.
 
-**Status is never colour alone.** The five slot states carry a gold pip, nothing, a cross, a
-dash, and no rim at all. In light theme the caught and needed rims sit at 1.58:1 against
+**Status is never colour alone.** The six slot states carry a gold pip, a hollow ring
+(regular), nothing, a cross, a dash, and no rim at all. The regular silhouette and the
+needed one are about 2:1 apart, enough to read at grid density and not enough to rely on,
+which is why the ring is there; "regular ring on well" is a declared pair. In light theme the caught and needed rims sit at 1.58:1 against
 each other and genuinely cannot be told apart by luminance — which is exactly why caught
 also has a thicker rim and a sprite in full colour. `ContrastPairs` deliberately does *not*
 list that pair; listing it with a lowered bar would be pretending.

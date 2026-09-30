@@ -61,6 +61,20 @@ copyIndex)` so two exports of the same data are byte-identical and diffable.
   order here alone. Replace takes the file's order; merge keeps the order here and appends
   games new to this device in the file's order. A reorder alone counts as a change for an
   automatic backup. See `0014-game-order.md`.
+- `regular` per record (the regular one is held in the slot) was added in prompt 8,
+  additively, so `schema` stayed 1. It could stay additive only because `caught` did not
+  change meaning: it is the shiny, as it always was. A bump is what an older build needs to
+  refuse a file, and the direction that loses data was weighed both ways. With a bump, an
+  older build restoring a newer file refuses it, shinies included. Without one, it restores
+  every shiny and drops the regular marks, which HOME itself still shows. The shinies are the
+  data nothing else holds, so additive won. A regular-only record reaches an older build as
+  an uncaught record, never as a shiny. Missing means "not held in regular". Tested in
+  `RestoreTest`, with an older build's record shape. See `0015-regular-catches.md`.
+- The high-water mark (ADR 0011) counts shinies only, as it did. A file name carries that
+  count (`-c460`), and retention reads names alone, so a regular mark cannot enter it. That
+  is deliberate: marking three hundred regulars after losing ten shinies must not make the
+  file with fewer shinies the one kept. Regular marks are protected by the rolling set and the
+  pre-import snapshots instead. A change to regular marks alone is still written.
 
 Import is one transaction, merge by default with an explicit replace option, and always
 writes a pre-import snapshot to the rolling backup directory first.

@@ -69,6 +69,13 @@ can recognise a rename as *same nid, new id* and emit a remap rather than an orp
 
 Full reasoning and the rejected alternatives: `docs/adr/0001-slot-identity.md`.
 
+**What a record holds** (prompt 8, `docs/adr/0015-regular-catches.md`). `caught` means the
+shiny is caught, as it always has. `regular` means the regular one is in the slot. A slot's
+ownership is derived, shiny winning: one HOME slot holds one Pokémon. The regular bit is kept
+under a shiny only so an accidental untick gives it back. Status (`statusOf`) stays about
+the shiny and ownership (`ownershipOf`) is a separate question, so a regular catch cannot
+move shiny progress, the hunt list or "needed".
+
 ---
 
 ## 3. Two databases
@@ -141,7 +148,7 @@ device.
               joined in memory on CatchKey(variantId, copyIndex)
                                     ╎
 ┌──────────── user.db (migrated, never destroyed) ─────────────────────────────┐
-│  catch_record   PK (variantId, copyIndex)                                    │
+│  catch_record   PK (variantId, copyIndex); caught = shiny, regular (v6)      │
 │  user_settings  single row (incl. backup folder URI, last origin game)       │
 │  backup_log     status of backups this install wrote; NOT the restore list   │
 │  my_game        PK gameId: the games I own and play (M4, version 4)          │
@@ -269,7 +276,9 @@ is **refused outright** rather than partially imported, with both version number
 Unknown keys are ignored, so additive changes do not bump `schema`. Records are sorted on
 export so two exports of the same data are byte-identical and diffable. Each record carries
 `updatedAt` (added in M3, additively), and a merge keeps whichever side changed a record last.
-Settings carry `myGames` (M4) and `gameOrder` (prompt 7), both additive.
+Settings carry `myGames` (M4) and `gameOrder` (prompt 7), both additive. Records carry
+`regular` (prompt 8), additive too, because `caught` kept its meaning: an older build restores
+every shiny and drops only the regular marks.
 
 **Durability** (M3, `docs/adr/0011-backups-outside-the-sandbox.md`). On 2026-09-23 an
 uninstall took every record, because the only copy lived inside the app's sandbox. Now:
@@ -282,7 +291,7 @@ uninstall took every record, because the only copy lived inside the app's sandbo
   the background, and runs daily as a net (`BackupScheduler`, `AutoBackupWorker`).
 - `BackupWriter` (`:core:model`, JVM-tested) keeps the rolling set from destroying what it
   protects: no backup of an empty database, no rewrite of unchanged records, a high-water
-  mark (the file with the most catches) that is never pruned, a separate pool of three
+  mark (the file with the most shiny catches; regular marks never count) that is never pruned, a separate pool of three
   pre-import snapshots, pruning scoped to the build's own file prefix, and a read-back check
   after every write.
 - Import reads the current records, writes the pre-import snapshot and swaps or merges the
