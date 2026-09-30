@@ -136,4 +136,25 @@ class CatchEditsTest {
 
         assertThat(upgraded.withCaught(false, t2).ownership).isEqualTo(Ownership.Regular)
     }
+
+    @Test
+    fun `forgetting details keeps a regular mark and nothing else`() {
+        val regular = CatchRecord.empty(key, t1).withRegular(true, t1)
+            .withDetails(scarlet, t1, "from a trade", t1)
+            .withPriority(Priority.Want, t1)
+
+        val kept = regular.forgotten(t2)
+
+        assertThat(kept?.ownership).isEqualTo(Ownership.Regular)
+        assertThat(kept?.hasDetails).isFalse()
+        assertThat(kept?.priority).isEqualTo(0)
+        assertThat(kept?.updatedAt).isEqualTo(t2)
+    }
+
+    @Test
+    fun `forgetting a record holding nothing deletes it`() {
+        val unticked = CatchRecord.empty(key, t1).withCaught(true, t1, scarlet).withCaught(false, t1)
+
+        assertThat(unticked.forgotten(t2)).isNull()
+    }
 }

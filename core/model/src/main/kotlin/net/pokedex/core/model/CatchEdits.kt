@@ -52,6 +52,16 @@ fun CatchRecord.withDetails(origin: GameId?, caughtAt: Long?, notes: String?, no
 fun CatchRecord.withPriority(priority: Priority, now: Long): CatchRecord =
     if (Priority.of(this.priority) == priority) this else copy(priority = priority.value, updatedAt = now)
 
+/**
+ * What "Forget these details" leaves, or null to delete the record outright.
+ *
+ * The details go: game, date, notes, and the hunt priority with them, as before. A regular
+ * mark stays. It is not a detail but what the slot holds, and the button offering this says
+ * only "the game, date and notes"; the regular switch is how a regular mark comes off.
+ */
+fun CatchRecord.forgotten(now: Long): CatchRecord? =
+    if (regular) CatchRecord.empty(key, now).copy(regular = true) else null
+
 /** Whether an uncaught record still holds something the user wrote down. */
 val CatchRecord.hasDetails: Boolean
     get() = originGameId != null || caughtAt != null || notes != null

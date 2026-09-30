@@ -10,6 +10,7 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Priority
+import net.pokedex.core.model.forgotten
 import net.pokedex.core.model.withCaught
 import net.pokedex.core.model.withDetails
 import net.pokedex.core.model.withPriority
@@ -90,11 +91,13 @@ class CatchRepository @Inject constructor(
         }
 
     /**
-     * Deletes a record outright: shiny, regular, details and priority. The explicit action
-     * behind "Forget", never a side effect of unticking, and the rolling backups still hold it.
+     * The explicit action behind "Forget these details", never a side effect of unticking.
+     * The details go and a regular mark stays (see [forgotten]); the rolling backups still
+     * hold what went.
      */
-    suspend fun forget(key: CatchKey) = withContext(io) {
-        dao.delete(key.variantId.value, key.copyIndex)
+    suspend fun forget(key: CatchKey, now: Long = System.currentTimeMillis()) = withContext(io) {
+        val kept = dao.find(key.variantId.value, key.copyIndex)?.toDomain()?.forgotten(now)
+        if (kept == null) dao.delete(key.variantId.value, key.copyIndex) else dao.upsert(kept.toEntity())
     }
 
     suspend fun allRecords(): List<CatchRecord> = withContext(io) {
