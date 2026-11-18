@@ -142,5 +142,13 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    before (`docs/architecture.md` §8, state 9).
 9. [`prompts/09-hunt-engine.md`](prompts/09-hunt-engine.md) — M5, the hunt engine: a counter I
    can hold while I grind, odds against my count, phases, sessions, and history that ends in the
-   catch record. **Next.**
-10. Further feature prompts, one per milestone, written as each one comes up.
+   catch record. **Written, not built**; runs after prompts 10 and 11 so its counter screen is
+   built in the refreshed language.
+10. [`prompts/10-design-refresh.md`](prompts/10-design-refresh.md) — the app works but reads flat:
+   a livelier, higher-quality pass with the `/impeccable` skill, refine-or-replace decided from
+   rendered options, the four design rules and the pager budget held. **Next.**
+11. [`prompts/11-sword-hunts.md`](prompts/11-sword-hunts.md) — I am playing Sword toward the
+   Shiny Charm: what I can get shiny only there, the legendaries that are easy to hunt (Dynamax
+   Adventures), a step-by-step guide per hunt, the prep builds to farm first and how, and what to
+   bring per legendary. Sword's encounters curated, and a guide layer in the reference data.
+12. Further feature prompts, one per milestone, written as each one comes up.
