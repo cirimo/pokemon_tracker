@@ -49,6 +49,7 @@ dependencies {
  *  - ContrastTest      -- all 18 type badges, plus the uniformity of the OKLCH ramp
  *  - AccessibilityTest -- 48dp touch targets and TalkBack sentences
  *  - BoxGridScrollingParentTest -- the container contracts a screenshot cannot see
+ *  - DesignDocTest     -- DESIGN.md's frontmatter still names the tokens the app runs on
  *
  * ## Why screenshot verification is deliberately NOT in here
  *
@@ -72,4 +73,10 @@ tasks.register("designCheck") {
     group = "verification"
     description = "Contrast, touch targets, semantics and container contracts, in both themes."
     dependsOn("testDebugUnitTest")
+}
+
+// DesignDocTest reads DESIGN.md from the repository root. Without declaring it, Gradle would
+// call the test task up to date after an edit to DESIGN.md alone and never run the check.
+tasks.withType<Test>().configureEach {
+    inputs.file(rootProject.file("DESIGN.md")).withPropertyName("designDoc")
 }

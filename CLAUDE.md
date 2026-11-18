@@ -75,7 +75,10 @@ define their own colours, spacing or shapes.
 
 The locked visual direction is "Display case" — `docs/design-system.md` is the built
 language and its rationale, and **`docs/design-usage.md` is the one to read before writing
-any feature UI**. It is enforced, not advisory: raw `Color(...)`, raw dp/sp and ad-hoc
+any feature UI**. `DESIGN.md` at the root is the compact, token-bearing view of the same
+language for design tooling; `PRODUCT.md` is the product record. Token values live in
+`theme/*.kt` and in `DESIGN.md`'s frontmatter only, and `DesignDocTest` (in `designCheck`)
+fails the build when the two disagree, so a token change updates both in one commit. It is enforced, not advisory: raw `Color(...)`, raw dp/sp and ad-hoc
 `TextStyle` in `feature/` fail the build via `config/detekt/feature-rules.yml`.
 
 Four rules that outlive any token value:

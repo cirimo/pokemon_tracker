@@ -31,6 +31,13 @@ data class PokedexDimens(
     val cardRadius: Dp = 12.dp,
     val sheetRadius: Dp = 20.dp,
     val fieldRadius: Dp = 10.dp,
+    val dialogRadius: Dp = 16.dp,
+
+    /** A slot held down: the corner morphs open instead of a ripple. */
+    val slotPressedRadius: Dp = 14.dp,
+
+    /** The detail hero's plinth: a slot grown to screen width, so its corner grows with it. */
+    val heroRadius: Dp = 20.dp,
 
     /** Hairline. Borders carry the grid, because per-tile shadow is the frame killer. */
     val rimWidth: Dp = 1.dp,

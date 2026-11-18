@@ -89,21 +89,11 @@ Every value was **solved for, not picked**. The rims, the accent and the silhoue
 output of a WCAG contrast solve against the surface they actually sit on. Measured ratios
 are in a comment beside each value and re-checked on every build.
 
-### Dark
+The values themselves are not repeated here. They live in `theme/Color.kt`, with the measured
+ratio beside each, and in the frontmatter of [`DESIGN.md`](../DESIGN.md), which
+`DesignDocTest` holds to the Kotlin on every `designCheck`. This section keeps the reasons.
 
-| Role | Value | Measured |
-|---|---|---|
-| `case` | `#121011` | — |
-| `caseSurface` / `caseSurfaceHigh` | `#1A1718` / `#232021` | — |
-| `slotWell` / `slotVoid` | `#0E0C0D` / `#151314` | — |
-| `rim` | `#625F5C` | 3.07:1 on `slotWell` |
-| `rimFocus` | `#807B78` | 4.53:1 on `case` |
-| `rimCaught` | `#D8B26A` | 9.74:1 on `slotWell` |
-| `accentGraphic` / `accentText` | `#D8B26A` | 8.90:1 / 9.47:1 |
-| `progressTrack` | `#38342F` | arc reads 6.17:1 against it |
-| `onCase` / `onCaseMuted` | `#EDE7E3` / `#A9A19E` | 15.47:1 / 7.47:1 |
-| `silhouette` | `#6A6461` | 3.35:1 on `slotWell` |
-| `silhouetteRegular` | `#9C9591` | 6.61:1 on `slotWell`, 1.97:1 against `silhouette` |
+### Dark
 
 The case is warm (`#121011`, not `#111111`) because a neutral near-black next to gold reads
 as blue, and the direction depends on gold looking like metal rather than like yellow.
@@ -316,6 +306,7 @@ Not a section of claims. A gate you can run:
 | `IconContrastTest` | Every icon button in the gallery, both themes: the glyph as drawn, at least 3:1 against what is behind it | anywhere |
 | `AccessibilityTest` | 48dp touch targets; TalkBack sentences, distinct per state | anywhere |
 | `BoxGridScrollingParentTest` | Container contracts a screenshot cannot see | anywhere |
+| `DesignDocTest` | `DESIGN.md`'s colours, spacing and radii equal the Kotlin tokens | anywhere |
 | `ComponentScreenshotTest` | Both themes, 100% and 200% font scale | **CI only** |
 
 `ContrastTest` checks what is declared; `IconContrastTest` checks what is drawn. The second
