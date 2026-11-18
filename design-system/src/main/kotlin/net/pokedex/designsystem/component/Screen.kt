@@ -66,7 +66,7 @@ fun ScreenScaffold(
             }
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                style = PokedexTheme.text.screenTitle,
                 color = PokedexTheme.colors.onCase,
                 modifier = Modifier.weight(1f).semantics { heading() },
             )
@@ -104,7 +104,7 @@ fun ScreenSection(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(dimens.spaceSm)) {
         Text(
             text = title,
-            style = PokedexTheme.text.boxTitle,
+            style = PokedexTheme.text.sectionTitle,
             color = PokedexTheme.colors.onCase,
             modifier = Modifier.semantics { heading() },
         )

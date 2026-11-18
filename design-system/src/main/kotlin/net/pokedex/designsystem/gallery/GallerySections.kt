@@ -23,6 +23,7 @@ import net.pokedex.designsystem.component.BoxSlot
 import net.pokedex.designsystem.component.BoxSummary
 import net.pokedex.designsystem.component.CaseSurface
 import net.pokedex.designsystem.component.CaughtToggle
+import net.pokedex.designsystem.component.CollectionSamples
 import net.pokedex.designsystem.component.ContainerSamples
 import net.pokedex.designsystem.component.DemoSprite
 import net.pokedex.designsystem.component.EmptyState
@@ -30,6 +31,7 @@ import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChipRow
 import net.pokedex.designsystem.component.FilterOption
 import net.pokedex.designsystem.component.GameBadge
+import net.pokedex.designsystem.component.GuideSamples
 import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.MethodBadge
@@ -73,6 +75,8 @@ internal fun GallerySections() {
     GallerySection("Box pager and overview") { PagerSection() }
     GallerySection("Caught toggle — the most-used control") { CaughtSection() }
     GallerySection("Progress") { ProgressSection() }
+    GallerySection("The collection — strip, plates, shelf, trophies") { Padded { CollectionSamples() } }
+    GallerySection("Hunts, stats, facts and guide steps") { Padded { GuideSamples() } }
     GallerySection("Badges — 18 types, contrast-checked in both themes") { BadgeSection() }
     GallerySection("Search, filter, sort") { FilterSection() }
     GallerySection("Species card and detail hero") { SpeciesSection() }
@@ -88,6 +92,11 @@ internal fun GallerySections() {
 }
 
 private val GALLERY_SLOT = 52.dp
+
+@Composable
+private fun Padded(content: @Composable () -> Unit) {
+    Box(Modifier.padding(horizontal = PokedexTheme.dimens.spaceLg)) { content() }
+}
 
 /** The scaffold scrolls its own body, so inside this scrolling gallery it needs a fixed height. */
 private val GALLERY_SCREEN_HEIGHT = 280.dp
@@ -355,6 +364,13 @@ private fun SpeciesSection() {
             dexNumber = 6,
             types = listOf(PokemonType.Fire, PokemonType.Flying),
             caught = true,
+            sprite = { DemoSprite(it) },
+        )
+        SpeciesHeader(
+            name = "Bellibolt",
+            dexNumber = 939,
+            types = listOf(PokemonType.Electric),
+            caught = false,
             sprite = { DemoSprite(it) },
         )
         SpeciesCard(

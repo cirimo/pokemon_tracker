@@ -7,16 +7,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import net.pokedex.designsystem.theme.PokedexShapes
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.designsystem.theme.PokemonType
+import net.pokedex.designsystem.theme.swatch
 
 /**
  * The detail-screen hero, and its list-row sibling.
@@ -35,12 +44,18 @@ import net.pokedex.designsystem.theme.PokemonType
  */
 
 /**
- * The detail hero.
+ * The detail hero: the slot, grown into a plinth.
  *
- * Note the well is the same component language as a grid slot -- same radius family, same
- * rim, same silhouette rule. Opening a slot should feel like the slot got bigger, not like
- * you arrived somewhere else. That continuity is what the shared element in
- * [slotSharedElementKey] is animating between.
+ * The plinth is the same language as a grid slot -- a well, a rim, the silhouette rule --
+ * at screen width, so opening a slot reads as the slot getting bigger, which is what the
+ * shared element in [slotSharedElementKey] animates. Three things the grid cannot afford
+ * happen here, because this is one surface rather than thirty: the type's container colour
+ * rises from the base, a soft light sits behind the sprite, and a shadow pools under it.
+ * All three are brushes allocated once in `drawWithCache`.
+ *
+ * Caught keeps the grid's own signals at hero scale -- the 2dp gold rim and the pip -- and a
+ * regular keeps its ring. The type colour is the container tone, never gold, and the
+ * type's name is always spoken by the badges under the name.
  */
 @Composable
 fun SpeciesHeader(
@@ -62,40 +77,65 @@ fun SpeciesHeader(
         else -> SlotState.Needed
     }
     val rendering = state.spriteRendering(colors)
+    val swatch = types.firstOrNull { it != null }?.swatch()
+    val tint = swatch?.container(colors) ?: colors.caseSurfaceHigh
+    val glow = swatch?.on(colors) ?: colors.onCaseMuted
+    val shape = RoundedCornerShape(dimens.heroRadius)
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimens.spaceMd),
     ) {
         Box(
             modifier = Modifier
-                .size(HERO_SIZE)
-                .clip(PokedexShapes.card)
-                .background(colors.slotWell)
+                .fillMaxWidth()
+                .aspectRatio(HERO_ASPECT)
+                .clip(shape)
+                .drawWithCache {
+                    val base = Brush.verticalGradient(0f to colors.slotWell, BASE_RISE to colors.slotWell, 1f to tint)
+                    val light = Brush.radialGradient(
+                        0f to glow.copy(alpha = if (colors.isDark) GLOW_DARK else GLOW_LIGHT),
+                        1f to Color.Transparent,
+                        center = Offset(size.width / 2, size.height * LIGHT_Y),
+                        radius = size.minDimension * HALF,
+                    )
+                    val pool = Brush.radialGradient(
+                        0f to colors.scrim,
+                        1f to Color.Transparent,
+                        center = Offset(size.width / 2, size.height * POOL_Y),
+                        radius = size.width * POOL_RADIUS,
+                    )
+                    val poolTop = size.height * POOL_TOP
+                    val poolSize = Size(size.width, size.height * POOL_HEIGHT)
+                    onDrawBehind {
+                        drawRect(base)
+                        drawRect(light)
+                        drawRect(pool, topLeft = Offset(0f, poolTop), size = poolSize)
+                    }
+                }
                 .border(
                     width = if (caught) dimens.rimCaughtWidth else dimens.rimWidth,
                     color = if (caught) colors.rimCaught else colors.rim,
-                    shape = PokedexShapes.card,
+                    shape = shape,
                 )
                 .clearAndSetSemantics { contentDescription = state.describe(name) },
-            contentAlignment = Alignment.Center,
         ) {
-            sprite(rendering)
-            // The ring only: the caught hero already says shiny with its gold rim, and the
-            // regular one needs a signal that is not the silhouette's tone alone.
-            if (state == SlotState.Regular) SlotMarkGlyph(state.mark, colors, Modifier.matchParentSize())
+            Box(Modifier.fillMaxSize().padding(dimens.spaceXxl)) { sprite(rendering) }
+            if (state != SlotState.Needed) {
+                // The grid's mark, in the grid's place, sized like a grid tile's corner.
+                SlotMarkGlyph(state.mark, colors, Modifier.align(Alignment.TopEnd).size(HERO_MARK))
+            }
         }
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(verticalArrangement = Arrangement.spacedBy(dimens.spaceXxs)) {
             Text(
                 text = "No. ${dexNumber.toString().padStart(DEX_DIGITS, '0')}",
                 style = PokedexTheme.text.dexNumber,
                 color = colors.onCaseMuted,
             )
-            Text(text = name, style = PokedexTheme.text.displayNumerals, color = colors.onCase)
+            Text(text = name, style = PokedexTheme.text.heroTitle, color = colors.onCase)
             if (formName != null) {
-                Text(text = formName, style = PokedexTheme.text.dexNumber, color = colors.onCaseMuted)
+                Text(text = formName, style = MaterialTheme.typography.bodyMedium, color = colors.onCaseMuted)
             }
         }
 
@@ -105,7 +145,17 @@ fun SpeciesHeader(
     }
 }
 
-private val HERO_SIZE = 168.dp
+private const val HERO_ASPECT = 1.1f
+private val HERO_MARK = 64.dp
+private const val BASE_RISE = 0.55f
+private const val GLOW_DARK = 0.22f
+private const val GLOW_LIGHT = 0.35f
+private const val LIGHT_Y = 0.48f
+private const val HALF = 0.5f
+private const val POOL_Y = 0.86f
+private const val POOL_RADIUS = 0.32f
+private const val POOL_TOP = 0.8f
+private const val POOL_HEIGHT = 0.12f
 private const val DEX_DIGITS = 4
 
 /**

@@ -29,10 +29,12 @@ import net.pokedex.designsystem.component.BoxSlotItem
 import net.pokedex.designsystem.component.BoxSummary
 import net.pokedex.designsystem.component.CaseSurface
 import net.pokedex.designsystem.component.CaughtToggle
+import net.pokedex.designsystem.component.CollectionSamples
 import net.pokedex.designsystem.component.DemoSprite
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChip
+import net.pokedex.designsystem.component.GuideSamples
 import net.pokedex.designsystem.component.InputSamples
 import net.pokedex.designsystem.component.NavigationSamples
 import net.pokedex.designsystem.component.ProgressBar
@@ -115,6 +117,12 @@ class ComponentScreenshotTest {
 
     @Test
     fun inputs() = captureBothThemes("inputs", alsoLargeFont = true) { InputSamples() }
+
+    @Test
+    fun collection() = captureBothThemes("collection", alsoLargeFont = true) { CollectionSamples() }
+
+    @Test
+    fun guide() = captureBothThemes("guide", alsoLargeFont = true) { GuideSamples() }
 
     /**
      * The frame every pushed screen shares. Its back button drew black on the dark case for

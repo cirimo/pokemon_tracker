@@ -18,9 +18,10 @@ import net.pokedex.designsystem.R
  *
  *  - [PokedexSans] is Inter: neutral, high x-height, and -- the reason it was chosen --
  *    it has real tabular figures rather than synthesised ones.
- *  - [PokedexNumerals] is Instrument Serif, and appears in exactly two places: large
- *    progress numerals and box headers. That restraint is where the "premium" comes from.
- *    A serif everywhere would be a costume; a serif on "412 / 1394" is a label on a case.
+ *  - [PokedexNumerals] is Instrument Serif, and appears only on large numerals and on
+ *    names: progress numerals, box names, screen and section titles, a Pokemon's name on
+ *    its detail hero. Never in body copy, rows, labels or controls. A serif everywhere would
+ *    be a costume; a serif on "412 / 1394" is a label on a case.
  *
  * No official Pokemon fonts, ever (docs/design-decisions.md).
  *
@@ -70,9 +71,8 @@ private const val WEIGHT_SEMIBOLD = 600
 /**
  * Instrument Serif, and only where it earns its place.
  *
- * One weight, because it appears in exactly two roles -- large progress numerals and box
- * headers -- and neither of them wants a bold. A serif with a weight range would invite
- * using it somewhere else.
+ * One weight, because every role it has -- large numerals and names -- is display-sized and
+ * none of them wants a bold. A serif with a weight range would invite using it in body copy.
  */
 internal val PokedexNumerals: FontFamily = FontFamily(
     Font(resId = R.font.instrument_serif, weight = FontWeight.Normal),
@@ -106,6 +106,44 @@ data class PokedexTextStyles(
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp,
         lineHeight = 26.sp,
+    ),
+    /**
+     * The collection's own count on Progress, inside the trophy arc. The largest type in the
+     * app, and gold, because it is the one progress numeral the whole collection rolls up to.
+     */
+    val heroNumerals: TextStyle = TextStyle(
+        fontFamily = PokedexNumerals,
+        fontWeight = FontWeight.Normal,
+        fontSize = 72.sp,
+        lineHeight = 76.sp,
+        letterSpacing = (-1).sp,
+        fontFeatureSettings = TABULAR,
+    ),
+    /** A Pokemon's name under the detail plinth: the one place a name is the subject. */
+    val heroTitle: TextStyle = TextStyle(
+        fontFamily = PokedexNumerals,
+        fontWeight = FontWeight.Normal,
+        fontSize = 48.sp,
+        lineHeight = 52.sp,
+        letterSpacing = (-0.5).sp,
+    ),
+    /**
+     * A screen's title, and the open box's name. Serif and large, so the hierarchy reads
+     * screen, then section, then row -- it used to be a small sans title above serif
+     * section headings, which put the hierarchy upside down.
+     */
+    val screenTitle: TextStyle = TextStyle(
+        fontFamily = PokedexNumerals,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 32.sp,
+    ),
+    /** Section headings inside a screen: between the screen title and a row. */
+    val sectionTitle: TextStyle = TextStyle(
+        fontFamily = PokedexNumerals,
+        fontWeight = FontWeight.Normal,
+        fontSize = 24.sp,
+        lineHeight = 30.sp,
     ),
     /** Dex numbers in lists. Small, tabular, and never inside a grid tile. */
     val dexNumber: TextStyle = TextStyle(

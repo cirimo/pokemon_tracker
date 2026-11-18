@@ -1,7 +1,6 @@
 package net.pokedex.designsystem.component
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -122,6 +121,8 @@ fun BoxHeader(
     caught: Int,
     total: Int,
     modifier: Modifier = Modifier,
+    /** Where the box sits, under its name: "Box 49 of 52". Under, never above as a kicker. */
+    position: String? = null,
 ) {
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
@@ -130,15 +131,19 @@ fun BoxHeader(
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = name,
-                style = PokedexTheme.text.boxTitle,
-                color = colors.onCase,
-                modifier = Modifier.clearAndSetSemantics { contentDescription = name },
-            )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .clearAndSetSemantics { contentDescription = listOfNotNull(name, position).joinToString(", ") },
+            ) {
+                Text(text = name, style = PokedexTheme.text.screenTitle, color = colors.onCase)
+                if (position != null) {
+                    Text(text = position, style = PokedexTheme.text.dexNumber, color = colors.onCaseMuted)
+                }
+            }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
                 verticalAlignment = Alignment.CenterVertically,
@@ -162,7 +167,7 @@ fun BoxHeader(
  * lambda, so completing a box recomposes nothing.
  */
 @Composable
-private fun CompletionRule(complete: Boolean) {
+internal fun CompletionRule(complete: Boolean) {
     val colors = PokedexTheme.colors
     val motion = PokedexTheme.motion
     val progress = remember { Animatable(if (complete) 1f else 0f) }
@@ -197,8 +202,10 @@ private val RULE_HEIGHT = 2.dp
  * The case edge.
  *
  * A box sits inside this rather than floating on the background. It is one rounded border
- * and one surface -- no shadow, because the grid rule applies to whatever contains the
- * grid too -- and it is what makes a screen of tiles read as a thing you are holding.
+ * and one lit surface ([litBackground]) -- no shadow, because the grid rule applies to
+ * whatever contains the grid too -- and it is what makes a screen of tiles read as a thing
+ * you are holding. The light is two brushes cached per page, drawn behind the grid, so the
+ * thirty tiles inside are untouched.
  */
 @Composable
 fun CaseSurface(
@@ -210,7 +217,7 @@ fun CaseSurface(
     Column(
         modifier = modifier
             .clip(PokedexShapes.card)
-            .background(colors.caseSurface)
+            .litBackground(colors, dimens.rimWidth)
             .border(dimens.rimWidth, colors.rim, PokedexShapes.card)
             .padding(dimens.spaceMd),
     ) {

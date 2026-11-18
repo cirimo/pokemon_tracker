@@ -82,6 +82,16 @@ val ContrastPairs: List<ContrastPair> = listOf(
     // still "on-surface compliant" and still unreadable.
     ContrastPair("progress arc on its track", { it.accentGraphic }, { it.progressTrack }, ContrastKind.Graphical),
     ContrastPair("error graphic on surface", { it.errorGraphic }, { it.caseSurface }, ContrastKind.Graphical),
+    // A finished guide step: the tick knocked out of a filled marker.
+    ContrastPair("done step tick on its marker", { it.case }, { it.onCaseMuted }, ContrastKind.Graphical),
+    // The case's light falls from caseSurfaceHigh at the top edge: a heading set there.
+    ContrastPair("title on a lit surface's top", { it.onCase }, { it.caseSurfaceHigh }, ContrastKind.Text),
+    ContrastPair(
+        "progress numerals on a lit surface's top",
+        { it.accentText },
+        { it.caseSurfaceHigh },
+        ContrastKind.Text
+    ),
 )
 
 // The sRGB linearisation and luminance coefficients, straight from the WCAG 2.2 text.

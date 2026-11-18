@@ -51,7 +51,8 @@ class DesignDocTest {
                 val value = written[slug]
                 when {
                     value == null -> failures += "$name.$slug is missing from DESIGN.md"
-                    value != "${dp.value.toInt()}dp" -> failures += "$name.$slug: DESIGN.md says $value, Kotlin says $dp"
+                    value != "${dp.value.toInt()}dp" ->
+                        failures += "$name.$slug: DESIGN.md says $value, Kotlin says $dp"
                 }
             }
             (written.keys - slugs.keys).forEach { failures += "$name.$it is in DESIGN.md but names no token" }
@@ -76,6 +77,7 @@ class DesignDocTest {
             both("case") { it.case } +
                 both("case-surface") { it.caseSurface } +
                 both("case-surface-high") { it.caseSurfaceHigh } +
+                both("case-highlight") { it.caseHighlight } +
                 both("slot-well") { it.slotWell } +
                 both("slot-void") { it.slotVoid } +
                 both("rim") { it.rim } +
@@ -102,10 +104,14 @@ class DesignDocTest {
         )
 
         val RadiusSlugs: Map<String, Dp> = mapOf(
-            "badge" to dimens.badgeRadius, "slot" to dimens.slotRadius,
-            "slot-pressed" to dimens.slotPressedRadius, "field" to dimens.fieldRadius,
-            "card" to dimens.cardRadius, "dialog" to dimens.dialogRadius,
-            "hero" to dimens.heroRadius, "sheet" to dimens.sheetRadius,
+            "badge" to dimens.badgeRadius,
+            "slot" to dimens.slotRadius,
+            "slot-pressed" to dimens.slotPressedRadius,
+            "field" to dimens.fieldRadius,
+            "card" to dimens.cardRadius,
+            "dialog" to dimens.dialogRadius,
+            "hero" to dimens.heroRadius,
+            "sheet" to dimens.sheetRadius,
         )
 
         fun hex(c: Color): String = "#%06X".format(c.toArgb() and 0xFFFFFF)
@@ -122,7 +128,9 @@ class DesignDocTest {
             lines.subList(1, end).forEach { line ->
                 when {
                     line.isBlank() || line.trimStart().startsWith("#") -> Unit
-                    !line.startsWith(" ") -> current = line.substringBefore(":").let { out.getOrPut(it) { mutableMapOf() } }
+                    !line.startsWith(
+                        " "
+                    ) -> current = line.substringBefore(":").let { out.getOrPut(it) { mutableMapOf() } }
                     line.startsWith("  ") && !line.startsWith("   ") -> {
                         val key = line.trim().substringBefore(":")
                         val value = line.substringAfter(":").trim()

@@ -31,6 +31,12 @@ data class PokedexColors(
     val caseSurface: Color,
     val caseSurfaceHigh: Color,
 
+    /**
+     * The light catching the top edge of a lit surface, drawn as a hairline that fades out
+     * towards both corners. Decorative: it carries no information, so it is in no contrast pair.
+     */
+    val caseHighlight: Color,
+
     /** A slot well: the recess a Pokemon sits in. */
     val slotWell: Color,
 
@@ -102,6 +108,7 @@ val DarkCase = PokedexColors(
     case = Color(0xFF121011),
     caseSurface = Color(0xFF1A1718),
     caseSurfaceHigh = Color(0xFF232021),
+    caseHighlight = Color(0xFF4A4546),
     slotWell = Color(0xFF0E0C0D),
     slotVoid = Color(0xFF151314),
     rim = Color(0xFF625F5C), // 3.07:1 on slotWell
@@ -132,6 +139,7 @@ val LightCase = PokedexColors(
     case = Color(0xFFF5F2ED),
     caseSurface = Color(0xFFEBE6DE),
     caseSurfaceHigh = Color(0xFFE1DBD1),
+    caseHighlight = Color(0xFFFFFFFF),
     slotWell = Color(0xFFE6E1D9),
     slotVoid = Color(0xFFEFEBE4),
     rim = Color(0xFF837E77), // 3.09:1 on slotWell

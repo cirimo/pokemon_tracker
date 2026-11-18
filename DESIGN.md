@@ -5,6 +5,7 @@ colors:
   case-dark: "#121011"
   case-surface-dark: "#1A1718"
   case-surface-high-dark: "#232021"
+  case-highlight-dark: "#4A4546"
   slot-well-dark: "#0E0C0D"
   slot-void-dark: "#151314"
   rim-dark: "#625F5C"
@@ -20,6 +21,7 @@ colors:
   case-light: "#F5F2ED"
   case-surface-light: "#EBE6DE"
   case-surface-high-light: "#E1DBD1"
+  case-highlight-light: "#FFFFFF"
   slot-well-light: "#E6E1D9"
   slot-void-light: "#EFEBE4"
   rim-light: "#837E77"
@@ -47,6 +49,29 @@ typography:
     fontWeight: 400
     lineHeight: "28sp"
     fontFeature: "tnum"
+  hero-numerals:
+    fontFamily: "Instrument Serif"
+    fontSize: "72sp"
+    fontWeight: 400
+    lineHeight: "76sp"
+    letterSpacing: "-1sp"
+    fontFeature: "tnum"
+  hero-title:
+    fontFamily: "Instrument Serif"
+    fontSize: "48sp"
+    fontWeight: 400
+    lineHeight: "52sp"
+    letterSpacing: "-0.5sp"
+  screen-title:
+    fontFamily: "Instrument Serif"
+    fontSize: "28sp"
+    fontWeight: 400
+    lineHeight: "32sp"
+  section-title:
+    fontFamily: "Instrument Serif"
+    fontSize: "24sp"
+    fontWeight: 400
+    lineHeight: "30sp"
   box-title:
     fontFamily: "Instrument Serif"
     fontSize: "20sp"
@@ -202,7 +227,11 @@ wallpaper chooses cannot be contrast-checked.
 serif used like a brass label on a case.
 
 ### Hierarchy
-- **Display numerals** (400, 44sp, 48sp): the collection count. Gold.
+- **Hero numerals** (400, 72sp, 76sp): the collection count inside the Progress trophy. Gold.
+- **Hero title** (400, 48sp, 52sp): a Pokémon's name under its detail plinth.
+- **Screen title** (400, 28sp, 32sp): a screen's title and the open box's name.
+- **Section title** (400, 24sp, 30sp): section headings and region shelves.
+- **Display numerals** (400, 44sp, 48sp): the collection count on Boxes. Gold.
 - **Title numerals** (400, 22sp, 28sp): a box's count beside its ring.
 - **Box title** (400, 20sp, 26sp): box names and section headings.
 - **Title** (Inter 500, 16sp): row titles, the caught toggle.
@@ -212,8 +241,13 @@ serif used like a brass label on a case.
 - **Badge label** (Inter 500, 11sp, +0.5sp): type, game and method badges.
 
 ### Named Rules
-**The Brass Label Rule.** The serif appears only on large numerals and names. A serif
-everywhere is a costume; a serif on "766 / 1394" is a label on a case.
+**The Brass Label Rule.** The serif appears only on large numerals and names: counts, box
+and region names, screen and section titles, a Pokémon's name on its hero. Never in body
+copy, rows or controls. A serif everywhere is a costume; a serif on "766 / 1394" is a label
+on a case.
+
+**The Upright Hierarchy Rule.** Screen title, then section title, then row: 28, 24, then
+Inter 16. Nothing sits above a heading as a kicker; position and context go under it.
 
 **The Tabular Rule.** Every style that can hold a digit sets `tnum`, because every number in
 the app is read against another number.

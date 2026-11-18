@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -106,6 +107,7 @@ fun LoadingState(modifier: Modifier = Modifier) {
 }
 
 private val SKELETON_TITLE_WIDTH = 140.dp
+private val STATE_ART = 96.dp
 private val SKELETON_TITLE_HEIGHT = 20.dp
 
 /**
@@ -122,6 +124,12 @@ fun EmptyState(
     body: String? = null,
     actionLabel: String? = null,
     action: (() -> Unit)? = null,
+    /**
+     * Something from the collection in place of the search glyph: a silhouette of the slot
+     * the empty screen is about, drawn by the caller with [SlotState.Needed]'s rendering. An
+     * empty screen that shows a Pokemon reads as this app; a magnifying glass reads as any app.
+     */
+    art: (@Composable (SlotSpriteRendering) -> Unit)? = null,
 ) {
     StateBlock(
         modifier = modifier,
@@ -131,6 +139,7 @@ fun EmptyState(
         body = body,
         actionLabel = actionLabel,
         action = action,
+        art = art,
     )
 }
 
@@ -169,6 +178,7 @@ private fun StateBlock(
     body: String?,
     actionLabel: String?,
     action: (() -> Unit)?,
+    art: (@Composable (SlotSpriteRendering) -> Unit)? = null,
 ) {
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
@@ -182,22 +192,26 @@ private fun StateBlock(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(dimens.iconLg),
-        )
+        if (art != null) {
+            Box(Modifier.size(STATE_ART)) { art(SlotState.Needed.spriteRendering(colors)) }
+        } else {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(dimens.iconLg),
+            )
+        }
         Text(
             text = title,
-            style = PokedexTheme.text.statValue,
+            style = PokedexTheme.text.sectionTitle,
             color = colors.onCase,
             textAlign = TextAlign.Center,
         )
         if (body != null) {
             Text(
                 text = body,
-                style = PokedexTheme.text.dexNumber,
+                style = MaterialTheme.typography.bodyMedium,
                 color = colors.onCaseMuted,
                 textAlign = TextAlign.Center,
             )
