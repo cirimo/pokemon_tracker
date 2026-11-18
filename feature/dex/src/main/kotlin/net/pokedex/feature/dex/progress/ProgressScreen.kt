@@ -1,10 +1,13 @@
 package net.pokedex.feature.dex.progress
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,7 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.pokedex.core.model.CatchKey
@@ -21,23 +26,24 @@ import net.pokedex.core.model.DexFilter
 import net.pokedex.core.model.FarmFilter
 import net.pokedex.core.model.FarmScope
 import net.pokedex.designsystem.component.ActionButton
-import net.pokedex.designsystem.component.BoxSummary
+import net.pokedex.designsystem.component.BoxPlate
+import net.pokedex.designsystem.component.CollectionShelf
+import net.pokedex.designsystem.component.CollectionTrophy
 import net.pokedex.designsystem.component.ErrorState
+import net.pokedex.designsystem.component.InfoRow
+import net.pokedex.designsystem.component.InfoTable
 import net.pokedex.designsystem.component.NoticeCard
 import net.pokedex.designsystem.component.PokedexDialog
-import net.pokedex.designsystem.component.ProgressBar
-import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.ScreenScaffold
 import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SettingRow
+import net.pokedex.designsystem.component.ShelfBox
 import net.pokedex.designsystem.component.SkeletonBox
-import net.pokedex.designsystem.component.SlotState
-import net.pokedex.designsystem.component.SpeciesCard
+import net.pokedex.designsystem.component.TrophyTile
 import net.pokedex.designsystem.theme.PokedexTheme
 import net.pokedex.feature.dex.DexSprite
 import net.pokedex.feature.dex.errorBody
 import net.pokedex.feature.dex.errorTitle
-import net.pokedex.feature.dex.typesOf
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -57,9 +63,11 @@ internal fun ProgressDestination(
 }
 
 /**
- * Where the collection stands. The order is the order of the questions: how far along, what
- * is nearly finished, what each game still has to offer, what just happened. Gold appears
- * only in the progress numerals, arcs and completed-box rims, where it always does.
+ * Where the collection stands, shown rather than reported. The order is the order of the
+ * questions: how far along (the trophy), what just happened (the latest catches), what is
+ * nearly finished, what each game still has, and then the whole collection, box by box on
+ * its region's shelf. Gold appears only where it always does: the count, the arc, a caught
+ * dot or trophy, and a finished box or region.
  */
 @Composable
 internal fun ProgressScreen(
@@ -86,32 +94,60 @@ internal fun ProgressScreen(
                 // Progress says where you stand; the hunt list says what to do about it. One
                 // link each way rather than a hunt section here.
                 SettingRow(title = "Hunt next", summary = "What to hunt, in which of your games", onClick = onOpenHunt)
+                Recent(state.recent, onOpenSlot)
                 if (state.orphans.isNotEmpty()) Orphans(state.orphans, onEvent)
                 if (state.closest.isNotEmpty()) {
                     ScreenSection(title = "Closest to done", body = "Boxes you have started, fewest left first.") {
-                        state.closest.forEach { box ->
-                            BoxSummary(box.name, box.caught, box.total, onClick = { onShowBox(box.boxIndex) })
-                        }
+                        Plates(state.closest, onShowBox)
                     }
                 }
                 if (state.farm.isNotEmpty()) FarmPlan(state.farm, onShowSearch)
                 ScreenSection(title = "Still needed, by game", body = NEEDED_BODY) {
-                    state.games.forEach { game ->
-                        SettingRow(
-                            title = game.label,
-                            summary = if (game.needed == 0) {
-                                "Nothing left to catch shiny here"
-                            } else {
-                                "${game.needed} still needed"
-                            },
-                            onClick = {
-                                onShowSearch(DexFilter(caught = CaughtFilter.Needed, gameSets = setOf(game.gameSetId)))
-                            },
-                        )
+                    InfoTable {
+                        state.games.forEachIndexed { index, game ->
+                            InfoRow(
+                                title = game.label,
+                                value = if (game.needed == 0) "Nothing left" else "${game.needed} needed",
+                                first = index == 0,
+                                emphasis = game.needed > 0,
+                                onClick = {
+                                    onShowSearch(
+                                        DexFilter(caught = CaughtFilter.Needed, gameSets = setOf(game.gameSetId)),
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
-                Regions(state.regions, onShowBox)
-                Recent(state.recent, onOpenSlot)
+                Collection(state.regions, onShowBox)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Plates(boxes: List<ShelfBox>, onShowBox: (Int) -> Unit) {
+    Row(
+        modifier = Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm),
+    ) {
+        boxes.forEach { box -> BoxPlate(box = box, onClick = { onShowBox(box.boxIndex) }) }
+    }
+}
+
+/** Every box, in HOME order, on its region's shelf. A plate opens its box. */
+@Composable
+private fun Collection(regions: List<RegionRow>, onShowBox: (Int) -> Unit) {
+    ScreenSection(title = "The collection", body = "Every box in HOME order. Gold is shiny; a ring is still needed.") {
+        Column(verticalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceXl)) {
+            regions.forEach { region ->
+                CollectionShelf(
+                    title = region.name,
+                    caught = region.caught,
+                    total = region.total,
+                    boxes = region.boxes,
+                    onBoxClick = onShowBox,
+                )
             }
         }
     }
@@ -179,59 +215,45 @@ private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
 
 @Composable
 private fun Overall(state: ProgressUiState) {
-    Column(verticalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm)) {
-        ProgressReadout(caught = state.overall.caught, total = state.overall.total, label = "shiny")
-        ProgressBar(caught = state.overall.caught, total = state.overall.total, label = "Whole dex")
-        // The living dex: one line, muted, never gold, and no breakdown of its own.
-        Text(
-            text = "Living dex ${state.living.caught} / ${state.living.total}, regular or shiny",
-            style = MaterialTheme.typography.bodyMedium,
-            color = PokedexTheme.colors.onCaseMuted,
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceSm),
+    ) {
+        // The living dex: one muted line inside the trophy, never gold, and no breakdown of its own.
+        CollectionTrophy(
+            caught = state.overall.caught,
+            total = state.overall.total,
+            detail = "Living dex ${state.living.caught}",
         )
         if (state.noShinyYet > 0) {
             Text(
                 text = "${state.noShinyYet} of the ${state.overall.remaining} left have no shiny released yet.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = PokedexTheme.colors.onCaseMuted,
+                textAlign = TextAlign.Center,
             )
         }
     }
 }
 
-@Composable
-private fun Regions(regions: List<RegionRow>, onShowBox: (Int) -> Unit) {
-    var open by rememberSaveable { mutableStateOf<String?>(null) }
-    ScreenSection(title = "By region", body = "Tap a region for its boxes.") {
-        regions.forEach { region ->
-            BoxSummary(
-                name = region.name,
-                caught = region.caught,
-                total = region.total,
-                onClick = { open = region.name.takeIf { it != open } },
-            )
-            if (open == region.name) {
-                region.boxes.forEach { box ->
-                    BoxSummary(box.name, box.caught, box.total, onClick = { onShowBox(box.boxIndex) })
-                }
-            }
-        }
-    }
-}
-
+/** The latest catches as trophies, newest first. Where a wrong prefilled game gets noticed. */
 @Composable
 private fun Recent(recent: List<RecentRow>, onOpenSlot: (CatchKey) -> Unit) {
     if (recent.isEmpty()) return
     ScreenSection(title = "Recent catches") {
-        recent.forEach { row ->
-            SpeciesCard(
-                name = row.name,
-                dexNumber = row.dexNumber,
-                types = typesOf(row.type1, row.type2),
-                state = SlotState.Caught,
-                formName = listOfNotNull(row.originName, formatDay(row.caughtAt)).joinToString(" · "),
-                onClick = { onOpenSlot(row.key) },
-                sprite = { rendering -> DexSprite(row.spriteFile, rendering) },
-            )
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceMd),
+        ) {
+            recent.forEach { row ->
+                TrophyTile(
+                    name = row.name,
+                    caption = listOfNotNull(formatDay(row.caughtAt), row.originName).joinToString(", "),
+                    onClick = { onOpenSlot(row.key) },
+                    sprite = { rendering -> DexSprite(row.spriteFile, rendering) },
+                )
+            }
         }
     }
 }

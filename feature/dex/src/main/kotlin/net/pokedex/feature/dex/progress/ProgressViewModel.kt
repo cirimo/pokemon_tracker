@@ -24,7 +24,15 @@ import net.pokedex.core.model.Progress
 import net.pokedex.core.model.dashboardOf
 import net.pokedex.core.model.farmCounts
 import net.pokedex.core.model.farmOrderOf
+import net.pokedex.core.model.ownershipOf
+import net.pokedex.core.model.statusOf
+import net.pokedex.designsystem.component.BOX_COLUMNS
+import net.pokedex.designsystem.component.BOX_ROWS
+import net.pokedex.designsystem.component.BoxTally
+import net.pokedex.designsystem.component.ShelfBox
+import net.pokedex.designsystem.component.SlotState
 import net.pokedex.feature.dex.gameSetLabel
+import net.pokedex.feature.dex.slotStateOf
 import javax.inject.Inject
 
 @Immutable
@@ -35,7 +43,9 @@ data class ProgressUiState(
     /** Regular or shiny. One muted line under the headline: shiny stays the only breakdown. */
     val living: Progress = Progress.ZERO,
     val noShinyYet: Int = 0,
-    val closest: List<BoxRow> = emptyList(),
+    /** Unfinished boxes nearest to done, as plates. */
+    val closest: List<ShelfBox> = emptyList(),
+    /** Every box, as plates on its region's shelf, in preset order. */
     val regions: List<RegionRow> = emptyList(),
     val games: List<GameRow> = emptyList(),
     /** My games in farm order, with what each is first for. Empty until games are chosen. */
@@ -45,10 +55,7 @@ data class ProgressUiState(
 )
 
 @Immutable
-data class BoxRow(val boxIndex: Int, val name: String, val caught: Int, val total: Int)
-
-@Immutable
-data class RegionRow(val name: String, val caught: Int, val total: Int, val boxes: List<BoxRow>)
+data class RegionRow(val name: String, val caught: Int, val total: Int, val boxes: List<ShelfBox>)
 
 @Immutable
 data class GameRow(val gameSetId: String, val label: String, val needed: Int)
@@ -129,7 +136,12 @@ class ProgressViewModel @Inject constructor(
     private fun build(dex: Dex, records: Map<CatchKey, CatchRecord>, farm: FarmPlan?): ProgressUiState {
         val board = dashboardOf(dex, records)
         val gameNames = dex.games.associate { it.id to it.name }
-        fun box(b: BoxProgress) = BoxRow(b.boxIndex, b.name, b.progress.caught, b.progress.total)
+        val cells = cellsByBox(dex, records)
+        fun box(b: BoxProgress) = ShelfBox(
+            boxIndex = b.boxIndex,
+            tally = BoxTally(b.name, b.progress.caught, b.progress.total),
+            cells = cells[b.boxIndex].orEmpty(),
+        )
         return ProgressUiState(
             loading = false,
             overall = board.overall,
@@ -168,6 +180,20 @@ class ProgressViewModel @Inject constructor(
             },
         )
     }
+
+    /**
+     * Each box's slots as drawn, by position, with the preset's holes left empty: what a plate
+     * needs to put every dot where its slot sits in HOME. Shiny status as everywhere else on
+     * this screen, with no game filter, and a held regular drawn as the grid draws it.
+     */
+    private fun cellsByBox(dex: Dex, records: Map<CatchKey, CatchRecord>): Map<Int, List<SlotState>> =
+        dex.entries.groupBy { it.slot.boxIndex }.mapValues { (_, entries) ->
+            val byPosition = entries.associateBy { it.slot.slotIndex }
+            List(BOX_COLUMNS * BOX_ROWS) { position ->
+                byPosition[position]?.let { slotStateOf(statusOf(it, records), ownershipOf(it, records)) }
+                    ?: SlotState.Empty
+            }
+        }
 
     private companion object {
         const val STOP_TIMEOUT_MS = 5_000L

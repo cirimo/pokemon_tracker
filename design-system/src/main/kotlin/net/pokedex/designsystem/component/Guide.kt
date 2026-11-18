@@ -192,6 +192,8 @@ fun InfoRow(
     first: Boolean = false,
     emphasis: Boolean = false,
     icon: ImageVector? = null,
+    /** A row that opens something: the whole row is the target, and it says where it goes. */
+    onClick: (() -> Unit)? = null,
     details: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val colors = PokedexTheme.colors
@@ -200,6 +202,8 @@ fun InfoRow(
         if (!first) Box(Modifier.fillMaxWidth().height(dimens.rimWidth).background(colors.rim))
         Column(
             modifier = Modifier
+                .fillMaxWidth()
+                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
                 .heightIn(min = dimens.touchTargetMin)
                 .padding(horizontal = dimens.spaceLg, vertical = dimens.spaceMd),
             verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
