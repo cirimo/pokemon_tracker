@@ -1,0 +1,2890 @@
+# Guides for Sword and Shield: how to hunt each shiny step by step, what to build first and
+# how to farm it. Built into the guide tables of reference.db (docs/dataset-pipeline.md, "The
+# guide layer").
+#
+# Curated 2026-11-18 for Sword (prompt 11). Every step, build part, piece of advice and farm
+# link cites the page it was read from; the wording is ours. The per-boss Dynamax Adventure
+# guides under `guides:` were drafted by tools/curation/draft_swsh.py (rental advice from the
+# boss's moves and the rental pool on Bulbapedia's Dynamax Adventure page, against the type
+# chart) and read through by hand. Builds are checked against PokeAPI's sword-shield
+# learnsets: run `python tools/curation/learnsets.py` after changing one.
+#
+# Not here, on purpose: a guide for Regigigas (whether a den's shiny can be reset is not
+# settled by any source read, and its five-giant requirement contradicts the one-of-two rule
+# for Regieleki and Regidrago), and the Swords of Justice (they are already caught).
+
+gameSet: swsh
+
+locations:
+  - id: max-lair
+    name: Max Lair, Slippery Slope
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/Max_Lair
+  - id: freezington
+    name: Freezington
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/Legendary_Clue%3F
+  - id: rock-peak-ruins
+    name: Rock Peak Ruins, Giant's Bed
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - id: iceberg-ruins
+    name: Iceberg Ruins, Snowslide Slope
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - id: iron-ruins
+    name: Iron Ruins, Giant's Bed
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - id: split-decision-ruins
+    name: Split-Decision Ruins, Three-Point Pass
+    dlc: ct
+    source: https://bulbapedia.bulbagarden.net/wiki/Split-Decision_Ruins
+  - id: motostoke
+    name: Motostoke
+    source: https://bulbapedia.bulbagarden.net/wiki/TM094
+  - id: circhester
+    name: Circhester
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Charm
+  - id: giants-cap
+    name: Giant's Cap, Wild Area
+    source: https://bulbapedia.bulbagarden.net/wiki/Dawn_Stone
+  - id: lake-of-outrage
+    name: Lake of Outrage, Wild Area
+    source: https://bulbapedia.bulbagarden.net/wiki/Dawn_Stone
+  - id: bridge-field
+    name: Bridge Field, Wild Area
+    source: https://bulbapedia.bulbagarden.net/wiki/Dawn_Stone
+
+requirements:
+  - id: crown-tundra
+    label: The Crown Tundra
+    kind: dlc
+    detail: The second part of the Expansion Pass. Dynamax Adventures and the legendary giants are in it.
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+  - id: shiny-charm
+    label: Shiny Charm
+    kind: item
+    optional: true
+    detail: >-
+      Two extra shiny rolls for wild, static and fishing encounters, and 1/100 instead of 1/300
+      in a Dynamax Adventure. No effect on the legendary giants, fossils, curry, dens or
+      scripted encounters.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Charm
+    farm:
+      - kind: reward
+        location: circhester
+        detail: From the Game Freak game director, once every Pokemon in the mainland Galar Pokedex is caught.
+        source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Charm
+  - id: legendary-clue-2
+    label: Legendary Clue 2
+    kind: story
+    detail: Peony's second clue points to the four temples of the legendary giants.
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - id: legendary-clue-q
+    label: Legendary Clue?
+    kind: story
+    detail: >-
+      Left on the Freeze Inn doormat in Freezington once every Legendary Clue is done. Ultra
+      Beasts and Necrozma appear in Dynamax Adventures only after it is read.
+    source: https://bulbapedia.bulbagarden.net/wiki/Legendary_Clue%3F
+  - id: nso
+    label: Online play
+    kind: service
+    detail: >-
+      A Shield-exclusive legendary is not in Sword's Max Lair. Joining a Dynamax Adventure
+      hosted on Shield, online, meets it, and its path then stays unlocked.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    farm:
+      - kind: shop
+        detail: A Nintendo Switch Online membership, then Link Code play from the Max Lair.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+builds:
+  - id: false-swipe-catcher
+    variant: gallade
+    title: False Swipe catcher
+    purpose: >-
+      Brings a reset legendary to 1 HP without knocking it out, then puts it to sleep, so the
+      shiny is caught in the few balls it takes rather than lost to a faint.
+    parts:
+      - kind: move
+        value: False Swipe
+        why: It always leaves the target with at least 1 HP, so a shiny cannot faint by accident.
+        source: https://bulbapedia.bulbagarden.net/wiki/False_Swipe_(move)
+      - kind: move
+        value: Hypnosis
+        why: Sleep multiplies the catch chance by more than any other status.
+        source: https://bulbapedia.bulbagarden.net/wiki/Catch_rate
+      - kind: move
+        value: Thunder Wave
+        why: Paralysis is the fallback when Hypnosis misses, and also raises the catch chance.
+        source: https://bulbapedia.bulbagarden.net/wiki/Catch_rate
+    farm:
+      - kind: catch
+        detail: >-
+          Catch a male Ralts in the Wild Area (Dappled Grove, the Lake Miloch shores, Rolling
+          Fields, Watchtower Ruins, West Lake Axewell), or in the Fields of Honor on the Isle of
+          Armor.
+        source: https://bulbapedia.bulbagarden.net/wiki/Ralts_(Pok%C3%A9mon)
+      - kind: catch
+        detail: Ralts evolves into Kirlia at level 20; a male Kirlia becomes Gallade with a Dawn Stone.
+        source: https://bulbapedia.bulbagarden.net/wiki/Ralts_(Pok%C3%A9mon)
+      - kind: catch
+        location: giants-cap
+        detail: >-
+          A Dawn Stone lies in Giant's Cap; it is also a hidden recurring item at the Lake of
+          Outrage and a Digging Duo find in Bridge Field.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dawn_Stone
+      - kind: tutor
+        detail: Gallade knows Hypnosis from level 1 and learns False Swipe at level 23; the Move Reminder teaches either.
+        source: https://bulbapedia.bulbagarden.net/wiki/Gallade_(Pok%C3%A9mon)/Generation_VIII_learnset
+      - kind: tm
+        location: motostoke
+        detail: TM94 False Swipe, if it was skipped, from the upper Pokemon Center in Motostoke for 10,000.
+        source: https://bulbapedia.bulbagarden.net/wiki/TM094
+      - kind: tm
+        detail: TM14 Thunder Wave.
+        source: https://bulbapedia.bulbagarden.net/wiki/Gallade_(Pok%C3%A9mon)/Generation_VIII_learnset
+
+procedures:
+  - id: dynamax-adventure
+    title: Dynamax Adventure
+    steps:
+      - section: prepare
+        text: Dynamax Adventures start at the Max Lair on Slippery Slope. You cannot bring your own Pokemon; everyone picks a rental.
+        location: max-lair
+        source: https://bulbapedia.bulbagarden.net/wiki/Max_Lair
+      - section: prepare
+        text: Get the Shiny Charm first if you can. Every Pokemon in an adventure is then 1/100 instead of 1/300.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: setup
+        text: >-
+          Reach the boss once. Peonia sometimes offers the path to a legendary for 5 Dynite
+          Ore; her offer always matches what "Anything is fine" would lead to, so you can also
+          try that path for free.
+        source: https://bulbapedia.bulbagarden.net/wiki/Max_Lair
+      - section: setup
+        text: >-
+          When you reach a boss and do not keep it, the scientist offers to note its path. Up
+          to three paths can be noted at once; a fourth needs one of them deleted.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: loop
+        text: Choose the noted path. The game saves before every adventure.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: loop
+        text: Pick one of three rentals. Any Pokemon you defeat on the way can replace yours, so swap up when the next one fights the boss better.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: loop
+        text: Win three Max Raid Battles, then the boss. Everything you defeat is caught without fail.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: check
+        text: >-
+          Nothing looks shiny during the adventure. Shininess is decided on the final screen
+          where you choose one Pokemon to keep, so another player may see a different result.
+          Shinies from adventures always have star sparkles.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: after
+        text: >-
+          If the boss is shiny, keep it. If it is not but one of the other three is, keep that
+          one instead: the boss stays catchable and its path can be noted again.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: mistake
+        text: >-
+          Keeping a boss that is not shiny ends it for this save. A kept special Pokemon can
+          never be caught again, even after it is traded away or released.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - section: mistake
+        text: Failing before the boss notes no path, even on a path Peonia sold you.
+        source: https://bulbapedia.bulbagarden.net/wiki/Max_Lair
+
+  - id: soft-reset
+    title: Soft reset
+    steps:
+      - section: prepare
+        text: Bring a False Swipe catcher, and save right in front of the Pokemon.
+        source: https://bulbapedia.bulbagarden.net/wiki/Soft_resetting
+      - section: loop
+        text: >-
+          Start the battle. If it is not shiny, close the game from the HOME Menu and reopen
+          it; Switch games have no soft-reset button combination, and closing is the fastest
+          reset.
+        source: https://bulbapedia.bulbagarden.net/wiki/Soft_resetting
+      - section: check
+        text: >-
+          A shiny plays a sparkle as it enters battle: stars fifteen times in sixteen for a
+          static encounter, squares otherwise. In the overworld it shows its normal colours
+          until the battle starts.
+        source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+      - section: after
+        text: False Swipe it down to 1 HP, put it to sleep, then throw balls. Save as soon as it is caught.
+        source: https://bulbapedia.bulbagarden.net/wiki/False_Swipe_(move)
+      - section: mistake
+        text: Saving after a battle that was not shiny, which removes the reset point.
+        source: https://bulbapedia.bulbagarden.net/wiki/Soft_resetting
+
+guides:
+  # --- Soft reset: the legendary giants (1/4096; the Shiny Charm does nothing) ----------
+  - id: regirock-reset
+    title: Regirock by soft reset
+    method: static
+    procedure: soft-reset
+    variants: [regirock]
+    summary: Fixed 1/4096. The Shiny Charm does nothing for the legendary giants.
+    requires:
+      - id: crown-tundra
+      - id: legendary-clue-2
+    builds:
+      - id: false-swipe-catcher
+        role: catcher
+    steps:
+      - section: setup
+        text: A party Pokemon must hold an Everstone to enter the Rock Peak Ruins. Inside, step on the floor dots, then talk to the statue.
+        location: rock-peak-ruins
+        source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - id: regice-reset
+    title: Regice by soft reset
+    method: static
+    procedure: soft-reset
+    variants: [regice]
+    summary: Fixed 1/4096. The Shiny Charm does nothing for the legendary giants.
+    requires:
+      - id: crown-tundra
+      - id: legendary-clue-2
+    builds:
+      - id: false-swipe-catcher
+        role: catcher
+    steps:
+      - section: setup
+        text: Your walking Pokemon must be a Cryogonal to enter the Iceberg Ruins. Inside, step on the floor dots, then talk to the statue.
+        location: iceberg-ruins
+        source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - id: registeel-reset
+    title: Registeel by soft reset
+    method: static
+    procedure: soft-reset
+    variants: [registeel]
+    summary: Fixed 1/4096. The Shiny Charm does nothing for the legendary giants.
+    requires:
+      - id: crown-tundra
+      - id: legendary-clue-2
+    builds:
+      - id: false-swipe-catcher
+        role: catcher
+    steps:
+      - section: setup
+        text: Whistle near the door to enter the Iron Ruins. Inside, step on the floor dots, then talk to the statue.
+        location: iron-ruins
+        source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - id: regieleki-reset
+    title: Regieleki by soft reset
+    method: static
+    procedure: soft-reset
+    variants: [regieleki]
+    oneInSave: true
+    summary: Fixed 1/4096, and only one of Regieleki and Regidrago on a save file.
+    requires:
+      - id: crown-tundra
+      - id: legendary-clue-2
+    builds:
+      - id: false-swipe-catcher
+        role: catcher
+    steps:
+      - section: setup
+        text: >-
+          Enter the Split-Decision Ruins with Regirock, Regice and Registeel in the party, and
+          light the floor in Regieleki's eye pattern. The panels cannot be reset once you talk
+          to the statue, so the choice is final.
+        location: split-decision-ruins
+        source: https://bulbapedia.bulbagarden.net/wiki/Split-Decision_Ruins
+
+  - id: regidrago-reset
+    title: Regidrago by soft reset
+    method: static
+    procedure: soft-reset
+    variants: [regidrago]
+    oneInSave: true
+    summary: Fixed 1/4096, and only one of Regieleki and Regidrago on a save file.
+    requires:
+      - id: crown-tundra
+      - id: legendary-clue-2
+    builds:
+      - id: false-swipe-catcher
+        role: catcher
+    steps:
+      - section: setup
+        text: >-
+          Enter the Split-Decision Ruins with Regirock, Regice and Registeel in the party, and
+          light the floor in Regidrago's eye pattern. The panels cannot be reset once you talk
+          to the statue, so the choice is final.
+        location: split-decision-ruins
+        source: https://bulbapedia.bulbagarden.net/wiki/Split-Decision_Ruins
+
+  # --- Dynamax Adventure bosses (drafted by draft_swsh.py) ---------------------------
+  - id: articuno-max-lair
+    title: Articuno in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [articuno]
+    oneInSave: true
+    summary: "Articuno (Ice/Flying) is a Max Lair boss: Ice Beam, Freeze-Dry, Hurricane, Mist."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Carkol (Rock Slide)
+        why: Rock Slide is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drednaw (Rock Slide)
+        why: Rock Slide is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lairon (Rock Slide)
+        why: Rock Slide is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Relicanth (Head Smash)
+        why: Head Smash is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klang (Power Gem)
+        why: Power Gem is 4× against Articuno (Ice/Flying); it takes ½× from Articuno's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ground, Flying, Dragon types
+        why: Ice Beam and Freeze-Dry are Ice, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Hurricane is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Articuno (Ice/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Articuno (Ice/Flying) resists Grass, Bug attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: zapdos-max-lair
+    title: Zapdos in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [zapdos]
+    oneInSave: true
+    summary: "Zapdos (Electric/Flying) is a Max Lair boss: Thunder, Drill Peck, Brave Bird, Agility."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Rhydon (Smack Down)
+        why: Smack Down is 2× against Zapdos (Electric/Flying); it takes ½× from Zapdos's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Tyrantrum (Rock Blast)
+        why: Rock Blast is 2× against Zapdos (Electric/Flying); it takes ½× from Zapdos's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Morpeko (Ice Fang)
+        why: Ice Fang is 2× against Zapdos (Electric/Flying); it takes ½× from Zapdos's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Zapdos (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Zapdos (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 2× against Zapdos (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Flying types
+        why: Thunder is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Drill Peck and Brave Bird are Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Zapdos (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Zapdos (Electric/Flying) resists Grass, Fighting, Flying, Bug, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: moltres-max-lair
+    title: Moltres in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [moltres]
+    oneInSave: true
+    summary: "Moltres (Fire/Flying) is a Max Lair boss: Heat Wave, Wing Attack, Leer, Fire Spin."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Boldore (Stone Edge)
+        why: Stone Edge is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Carkol (Rock Slide)
+        why: Rock Slide is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drednaw (Rock Slide)
+        why: Rock Slide is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lycanroc (Accelerock)
+        why: Accelerock is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Relicanth (Head Smash)
+        why: Head Smash is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Rhydon (Smack Down)
+        why: Smack Down is 4× against Moltres (Fire/Flying); it takes ½× from Moltres's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Heat Wave and Fire Spin are Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Wing Attack is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Moltres (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Moltres (Fire/Flying) resists Fire, Grass, Fighting, Bug, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: mewtwo-max-lair
+    title: Mewtwo in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [mewtwo]
+    oneInSave: true
+    summary: "Mewtwo (Psychic) is a Max Lair boss: Psychic, Disable, Recover, Blizzard."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Durant (X-Scissor)
+        why: X-Scissor is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Escavalier (Fury Cutter)
+        why: Fury Cutter is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Sharpedo (Assurance)
+        why: Assurance is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Sneasel (Lash Out)
+        why: Lash Out is 2× against Mewtwo (Psychic); it takes ½× from Mewtwo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psychic is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ground, Flying, Dragon types
+        why: Blizzard is Ice, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Mewtwo (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: raikou-max-lair
+    title: Raikou in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [raikou]
+    oneInSave: true
+    summary: "Raikou (Electric) is a Max Lair boss: Thunderbolt, Howl, Extreme Speed, Weather Ball."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 2× against Raikou (Electric); it takes ½× from Raikou's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Golurk (Scorching Sands)
+        why: Scorching Sands is 2× against Raikou (Electric); it takes no from Raikou's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Palossand (Scorching Sands)
+        why: Scorching Sands is 2× against Raikou (Electric); it takes no from Raikou's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Rhydon (Drill Run)
+        why: Drill Run is 2× against Raikou (Electric); it takes ½× from Raikou's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Earth Power)
+        why: Earth Power is 2× against Raikou (Electric); it takes ½× from Raikou's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Diggersby (Stomping Tantrum)
+        why: Stomping Tantrum is 2× against Raikou (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Flying types
+        why: Thunderbolt is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Raikou (Electric) resists Electric, Flying, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: entei-max-lair
+    title: Entei in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [entei]
+    oneInSave: true
+    summary: "Entei (Fire) is a Max Lair boss: Flamethrower, Scary Face, Extreme Speed, Crunch."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Araquanid (Liquidation)
+        why: Liquidation is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Aqua Jet)
+        why: Aqua Jet is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Barbaracle (Razor Shell)
+        why: Razor Shell is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Barraskewda (Aqua Jet)
+        why: Aqua Jet is 2× against Entei (Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Flamethrower is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Crunch is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Entei (Fire) resists Fire, Grass, Ice, Bug, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: suicune-max-lair
+    title: Suicune in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [suicune]
+    oneInSave: true
+    summary: "Suicune (Water) is a Max Lair boss: Liquidation, Extrasensory, Extreme Speed, Calm Mind."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Abomasnow (Grassy Glide)
+        why: Grassy Glide is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bellossom (Giga Drain)
+        why: Giga Drain is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boltund (Rising Voltage)
+        why: Rising Voltage is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Charjabug (Spark)
+        why: Spark is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cherrim (Solar Beam)
+        why: Solar Beam is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cradily (Energy Ball)
+        why: Energy Ball is 2× against Suicune (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Liquidation is Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Extrasensory is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Suicune (Water) resists Fire, Water, Ice, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: lugia-max-lair
+    title: Lugia in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [lugia]
+    oneInSave: true
+    summary: "Lugia (Psychic/Flying) is a Max Lair boss: Dragon Pulse, Extrasensory, Whirlpool, Ancient Power."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Lugia, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boltund (Rising Voltage)
+        why: Rising Voltage is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cofagrigus (Shadow Ball)
+        why: Shadow Ball is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cradily (Ancient Power)
+        why: Ancient Power is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Pulse is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Extrasensory is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Whirlpool is Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Ancient Power is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Lugia (Psychic/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Lugia (Psychic/Flying) resists Grass, Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: hooh-max-lair
+    title: Ho-Oh in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [hooh]
+    oneInSave: true
+    summary: "Ho-Oh (Fire/Flying) is a Max Lair boss: Flare Blitz, Extrasensory, Sunny Day, Ancient Power."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Boldore (Stone Edge)
+        why: Stone Edge is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cradily (Ancient Power)
+        why: Ancient Power is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drednaw (Rock Slide)
+        why: Rock Slide is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lairon (Rock Slide)
+        why: Rock Slide is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lycanroc (Accelerock)
+        why: Accelerock is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Relicanth (Head Smash)
+        why: Head Smash is 4× against Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Flare Blitz is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Extrasensory is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Ancient Power is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Ho-Oh (Fire/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Ho-Oh (Fire/Flying) resists Fire, Grass, Fighting, Bug, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: latias-max-lair
+    title: Latias in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [latias]
+    oneInSave: true
+    summary: "Latias (Dragon/Psychic) is a Max Lair boss: Reflect Type, Dragon Breath, Zen Headbutt, Surf."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Latias, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Abomasnow (Avalanche)
+        why: Avalanche is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Accelgor (Struggle Bug)
+        why: Struggle Bug is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Araquanid (Lunge)
+        why: Lunge is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 2× against Latias (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Breath is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Zen Headbutt is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Surf is Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Latias (Dragon/Psychic) resists Fire, Water, Electric, Grass, Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: latios-max-lair
+    title: Latios in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [latios]
+    oneInSave: true
+    summary: "Latios (Dragon/Psychic) is a Max Lair boss: Dragon Dance, Dragon Pulse, Zen Headbutt, Aura Sphere."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Accelgor (Struggle Bug)
+        why: Struggle Bug is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Araquanid (Lunge)
+        why: Lunge is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (X-Scissor)
+        why: X-Scissor is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Clefable (Dazzling Gleam)
+        why: Dazzling Gleam is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cofagrigus (Shadow Ball)
+        why: Shadow Ball is 2× against Latios (Dragon/Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Pulse is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Zen Headbutt is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Aura Sphere is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Latios (Dragon/Psychic) resists Fire, Water, Electric, Grass, Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: kyogre-max-lair
+    title: Kyogre in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [kyogre]
+    oneInSave: true
+    summary: "Kyogre (Water) is a Max Lair boss: Surf, Body Slam, Aqua Ring, Thunder."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Kyogre, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Trevenant (Horn Leech)
+        why: Horn Leech is 2× against Kyogre (Water); it takes ½× from Kyogre's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Abomasnow (Grassy Glide)
+        why: Grassy Glide is 2× against Kyogre (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Amoonguss (Giga Drain)
+        why: Giga Drain is 2× against Kyogre (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bellossom (Giga Drain)
+        why: Giga Drain is 2× against Kyogre (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boltund (Rising Voltage)
+        why: Rising Voltage is 2× against Kyogre (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Charjabug (Spark)
+        why: Spark is 2× against Kyogre (Water).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Surf is Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Flying types
+        why: Thunder is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Kyogre (Water) resists Fire, Water, Ice, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: groudon-max-lair
+    title: Groudon in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [groudon]
+    oneInSave: true
+    summary: "Groudon (Ground) is a Max Lair boss: Earthquake, Scary Face, Lava Plume, Hammer Arm."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Cramorant (Dive)
+        why: Dive is 2× against Groudon (Ground); it takes ½× from Groudon's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Mantine (Dive)
+        why: Dive is 2× against Groudon (Ground); it takes ½× from Groudon's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Araquanid (Liquidation)
+        why: Liquidation is 2× against Groudon (Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Aqua Jet)
+        why: Aqua Jet is 2× against Groudon (Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Barraskewda (Aqua Jet)
+        why: Aqua Jet is 2× against Groudon (Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Basculin (Liquidation)
+        why: Liquidation is 2× against Groudon (Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Electric, Poison, Rock, Steel types
+        why: Earthquake is Ground, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Lava Plume is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Hammer Arm is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Electric attacks
+        why: Electric does not affect Groudon (Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Groudon (Ground) resists Poison, Rock attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: rayquaza-max-lair
+    title: Rayquaza in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [rayquaza]
+    oneInSave: true
+    summary: "Rayquaza (Dragon/Flying) is a Max Lair boss: Dragon Ascent, Brutal Swing, Extreme Speed, Twister."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 4× against Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cryogonal (Blizzard)
+        why: Blizzard is 4× against Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Glalie (Ice Fang)
+        why: Ice Fang is 4× against Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klefki (Play Rough)
+        why: Play Rough is 2× against Rayquaza (Dragon/Flying); it takes ½× from Rayquaza's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Piloswine (Blizzard)
+        why: Blizzard is 4× against Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Sandslash (Avalanche)
+        why: Avalanche is 4× against Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Dragon Ascent is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Brutal Swing is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Twister is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Rayquaza (Dragon/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Rayquaza (Dragon/Flying) resists Fire, Water, Grass, Fighting, Bug attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: uxie-max-lair
+    title: Uxie in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [uxie]
+    oneInSave: true
+    summary: "Uxie (Psychic) is a Max Lair boss: Psychic, Future Sight, Magic Room, Shadow Ball."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drapion (Lash Out)
+        why: Lash Out is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Krookodile (Darkest Lariat)
+        why: Darkest Lariat is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Liepard (Assurance)
+        why: Assurance is 2× against Uxie (Psychic); it takes ½× from Uxie's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psychic and Future Sight are Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Shadow Ball is Ghost, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Uxie (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: mesprit-max-lair
+    title: Mesprit in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [mesprit]
+    oneInSave: true
+    summary: "Mesprit (Psychic) is a Max Lair boss: Psychic, Charm, Draining Kiss, Tri Attack."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Durant (X-Scissor)
+        why: X-Scissor is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Escavalier (Fury Cutter)
+        why: Fury Cutter is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (Sucker Punch)
+        why: Sucker Punch is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Perrserker (Lash Out)
+        why: Lash Out is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Skarmory (Assurance)
+        why: Assurance is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Foul Play)
+        why: Foul Play is 2× against Mesprit (Psychic); it takes ½× from Mesprit's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psychic is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Draining Kiss is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Mesprit (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: azelf-max-lair
+    title: Azelf in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [azelf]
+    oneInSave: true
+    summary: "Azelf (Psychic) is a Max Lair boss: Psychic, Dazzling Gleam, Nasty Plot, Facade."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Durant (X-Scissor)
+        why: X-Scissor is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Escavalier (Fury Cutter)
+        why: Fury Cutter is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (Sucker Punch)
+        why: Sucker Punch is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Perrserker (Lash Out)
+        why: Lash Out is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Skarmory (Assurance)
+        why: Assurance is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Foul Play)
+        why: Foul Play is 2× against Azelf (Psychic); it takes ½× from Azelf's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psychic is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Dazzling Gleam is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Azelf (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: dialga-max-lair
+    title: Dialga in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [dialga]
+    oneInSave: true
+    summary: "Dialga (Steel/Dragon) is a Max Lair boss: Slash, Ancient Power, Flash Cannon, Dragon Claw."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 2× against Dialga (Steel/Dragon); it takes ½× from Dialga's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Earth Power)
+        why: Earth Power is 2× against Dialga (Steel/Dragon); it takes ½× from Dialga's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Copperajah (Body Press)
+        why: Body Press is 2× against Dialga (Steel/Dragon); it takes ½× from Dialga's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Doublade (Sacred Sword)
+        why: Sacred Sword is 2× against Dialga (Steel/Dragon); it takes ½× from Dialga's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Blaziken (Close Combat)
+        why: Close Combat is 2× against Dialga (Steel/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Combusken (Focus Blast)
+        why: Focus Blast is 2× against Dialga (Steel/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Ancient Power is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Ice, Rock, Fairy types
+        why: Flash Cannon is Steel, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Claw is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison attacks
+        why: Poison does not affect Dialga (Steel/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Dialga (Steel/Dragon) resists Normal, Water, Electric, Grass, Flying, Psychic, Bug, Rock, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: palkia-max-lair
+    title: Palkia in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [palkia]
+    oneInSave: true
+    summary: "Palkia (Water/Dragon) is a Max Lair boss: Slash, Surf, Ancient Power, Dragon Claw."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Palkia, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Clefable (Dazzling Gleam)
+        why: Dazzling Gleam is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Comfey (Draining Kiss)
+        why: Draining Kiss is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dedenne (Dazzling Gleam)
+        why: Dazzling Gleam is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Jigglypuff (Draining Kiss)
+        why: Draining Kiss is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klefki (Play Rough)
+        why: Play Rough is 2× against Palkia (Water/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Surf is Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Ancient Power is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Claw is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Palkia (Water/Dragon) resists Fire, Water, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: heatran-max-lair
+    title: Heatran in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [heatran]
+    oneInSave: true
+    summary: "Heatran (Fire/Steel) is a Max Lair boss: Metal Sound, Lava Plume, Crunch, Iron Head."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Blaziken (Close Combat)
+        why: Close Combat is 2× against Heatran (Fire/Steel); it takes ½× from Heatran's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Combusken (Focus Blast)
+        why: Focus Blast is 2× against Heatran (Fire/Steel); it takes ½× from Heatran's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crawdaunt (Muddy Water)
+        why: Muddy Water is 2× against Heatran (Fire/Steel); it takes ½× from Heatran's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Diggersby (Stomping Tantrum)
+        why: Stomping Tantrum is 4× against Heatran (Fire/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 4× against Heatran (Fire/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flygon (Mud-Slap)
+        why: Mud-Slap is 4× against Heatran (Fire/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Lava Plume is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Crunch is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Ice, Rock, Fairy types
+        why: Iron Head is Steel, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison attacks
+        why: Poison does not affect Heatran (Fire/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Heatran (Fire/Steel) resists Normal, Grass, Ice, Flying, Psychic, Bug, Dragon, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: giratina-max-lair
+    title: Giratina in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [giratina]
+    oneInSave: true
+    summary: "Giratina (Ghost/Dragon) is a Max Lair boss: Dragon Claw, Scary Face, Shadow Ball, Ancient Power."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 2× against Giratina (Ghost/Dragon); it takes ½× from Giratina's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Clefable (Dazzling Gleam)
+        why: Dazzling Gleam is 2× against Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Comfey (Draining Kiss)
+        why: Draining Kiss is 2× against Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Claw is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Shadow Ball is Ghost, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Ancient Power is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Normal or Fighting attacks
+        why: Normal and Fighting does not affect Giratina (Ghost/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Giratina (Ghost/Dragon) resists Fire, Water, Electric, Grass, Poison, Bug attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: cresselia-max-lair
+    title: Cresselia in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [cresselia]
+    oneInSave: true
+    summary: "Cresselia (Psychic) is a Max Lair boss: Icy Wind, Moonblast, Psycho Cut, Psyshock."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Durant (X-Scissor)
+        why: X-Scissor is 2× against Cresselia (Psychic); it takes ½× from Cresselia's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Escavalier (Fury Cutter)
+        why: Fury Cutter is 2× against Cresselia (Psychic); it takes ½× from Cresselia's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Perrserker (Lash Out)
+        why: Lash Out is 2× against Cresselia (Psychic); it takes ½× from Cresselia's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Accelgor (Struggle Bug)
+        why: Struggle Bug is 2× against Cresselia (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Araquanid (Lunge)
+        why: Lunge is 2× against Cresselia (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (X-Scissor)
+        why: X-Scissor is 2× against Cresselia (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ground, Flying, Dragon types
+        why: Icy Wind is Ice, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Moonblast is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psycho Cut and Psyshock are Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Cresselia (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: tornadus-max-lair
+    title: Tornadus in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [tornadus]
+    oneInSave: true
+    summary: "Tornadus (Flying) is a Max Lair boss: Hurricane, Agility, Icy Wind, Heat Wave."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Carkol (Rock Slide)
+        why: Rock Slide is 2× against Tornadus (Flying); it takes ½× from Tornadus's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drednaw (Rock Slide)
+        why: Rock Slide is 2× against Tornadus (Flying); it takes ½× from Tornadus's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lanturn (Thunderbolt)
+        why: Thunderbolt is 2× against Tornadus (Flying); it takes ½× from Tornadus's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Relicanth (Head Smash)
+        why: Head Smash is 2× against Tornadus (Flying); it takes ½× from Tornadus's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Barbaracle (Blizzard)
+        why: Blizzard is 2× against Tornadus (Flying); it takes ½× from Tornadus's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Tornadus (Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Hurricane is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ground, Flying, Dragon types
+        why: Icy Wind is Ice, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Heat Wave is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Tornadus (Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Tornadus (Flying) resists Grass, Fighting, Bug attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: thundurus-max-lair
+    title: Thundurus in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [thundurus]
+    oneInSave: true
+    summary: "Thundurus (Electric/Flying) is a Max Lair boss: Thunder, Rain Dance, Weather Ball, Sludge Wave."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Thundurus, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cradily (Ancient Power)
+        why: Ancient Power is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cryogonal (Blizzard)
+        why: Blizzard is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Froslass (Triple Axel)
+        why: Triple Axel is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Glalie (Ice Fang)
+        why: Ice Fang is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Jynx (Ice Beam)
+        why: Ice Beam is 2× against Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Flying types
+        why: Thunder is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fairy types
+        why: Sludge Wave is Poison, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Weather Ball turns Water in the weather Thundurus brings, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Weather_Ball_(move)
+      - kind: avoid
+        subject: Rentals that only have Ground attacks
+        why: Ground does not affect Thundurus (Electric/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Thundurus (Electric/Flying) resists Grass, Fighting, Flying, Bug, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: reshiram-max-lair
+    title: Reshiram in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [reshiram]
+    oneInSave: true
+    summary: "Reshiram (Dragon/Fire) is a Max Lair boss: Noble Roar, Extrasensory, Fusion Flare, Dragon Pulse."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boldore (Stone Edge)
+        why: Stone Edge is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Carkol (Rock Slide)
+        why: Rock Slide is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cradily (Ancient Power)
+        why: Ancient Power is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Crustle (Rock Tomb)
+        why: Rock Tomb is 2× against Reshiram (Dragon/Fire).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Extrasensory is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Fusion Flare is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Pulse is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Reshiram (Dragon/Fire) resists Fire, Electric, Grass, Bug, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: zekrom-max-lair
+    title: Zekrom in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [zekrom]
+    oneInSave: true
+    summary: "Zekrom (Dragon/Electric) is a Max Lair boss: Noble Roar, Slash, Fusion Bolt, Dragon Claw."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Zekrom, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 2× against Zekrom (Dragon/Electric); it takes ½× from Zekrom's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Earth Power)
+        why: Earth Power is 2× against Zekrom (Dragon/Electric); it takes ½× from Zekrom's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Abomasnow (Avalanche)
+        why: Avalanche is 2× against Zekrom (Dragon/Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 2× against Zekrom (Dragon/Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Clefable (Dazzling Gleam)
+        why: Dazzling Gleam is 2× against Zekrom (Dragon/Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Comfey (Draining Kiss)
+        why: Draining Kiss is 2× against Zekrom (Dragon/Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Flying types
+        why: Fusion Bolt is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Claw is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Zekrom (Dragon/Electric) resists Fire, Water, Electric, Grass, Flying, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: landorus-max-lair
+    title: Landorus in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [landorus]
+    oneInSave: true
+    summary: "Landorus (Ground/Flying) is a Max Lair boss: Sand Tomb, Rock Slide, Bulldoze, Focus Blast."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Basculin (Ice Fang)
+        why: Ice Fang is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dragonair (Blizzard)
+        why: Blizzard is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Hitmonchan (Ice Punch)
+        why: Ice Punch is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Hitmontop (Triple Axel)
+        why: Triple Axel is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Jellicent (Icy Wind)
+        why: Icy Wind is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Marshtomp (Ice Punch)
+        why: Ice Punch is 4× against Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Electric, Poison, Rock, Steel types
+        why: Sand Tomb and Bulldoze are Ground, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Rock Slide is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Focus Blast is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Electric or Ground attacks
+        why: Electric and Ground does not affect Landorus (Ground/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Landorus (Ground/Flying) resists Fighting, Poison, Bug attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: kyurem-max-lair
+    title: Kyurem in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [kyurem]
+    oneInSave: true
+    summary: "Kyurem (Dragon/Ice) is a Max Lair boss: Ice Beam, Hyper Voice, Shadow Ball, Scary Face."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Blaziken (Close Combat)
+        why: Close Combat is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boldore (Stone Edge)
+        why: Stone Edge is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Carkol (Rock Slide)
+        why: Rock Slide is 2× against Kyurem (Dragon/Ice).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Ground, Flying, Dragon types
+        why: Ice Beam is Ice, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Shadow Ball is Ghost, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Kyurem (Dragon/Ice) resists Water, Electric, Grass attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: xerneas-max-lair
+    title: Xerneas in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [xerneas]
+    oneInSave: true
+    summary: "Xerneas (Fairy) is a Max Lair boss: Ingrain, Dazzling Gleam, Moonblast, Horn Leech."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Amoonguss (Clear Smog)
+        why: Clear Smog is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bronzong (Steel Roller)
+        why: Steel Roller is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Copperajah (Flash Cannon)
+        why: Flash Cannon is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Doublade (Iron Head)
+        why: Iron Head is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Durant (Metal Claw)
+        why: Metal Claw is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Gloom (Venoshock)
+        why: Venoshock is 2× against Xerneas (Fairy); it takes ½× from Xerneas's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Dazzling Gleam and Moonblast are Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Ground, Rock types
+        why: Horn Leech is Grass, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Dragon attacks
+        why: Dragon does not affect Xerneas (Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Xerneas (Fairy) resists Fighting, Bug, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: yveltal-max-lair
+    title: Yveltal in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [yveltal]
+    oneInSave: true
+    summary: "Yveltal (Dark/Flying) is a Max Lair boss: Taunt, Oblivion Wing, Dragon Rush, Sucker Punch."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Yveltal, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Dedenne (Thunder)
+        why: Thunder is 2× against Yveltal (Dark/Flying); it takes ½× from Yveltal's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klefki (Play Rough)
+        why: Play Rough is 2× against Yveltal (Dark/Flying); it takes ½× from Yveltal's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Yveltal (Dark/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Yveltal (Dark/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 2× against Yveltal (Dark/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 2× against Yveltal (Dark/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Oblivion Wing is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Rush is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Sucker Punch is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Ground or Psychic attacks
+        why: Ground and Psychic does not affect Yveltal (Dark/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Yveltal (Dark/Flying) resists Grass, Ghost, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: zygarde-max-lair
+    title: Zygarde in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [zygarde]
+    oneInSave: true
+    summary: "Zygarde (Dragon/Ground) is a Max Lair boss: Thousand Arrows, Land's Wrath, Dragon Pulse, Bind."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Abomasnow (Avalanche)
+        why: Avalanche is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Beartic (Blizzard)
+        why: Blizzard is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cryogonal (Blizzard)
+        why: Blizzard is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Froslass (Triple Axel)
+        why: Triple Axel is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Glalie (Ice Fang)
+        why: Ice Fang is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Jynx (Ice Beam)
+        why: Ice Beam is 4× against Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Electric, Poison, Rock, Steel types
+        why: Thousand Arrows and Land's Wrath are Ground, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Pulse is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Electric attacks
+        why: Electric does not affect Zygarde (Dragon/Ground).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Zygarde (Dragon/Ground) resists Fire, Poison, Rock attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Thousand Arrows
+        why: It hits Flying-types and Levitate too, so neither keeps a rental safe from Ground.
+        source: https://bulbapedia.bulbagarden.net/wiki/Thousand_Arrows_(move)
+
+  - id: tapukoko-max-lair
+    title: Tapu Koko in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [tapukoko]
+    oneInSave: true
+    summary: "Tapu Koko (Electric/Fairy) is a Max Lair boss: Thunderbolt, Quick Attack, Brave Bird, Taunt."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 2× against Tapu Koko (Electric/Fairy); it takes ½× from Tapu Koko's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Rhydon (Drill Run)
+        why: Drill Run is 2× against Tapu Koko (Electric/Fairy); it takes ½× from Tapu Koko's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Earth Power)
+        why: Earth Power is 2× against Tapu Koko (Electric/Fairy); it takes ½× from Tapu Koko's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Togedemaru (Poison Jab)
+        why: Poison Jab is 2× against Tapu Koko (Electric/Fairy); it takes ½× from Tapu Koko's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Diggersby (Stomping Tantrum)
+        why: Stomping Tantrum is 2× against Tapu Koko (Electric/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flygon (Mud-Slap)
+        why: Mud-Slap is 2× against Tapu Koko (Electric/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Flying types
+        why: Thunderbolt is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Brave Bird is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Dragon attacks
+        why: Dragon does not affect Tapu Koko (Electric/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Tapu Koko (Electric/Fairy) resists Electric, Fighting, Flying, Bug, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: tapulele-max-lair
+    title: Tapu Lele in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [tapulele]
+    oneInSave: true
+    summary: "Tapu Lele (Psychic/Fairy) is a Max Lair boss: Psychic, Play Rough, Magic Room, Charm."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Bronzong (Steel Roller)
+        why: Steel Roller is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Copperajah (Flash Cannon)
+        why: Flash Cannon is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Doublade (Iron Head)
+        why: Iron Head is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (Iron Head)
+        why: Iron Head is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Durant (Metal Claw)
+        why: Metal Claw is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klang (Flash Cannon)
+        why: Flash Cannon is 2× against Tapu Lele (Psychic/Fairy); it takes ½× from Tapu Lele's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psychic is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Play Rough is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Dragon attacks
+        why: Dragon does not affect Tapu Lele (Psychic/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Tapu Lele (Psychic/Fairy) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: tapubulu-max-lair
+    title: Tapu Bulu in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [tapubulu]
+    oneInSave: true
+    summary: "Tapu Bulu (Grass/Fairy) is a Max Lair boss: Superpower, Megahorn, Wood Hammer, Scary Face."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Salazzle (Cross Poison)
+        why: Cross Poison is 4× against Tapu Bulu (Grass/Fairy); it takes ½× from Tapu Bulu's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Weezing (Clear Smog)
+        why: Clear Smog is 4× against Tapu Bulu (Grass/Fairy); it takes ½× from Tapu Bulu's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Hawlucha (Poison Jab)
+        why: Poison Jab is 4× against Tapu Bulu (Grass/Fairy); it takes ½× from Tapu Bulu's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Amoonguss (Clear Smog)
+        why: Clear Smog is 4× against Tapu Bulu (Grass/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Doublade (Iron Head)
+        why: Iron Head is 2× against Tapu Bulu (Grass/Fairy); it takes ½× from Tapu Bulu's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Emolga (Acrobatics)
+        why: Acrobatics is 2× against Tapu Bulu (Grass/Fairy); it takes ½× from Tapu Bulu's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Superpower is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Psychic, Dark types
+        why: Megahorn is Bug, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Ground, Rock types
+        why: Wood Hammer is Grass, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Dragon attacks
+        why: Dragon does not affect Tapu Bulu (Grass/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Tapu Bulu (Grass/Fairy) resists Water, Electric, Grass, Fighting, Ground, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: tapufini-max-lair
+    title: Tapu Fini in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [tapufini]
+    oneInSave: true
+    summary: "Tapu Fini (Water/Fairy) is a Max Lair boss: Whirlpool, Water Pulse, Brine, Moonblast."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Amoonguss (Clear Smog)
+        why: Clear Smog is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Gloom (Venoshock)
+        why: Venoshock is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Ivysaur (Grass Pledge)
+        why: Grass Pledge is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Qwilfish (Poison Jab)
+        why: Poison Jab is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Roselia (Leaf Storm)
+        why: Leaf Storm is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Tentacruel (Poison Jab)
+        why: Poison Jab is 2× against Tapu Fini (Water/Fairy); it takes ½× from Tapu Fini's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ground, Rock types
+        why: Whirlpool and Water Pulse and Brine are Water, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Moonblast is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Dragon attacks
+        why: Dragon does not affect Tapu Fini (Water/Fairy).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Tapu Fini (Water/Fairy) resists Fire, Water, Ice, Fighting, Bug, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: solgaleo-max-lair
+    title: Solgaleo in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [solgaleo]
+    oneInSave: true
+    summary: "Solgaleo (Psychic/Steel) is a Max Lair boss: Zen Headbutt, Fire Spin, Iron Head, Noble Roar."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+    advice:
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Solgaleo (Psychic/Steel); it takes ½× from Solgaleo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Sharpedo (Assurance)
+        why: Assurance is 2× against Solgaleo (Psychic/Steel); it takes ½× from Solgaleo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Slowbro (Flamethrower)
+        why: Flamethrower is 2× against Solgaleo (Psychic/Steel); it takes ½× from Solgaleo's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Solgaleo (Psychic/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Carkol (Overheat)
+        why: Overheat is 2× against Solgaleo (Psychic/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Charmeleon (Fire Pledge)
+        why: Fire Pledge is 2× against Solgaleo (Psychic/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Zen Headbutt is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Fire Spin is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Ice, Rock, Fairy types
+        why: Iron Head is Steel, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison attacks
+        why: Poison does not affect Solgaleo (Psychic/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Solgaleo (Psychic/Steel) resists Normal, Grass, Ice, Flying, Psychic, Rock, Dragon, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: lunala-max-lair
+    title: Lunala in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [lunala]
+    oneInSave: true
+    summary: "Lunala (Psychic/Ghost) is a Max Lair boss: Shadow Ball, Moonblast, Magic Coat, Swift."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: nso
+    steps:
+      - section: setup
+        text: Not in your own Max Lair. Join a Shield player's Dynamax Adventure online whose boss is Lunala, and do not keep it unless it is shiny; from then on its path is yours to note.
+        source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+    advice:
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Drapion (Lash Out)
+        why: Lash Out is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Skuntank (Lash Out)
+        why: Lash Out is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Barraskewda (Assurance)
+        why: Assurance is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Basculin (Crunch)
+        why: Crunch is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Boltund (Crunch)
+        why: Crunch is 4× against Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Shadow Ball is Ghost, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Dragon, Dark types
+        why: Moonblast is Fairy, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Normal or Fighting attacks
+        why: Normal and Fighting does not affect Lunala (Psychic/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Lunala (Psychic/Ghost) resists Poison, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: nihilego-max-lair
+    title: Nihilego in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [nihilego]
+    oneInSave: true
+    summary: "Nihilego (Rock/Poison) is a Max Lair boss: Wonder Room, Sludge Wave, Brutal Swing, Acid Spray."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Krookodile (Earth Power)
+        why: Earth Power is 4× against Nihilego (Rock/Poison); it takes ½× from Nihilego's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Diggersby (Stomping Tantrum)
+        why: Stomping Tantrum is 4× against Nihilego (Rock/Poison).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 4× against Nihilego (Rock/Poison).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flygon (Mud-Slap)
+        why: Mud-Slap is 4× against Nihilego (Rock/Poison).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Klefki (Flash Cannon)
+        why: Flash Cannon is 2× against Nihilego (Rock/Poison); it takes ½× from Nihilego's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Marowak (Bonemerang)
+        why: Bonemerang is 4× against Nihilego (Rock/Poison).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Grass, Fairy types
+        why: Sludge Wave and Acid Spray are Poison, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Brutal Swing is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Nihilego (Rock/Poison) resists Normal, Fire, Poison, Flying, Bug, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: buzzwole-max-lair
+    title: Buzzwole in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [buzzwole]
+    oneInSave: true
+    summary: "Buzzwole (Bug/Fighting) is a Max Lair boss: Power-Up Punch, Taunt, Leech Life, Dynamic Punch."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Emolga (Acrobatics)
+        why: Acrobatics is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Mantine (Air Slash)
+        why: Air Slash is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Pelipper (Dual Wingbeat)
+        why: Dual Wingbeat is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Scyther (Wing Attack)
+        why: Wing Attack is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Talonflame (Hurricane)
+        why: Hurricane is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Vespiquen (Dual Wingbeat)
+        why: Dual Wingbeat is 4× against Buzzwole (Bug/Fighting); it takes ½× from Buzzwole's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Power-Up Punch and Dynamic Punch are Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Psychic, Dark types
+        why: Leech Life is Bug, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Buzzwole (Bug/Fighting) resists Grass, Fighting, Ground, Bug, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: pheromosa-max-lair
+    title: Pheromosa in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [pheromosa]
+    oneInSave: true
+    summary: "Pheromosa (Bug/Fighting) is a Max Lair boss: High Jump Kick, Swift, Throat Chop, Lunge."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Emolga (Acrobatics)
+        why: Acrobatics is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Mantine (Air Slash)
+        why: Air Slash is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Noctowl (Sky Attack)
+        why: Sky Attack is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Pelipper (Dual Wingbeat)
+        why: Dual Wingbeat is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Scyther (Wing Attack)
+        why: Wing Attack is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Skarmory (Fly)
+        why: Fly is 4× against Pheromosa (Bug/Fighting).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: High Jump Kick is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Throat Chop is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Psychic, Dark types
+        why: Lunge is Bug, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Pheromosa (Bug/Fighting) resists Grass, Fighting, Ground, Bug, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: xurkitree-max-lair
+    title: Xurkitree in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [xurkitree]
+    oneInSave: true
+    summary: "Xurkitree (Electric) is a Max Lair boss: Power Whip, Discharge, Eerie Impulse, Brutal Swing."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flygon (Mud-Slap)
+        why: Mud-Slap is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Nidoking (High Horsepower)
+        why: High Horsepower is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Nidoqueen (Scorching Sands)
+        why: Scorching Sands is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Earth Power)
+        why: Earth Power is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Stomping Tantrum)
+        why: Stomping Tantrum is 2× against Xurkitree (Electric).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Water, Ground, Rock types
+        why: Power Whip is Grass, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Flying types
+        why: Discharge is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Brutal Swing is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Xurkitree (Electric) resists Electric, Flying, Steel attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: celesteela-max-lair
+    title: Celesteela in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [celesteela]
+    oneInSave: true
+    summary: "Celesteela (Steel/Flying) is a Max Lair boss: Leech Seed, Smack Down, Gyro Ball, Earthquake."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Rotom (Electro Ball)
+        why: Electro Ball is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Fire Blast)
+        why: Fire Blast is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Audino (Flamethrower)
+        why: Flamethrower is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dragonair (Thunder)
+        why: Thunder is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Durant (Thunder Fang)
+        why: Thunder Fang is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Gourgeist (Mystical Fire)
+        why: Mystical Fire is 2× against Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Smack Down is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Ice, Rock, Fairy types
+        why: Gyro Ball is Steel, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Electric, Poison, Rock, Steel types
+        why: Earthquake is Ground, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison or Ground attacks
+        why: Poison and Ground does not affect Celesteela (Steel/Flying).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Celesteela (Steel/Flying) resists Normal, Grass, Flying, Psychic, Bug, Dragon, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: kartana-max-lair
+    title: Kartana in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [kartana]
+    oneInSave: true
+    summary: "Kartana (Grass/Steel) is a Max Lair boss: Vacuum Wave, Air Cutter, Leaf Blade, Swords Dance."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Charmeleon (Fire Pledge)
+        why: Fire Pledge is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flareon (Burning Jealousy)
+        why: Burning Jealousy is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Heatmor (Fire Lash)
+        why: Fire Lash is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Lampent (Burning Jealousy)
+        why: Burning Jealousy is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Magmar (Fire Blast)
+        why: Fire Blast is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Marowak (Flare Blitz)
+        why: Flare Blitz is 4× against Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Normal, Ice, Rock, Dark, Steel types
+        why: Vacuum Wave is Fighting, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Fighting, Bug types
+        why: Air Cutter is Flying, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Ground, Rock types
+        why: Leaf Blade is Grass, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison attacks
+        why: Poison does not affect Kartana (Grass/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Kartana (Grass/Steel) resists Normal, Water, Electric, Grass, Psychic, Rock, Dragon, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: guzzlord-max-lair
+    title: Guzzlord in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [guzzlord]
+    oneInSave: true
+    summary: "Guzzlord (Dark/Dragon) is a Max Lair boss: Dragon Rush, Stomping Tantrum, Brutal Swing, Mega Punch."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Azumarill (Play Rough)
+        why: Play Rough is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Clefable (Dazzling Gleam)
+        why: Dazzling Gleam is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Comfey (Draining Kiss)
+        why: Draining Kiss is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Jigglypuff (Draining Kiss)
+        why: Draining Kiss is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Ribombee (Draining Kiss)
+        why: Draining Kiss is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Shiinotic (Moonblast)
+        why: Moonblast is 4× against Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Dragon types
+        why: Dragon Rush is Dragon, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Electric, Poison, Rock, Steel types
+        why: Stomping Tantrum is Ground, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Brutal Swing is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Psychic attacks
+        why: Psychic does not affect Guzzlord (Dark/Dragon).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Guzzlord (Dark/Dragon) resists Fire, Water, Electric, Grass, Ghost, Dark attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: necrozma-max-lair
+    title: Necrozma in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [necrozma]
+    oneInSave: true
+    summary: "Necrozma (Psychic) is a Max Lair boss: Psycho Cut, Charge Beam, Power Gem, Autotomize."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Krookodile (Darkest Lariat)
+        why: Darkest Lariat is 2× against Necrozma (Psychic); it takes ½× from Necrozma's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (Sucker Punch)
+        why: Sucker Punch is 2× against Necrozma (Psychic); it takes ½× from Necrozma's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Stunfisk (Foul Play)
+        why: Foul Play is 2× against Necrozma (Psychic); it takes ½× from Necrozma's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Necrozma (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Bisharp (Night Slash)
+        why: Night Slash is 2× against Necrozma (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Cofagrigus (Shadow Ball)
+        why: Shadow Ball is 2× against Necrozma (Psychic).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Psycho Cut is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Water, Flying types
+        why: Charge Beam is Electric, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Power Gem is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Necrozma (Psychic) resists Fighting, Psychic attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: stakataka-max-lair
+    title: Stakataka in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [stakataka]
+    oneInSave: true
+    summary: "Stakataka (Rock/Steel) is a Max Lair boss: Rock Slide, Double-Edge, Brutal Swing, Autotomize."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Blaziken (Close Combat)
+        why: Close Combat is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Combusken (Focus Blast)
+        why: Focus Blast is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Diggersby (Stomping Tantrum)
+        why: Stomping Tantrum is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Dugtrio (High Horsepower)
+        why: High Horsepower is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Falinks (Brick Break)
+        why: Brick Break is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Flygon (Mud-Slap)
+        why: Mud-Slap is 4× against Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Fire, Ice, Flying, Bug types
+        why: Rock Slide is Rock, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Brutal Swing is Dark, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Poison attacks
+        why: Poison does not affect Stakataka (Rock/Steel).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Stakataka (Rock/Steel) resists Normal, Ice, Flying, Psychic, Bug, Rock, Dragon, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+
+  - id: blacephalon-max-lair
+    title: Blacephalon in a Dynamax Adventure
+    method: dynamax-adventure
+    procedure: dynamax-adventure
+    variants: [blacephalon]
+    oneInSave: true
+    summary: "Blacephalon (Fire/Ghost) is a Max Lair boss: Shadow Claw, Taunt, Fire Blast, Zen Headbutt."
+    requires:
+      - id: crown-tundra
+      - id: shiny-charm
+        role: odds
+      - id: legendary-clue-q
+    advice:
+      - kind: take
+        subject: Crawdaunt (Lash Out)
+        why: Lash Out is 2× against Blacephalon (Fire/Ghost); it takes ½× from Blacephalon's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Sharpedo (Aqua Jet)
+        why: Aqua Jet is 2× against Blacephalon (Fire/Ghost); it takes ½× from Blacephalon's best attack.
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Absol (Night Slash)
+        why: Night Slash is 2× against Blacephalon (Fire/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Araquanid (Liquidation)
+        why: Liquidation is 2× against Blacephalon (Fire/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Armaldo (Smack Down)
+        why: Smack Down is 2× against Blacephalon (Fire/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: take
+        subject: Aurorus (Ancient Power)
+        why: Ancient Power is 2× against Blacephalon (Fire/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+      - kind: avoid
+        subject: Psychic, Ghost types
+        why: Shadow Claw is Ghost, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Grass, Ice, Bug, Steel types
+        why: Fire Blast is Fire, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Fighting, Poison types
+        why: Zen Headbutt is Psychic, which hits them 2×.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: avoid
+        subject: Rentals that only have Normal or Fighting attacks
+        why: Normal and Fighting does not affect Blacephalon (Fire/Ghost).
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
+      - kind: note
+        subject: Resisted
+        why: Blacephalon (Fire/Ghost) resists Fire, Grass, Ice, Poison, Bug, Steel, Fairy attacks.
+        source: https://bulbapedia.bulbagarden.net/wiki/Type
