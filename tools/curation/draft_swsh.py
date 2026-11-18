@@ -2,6 +2,7 @@
 
     python tools/curation/draft_swsh.py            # fetch pages that are not cached, then draft
     python tools/curation/draft_swsh.py --refetch  # fetch every page again
+    python tools/curation/draft_swsh.py --species  # also draft every species page (slow: ~600 pages)
 
 Writes to tools/curation/out/ and nothing else:
 
@@ -82,8 +83,16 @@ STATICS = [
 ]
 
 
-def fetch(page: str, refetch: bool) -> str:
-    path = CACHE / (re.sub(r'[^A-Za-z0-9_]', '', page) + '.wiki')
+def fetch(page: str, refetch: bool, prefix: str = '') -> str:
+    """The page's wikitext, following one redirect ("Farfetchd" -> "Farfetch'd"). The target is
+    cached under its own prefix, because the cache name drops the apostrophe both titles differ by."""
+    text = fetch_raw(page, refetch, prefix)
+    target = re.match(r'#redirect\s*\[\[([^\]]+)\]\]', text, re.I)
+    return fetch_raw(target.group(1).replace(' ', '_'), refetch, 'r-') if target and not prefix else text
+
+
+def fetch_raw(page: str, refetch: bool, prefix: str = '') -> str:
+    path = CACHE / (prefix + re.sub(r'[^A-Za-z0-9_]', '', page) + '.wiki')
     if refetch or not path.exists():
         url = 'https://bulbapedia.bulbagarden.net/w/index.php?title=' + urllib.parse.quote(page) + '&action=raw'
         request = urllib.request.Request(url, headers={'User-Agent': 'pokedex-curation (personal, low volume)'})
@@ -167,7 +176,7 @@ def scalar(value) -> str:
 
 def write(name: str, rows: list) -> None:
     lines = []
-    for _, vid, method, fields in sorted(rows):
+    for _, vid, method, fields in sorted(rows, key=lambda r: (r[0], r[1], r[2], str(r[3].get("prerequisite")))):
         lines += ['  - variantId: ' + vid, '    methodId: ' + method]
         lines += ['    %s: %s' % (k, scalar(fields[k]))
                   for k in ['from', 'location', 'prerequisite', 'shinyLocked', 'oddsExclude', 'notes', 'source']
@@ -323,7 +332,7 @@ def da_guides(pages: dict, variants: dict, rows: list) -> list[str]:
     bosses = {b['name']: b for b in parse_mons(text[text.index('===Special Pokémon==='):text.index('==Trivia==')])}
     names = by_species_name(variants)
     lines = []
-    for _, vid, method, fields in sorted(rows):
+    for _, vid, method, fields in sorted(rows, key=lambda r: (r[0], r[1], r[2], str(r[3].get("prerequisite")))):
         if method != 'dynamax-adventure':
             continue
         v = variants[vid]
@@ -361,6 +370,186 @@ def da_guides(pages: dict, variants: dict, rows: list) -> list[str]:
     return lines
 
 
+# --- Species: where each one is in Sword --------------------------------------------------
+#
+# From each species page's "Game locations": the rows for Sword (alone or with Shield) and for
+# the Expansion Pass. An area list is split on <br>; each segment is one way:
+#
+#   ... ([[Max Raid Battle]])     raid; the den areas are the location
+#   ... ([[Dynamax Adventure]])   skipped: random, a bonus rather than a way to hunt one
+#   Revive from ...               fossil (the Shiny Charm does nothing for fossils)
+#   Evolve ...                    evolution, from what upstream says it evolves from
+#   Trade / Received / Breed      skipped: no catchable source, a gift (locked) or a parent
+#   anything else                 wild: symbol, hidden or fishing encounters in those areas
+#
+# A segment tagged <small>('''Galarian Form''')</small> belongs to that form only; an untagged
+# one to the species' default variant, its female form and its cosmetic forms. Weather and
+# rod details live on the location pages, so a wild row says where, not under which sky.
+
+SPECIES_TAIL = '_(Pokémon)'
+SWORD_ROWS = {'Sword', 'Expansion Pass', 'Sword Expansion Pass'}
+EXPANSION = 'The Isle of Armor or The Crown Tundra (Expansion Pass).'
+
+
+def species_rows(text: str) -> list[tuple[str, str]]:
+    """(row kind, area text) for each Sword or Expansion Pass availability row."""
+    out = []
+    for m in re.finditer(r'\{\{Availability/Entry[12]\|([^\n]*)\}\}\s*$', text, re.M):
+        body = m.group(1)
+        versions = set(re.findall(r'\bv2?=([^|]+)', body))
+        if not versions & SWORD_ROWS:
+            continue
+        area = re.search(r'\|area=(.*)$', body)
+        if area:
+            out.append(('expansion' if versions & {'Expansion Pass', 'Sword Expansion Pass'} else 'base', area.group(1)))
+    return out
+
+
+def plain(wiki: str) -> str:
+    s = re.sub(r'<small>.*?</small>', '', wiki)
+    s = re.sub(r'\[\[Route\]\]s\s*', 'Routes ', s)
+    s = re.sub(r'\{\{rt\|(\d+)(\|[^}]*)?\}\}', r'Route \1', s)
+    s = re.sub(r'\{\{rtn\|(\d+)(\|[^}]*)?\}\}', r'\1', s)
+    s = re.sub(r'\{\{[pm]\|([^}|]+)\}\}', r'\1', s)
+    s = re.sub(r'\[\[[^\]|]*\|([^\]]*)\]\]', r'\1', s)
+    s = re.sub(r'\[\[([^\]]*)\]\]', r'\1', s)
+    s = re.sub(r'<sup>.*?</sup>', '', s)
+    s = re.sub(r'\{\{[^}]*\}\}', '', s)
+    # A Gigantamax or similar tag whose template was stripped leaves an empty ('''''').
+    s = re.sub(r"\(\s*'*\s*\)", '', s).replace("'''", '')
+    return re.sub(r'\s+', ' ', s).strip(' ,')
+
+
+def form_tag(segment: str) -> tuple[str, str | None]:
+    m = re.search(r"<small>\('''(.+?)'''\)</small>", segment)
+    return (segment[:m.start()] + segment[m.end():], m.group(1)) if m else (segment, None)
+
+
+def ways(segment: str) -> tuple[str | None, str]:
+    s = segment.strip()
+    if '(Dynamax Adventure)' in plain(s):
+        return None, ''
+    if 'Max Raid Battle' in s:
+        return 'raid', plain(s.replace('([[Max Raid Battle]])', '').replace('/Dens', ''))
+    text = plain(s)
+    if text.startswith('Revive from'):
+        return 'fossil', text
+    if text.startswith('Evolve'):
+        return 'evolution', text
+    # Gifts are never shiny in Sword, fossils apart (Bulbapedia, Shiny Pokemon, Generation VIII).
+    if text.startswith(('Reward for', 'First partner', 'Received')):
+        return 'gift', text
+    skip = ('Trade', 'Breed', 'Only one', 'Event', 'Pokémon HOME')
+    if not text or text.startswith(skip) or 'Only one' in text or ' in Motostoke' in text or text == 'Indeedee':
+        return None, ''
+    return 'wild', text
+
+
+REGIONS = {'Galarian': 'galar', 'Alolan': 'alola', 'Hisuian': 'hisui', 'Paldean': 'paldea'}
+
+
+def tag_pieces(tag: str) -> list[str]:
+    """'Midday/Midnight Forms' -> ['Midday Form', 'Midnight Form']; 'West/East Sea' -> both seas."""
+    words = tag.split(' ')
+    last = words[-1] if len(words) > 1 else ''
+    head = ' '.join(words[:-1]) if last else tag
+    suffix = {'Forms': 'Form', 'Formes': 'Forme'}.get(last, last)
+    pieces = head.split('/')
+    out = []
+    for piece in pieces:
+        if '-' in pieces[-1] and '-' not in piece:  # Red/Blue-Striped -> Red-Striped, Blue-Striped
+            piece = piece + '-' + pieces[-1].split('-', 1)[1]
+        out.append((piece + ' ' + suffix).strip())
+    return out
+
+
+def variants_for(tag: str | None, family: list[dict]) -> list[dict]:
+    """The variants a segment's form tag names. A tag naming no variant's form is the species'
+    default form (Kantonian, Midday, West Sea, Incarnate...): the default form carries no form
+    name of its own in the dataset. Gigantamax, Mega and breed tags place no variant."""
+    plain_kinds = [v for v in family if not v['regional'] and (v['default'] or v['female'] or v['cosmetic'])]
+    if tag is None or tag in ('All Forms', 'All Sizes', 'Both Forms'):
+        return plain_kinds if tag is None else [v for v in family if not v['regional']]
+    if any(k in tag for k in ('Gigantamax', '{{me|', 'Breed')):
+        return []
+    found = []
+    for piece in tag_pieces(tag):
+        region = REGIONS.get(piece.split(' ')[0])
+        if region and piece.endswith('Form'):
+            found += [v for v in family if v['regional'] and (v['form'] or '').startswith(region)]
+        elif piece in ('Male', 'Male Form'):
+            found += [v for v in family if v['default'] and not v['regional']]
+        elif piece in ('Female', 'Female Form'):
+            found += [v for v in family if v['female'] and not v['regional']]
+        elif any(v['formName'] == piece for v in family):
+            found += [v for v in family if v['formName'] == piece]
+        else:
+            found += [v for v in family if not v['regional'] and (v['default'] or v['female'])]
+    return list({v['id']: v for v in found}.values())
+
+
+def species_drafts(variants: dict, refetch: bool) -> tuple[list, list]:
+    db = sqlite3.connect(DB)
+    extra = {r[0]: r[1:] for r in db.execute(
+        'select id, formId, formName, isFemaleForm, isCosmeticForm, evolvesFromId from variant')}
+    have = {r[0] for r in db.execute("select variantId from encounter where gameId = ?", (GAME,))}
+    families: dict[int, list[dict]] = {}
+    for v in variants.values():
+        form, form_name, female, cosmetic, evolves = extra[v['id']]
+        families.setdefault(v['dex'], []).append(dict(v, form=form, formName=form_name, female=female,
+                                                      cosmetic=cosmetic, evolves=evolves))
+    wanted = {v['dex'] for v in variants.values()
+              if v['obtainable'] and not v['locked'] and v['shiny'] and v['id'] not in have}
+    rows, unplaced = [], []
+    for dex in sorted(wanted):
+        family = families[dex]
+        page = fetch(family[0]['species'].replace(' ', '_') + SPECIES_TAIL, refetch)
+        placed = set()
+        for kind, area in species_rows(page):
+            for segment in re.split(r'<\s*/?\s*br\s*/?\s*>', area):
+                segment, tag = form_tag(segment)
+                method, text = ways(segment)
+                if method is None:
+                    continue
+                for v in variants_for(tag, family):
+                    if not v['obtainable'] or v['locked'] or v['id'] in have:
+                        continue
+                    fields = {'source': BP + urllib.parse.quote(family[0]['species'].replace(' ', '_') + SPECIES_TAIL)}
+                    if method == 'evolution':
+                        if not v['evolves']:
+                            continue
+                        src = v['evolves'] + '-f' if v['female'] and v['evolves'] + '-f' in variants else v['evolves']
+                        if src not in variants or not variants[src]['obtainable']:
+                            continue
+                        fields['from'] = src
+                        fields['prerequisite'] = text + '.'
+                    elif method == 'fossil':
+                        fields['prerequisite'] = text + '.'
+                    elif method == 'gift':
+                        fields['prerequisite'] = text + '.'
+                        fields['shinyLocked'] = True
+                        fields['notes'] = 'Gifts are never shiny in Sword and Shield.'
+                    else:
+                        fields['location'] = text
+                        if kind == 'expansion':
+                            fields['prerequisite'] = EXPANSION
+                    rows.append((v['dex'], v['id'], method, fields))
+                    placed.add(v['id'])
+        unplaced += [v['id'] for v in family
+                     if v['obtainable'] and not v['locked'] and v['shiny'] and v['id'] not in have | placed]
+    # One row per (variant, method, prerequisite): merge the base game's and the DLC's apart.
+    merged: dict[tuple, tuple] = {}
+    for dex, vid, method, fields in rows:
+        key = (vid, method, fields.get('prerequisite'), fields.get('from'))
+        if key in merged:
+            old = merged[key][3]
+            if 'location' in fields and fields['location'] not in old.get('location', ''):
+                old['location'] = old['location'] + ', ' + fields['location']
+        else:
+            merged[key] = (dex, vid, method, dict(fields))
+    return list(merged.values()), sorted(unplaced)
+
+
 def main() -> None:
     refetch = '--refetch' in sys.argv
     pages = {page: fetch(page, refetch) for page in [DA, EVENTS]}
@@ -370,6 +559,10 @@ def main() -> None:
     guides = da_guides(pages, variants, rows)
     (OUT / 'swsh.da-guides.yaml').write_text('\n'.join(guides), encoding='utf-8', newline='\n')
     print('%d legendary rows, %d Dynamax Adventure guides' % (len(rows), sum(1 for g in guides if g.startswith('  - id:'))))
+    if '--species' in sys.argv:
+        species, unplaced = species_drafts(variants, refetch)
+        write('swsh-sw.species.yaml', species)
+        print('%d species rows; %d variants no source places: %s' % (len(species), len(unplaced), ', '.join(unplaced)))
     print('skipped:', *skipped, sep='\n  ')
     print('drafts in', OUT)
 
