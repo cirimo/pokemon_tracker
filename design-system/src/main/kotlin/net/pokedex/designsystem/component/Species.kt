@@ -123,7 +123,11 @@ fun SpeciesHeader(
             Box(Modifier.fillMaxSize().padding(dimens.spaceXxl)) { sprite(rendering) }
             if (state != SlotState.Needed) {
                 // The grid's mark, in the grid's place, sized like a grid tile's corner.
-                SlotMarkGlyph(state.mark, colors, Modifier.align(Alignment.TopEnd).size(HERO_MARK))
+                SlotMarkGlyph(
+                    state.mark,
+                    colors,
+                    Modifier.align(Alignment.TopEnd).padding(dimens.spaceSm).size(HERO_MARK),
+                )
             }
         }
 

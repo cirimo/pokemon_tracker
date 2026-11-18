@@ -12,7 +12,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.SlotStatus
+import net.pokedex.designsystem.component.ActionButton
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.GameBadge
@@ -308,12 +308,8 @@ private fun SlotDetailContent(
     if (state.gamesChosen) GamesSection(state.games)
 
     ChipFlow {
-        OutlinedButton(onClick = { onShowInBox(slot.boxIndex) }) {
-            Text("Show in box", style = PokedexTheme.text.badgeLabel)
-        }
-        OutlinedButton(onClick = { onOpenVariant(slot.variantId) }) {
-            Text("Species and forms", style = PokedexTheme.text.badgeLabel)
-        }
+        ActionButton(label = "Show in box", onClick = { onShowInBox(slot.boxIndex) }, primary = false)
+        ActionButton(label = "Species and forms", onClick = { onOpenVariant(slot.variantId) }, primary = false)
     }
 }
 

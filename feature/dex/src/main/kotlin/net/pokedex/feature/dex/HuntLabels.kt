@@ -41,6 +41,16 @@ internal fun standingSentence(standing: Standing, lockReason: String?): String =
     Standing.Absent -> "Not in this game."
 }
 
+/** The word for a table cell. The sentence above is what explains it when it needs explaining. */
+internal fun standingLabel(standing: Standing): String = when (standing) {
+    Standing.Shiny -> "Shiny"
+    Standing.ShinyLocked -> "Shiny-locked"
+    Standing.EventOnly -> "Event only"
+    Standing.TransferOnly -> "Through HOME"
+    Standing.NoShinyYet -> "No shiny yet"
+    Standing.Absent -> "Not here"
+}
+
 internal val Priority.label: String
     get() = when (this) {
         Priority.Want -> "Want"

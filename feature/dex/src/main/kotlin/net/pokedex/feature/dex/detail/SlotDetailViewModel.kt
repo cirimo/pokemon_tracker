@@ -50,6 +50,7 @@ import net.pokedex.feature.dex.farmLine
 import net.pokedex.feature.dex.locationOf
 import net.pokedex.feature.dex.oddsSentence
 import net.pokedex.feature.dex.sourceLabel
+import net.pokedex.feature.dex.standingLabel
 import net.pokedex.feature.dex.standingSentence
 import javax.inject.Inject
 
@@ -107,8 +108,12 @@ data class SlotDetailUiState(
 @Immutable
 data class GameHuntUi(
     val name: String,
+    /** A word or two for the table: "Shiny", "Shiny-locked", "Not here". */
+    val label: String,
+    /** The full sentence, said under the row where the word needs it (a lock's reason). */
     val standing: String,
     val huntable: Boolean,
+    val locked: Boolean,
     /** Empty for a huntable game means "no method recorded yet", and the screen says so. */
     val ways: List<WayUi>,
 )
@@ -429,8 +434,10 @@ class SlotDetailViewModel @Inject constructor(
             val standing = standingOf(dex, variant, game.id)
             GameHuntUi(
                 name = game.name,
+                label = standingLabel(standing),
                 standing = standingSentence(standing, lockReasons[game.id]),
                 huntable = standing == Standing.Shiny,
+                locked = standing == Standing.ShinyLocked,
                 ways = guide?.let { g -> g.encounters(variant, game.id).map { wayUi(dex, g, it) } }.orEmpty(),
             )
         }
