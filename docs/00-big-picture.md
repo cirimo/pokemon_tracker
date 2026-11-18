@@ -151,4 +151,8 @@ One prompt per milestone, each run as its own Claude Code session, in order:
    Shiny Charm: what I can get shiny only there, the legendaries that are easy to hunt (Dynamax
    Adventures), a step-by-step guide per hunt, the prep builds to farm first and how, and what to
    bring per legendary. Sword's encounters curated, and a guide layer in the reference data.
+   **Data built 2026-11-18**: Sword curated to 709 of 778 with a method, version exclusives
+   and locks corrected, a guide per Max Lair boss and legendary giant with rental advice and a
+   catcher build (`docs/adr/0016-guide-layer.md`), prep ticks in `user.db` v7. The screens wait
+   for prompt 10's design to land on `main`.
 12. Further feature prompts, one per milestone, written as each one comes up.

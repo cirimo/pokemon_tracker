@@ -125,6 +125,13 @@ JSON, emits the DDL verbatim, inserts `room_master_table(42, <identityHash>)` an
 `PRAGMA user_version`. Schema drift becomes a pipeline failure instead of a crash on the
 device.
 
+One trap, found in prompt 11: Room rewrites an existing `N.json`'s tables but not its
+`identityHash` when the version stays the same. Renaming a column without a version bump left
+schema 3 with the old hash, the pipeline copied it faithfully, and `room-identity` passed
+because asset and JSON agreed with each other; only `ReferenceAssetTest` on a device saw Room
+refuse the file. When a reference entity changes within a version, delete its `N.json` before
+`./gradlew :core:data:assembleDebug`.
+
 ---
 
 ## 4. ERD
@@ -139,10 +146,18 @@ device.
 │                     │          transferOnly  (upstream)                      │
 │                     │          shinyLocked / shinyLockReason  (curated)      │
 │                     │                                                        │
-│                     └──1:N─→ encounter ──N:1─→ game                          │
+│                     │          exclusiveTo / availabilityNote  (curated)     │
+│                     └──1:N─→ encounter ──N:1─→ game     (+ oddsExclude)      │
 │                                  └──N:1─→ encounter_method ──1:N─→           │
-│                                                        odds_modifier         │
+│                                         odds_modifier   (+ skipsBaseRoll)    │
 │  dataset_meta (one row: version, upstream tag, preset version, content hash) │
+│                                                                              │
+│  guide layer (schema 3, prompt 11), keyed by curated ids and gameSet:        │
+│  guide ──1:N─→ guide_target ──N:1─→ variant      guide ──1:N─→ guide_step    │
+│    │  (a procedure is a guide row with kind=procedure; guides follow one)    │
+│    ├──1:N─→ guide_link ──→ build ──1:N─→ build_part                          │
+│    │                   └─→ requirement                                       │
+│    └──1:N─→ guide_advice      farm_source (build | requirement)   location   │
 └──────────────────────────────────────────────────────────────────────────────┘
                                     ╎
               joined in memory on CatchKey(variantId, copyIndex)
@@ -152,6 +167,7 @@ device.
 │  user_settings  single row (incl. backup folder URI, last origin game)       │
 │  backup_log     status of backups this install wrote; NOT the restore list   │
 │  my_game        PK gameId: the games I own and play (M4, version 4)          │
+│  prep_tick      PK (gameId, refId): a guide's build or requirement done (v7) │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -258,6 +274,17 @@ array read per slot for it. It drives four things: "Farm in" in the search sheet
 the line under the name on slot detail, and the farm plan on Progress (`farmCounts`).
 Evolutions need no case of their own: upstream marks an evolved form obtainable only in the
 games where it can be evolved.
+
+**Guides** (prompt 11, `docs/adr/0016-guide-layer.md`). Step-by-step hunt guides, the builds
+to prepare and how to farm them are curated YAML (`data/curated/guides/<gameSet>.yaml`) built
+into ten reference tables, cited row by row. `GuideBook` in `:core:model` indexes them; a
+guide reaches a hunt through the variants it targets, so the hunt and the game family are
+derived (`huntKeyOf`), never stored and never a slot position. `legendaryPlan` ranks one game's
+needed legendaries by odds per attempt, then where the game stands in my farm order.
+`GuideBookRepository` loads lazily, off the cold-start path, like `CurationRepository` (the
+encounter and odds index, called `HuntGuide` before prompt 11). What I have prepared lives in
+`user.db` as `prep_tick` (version 7), keyed by guide-layer ids with no foreign key, and travels
+in backups as `settings.prep`, additively.
 
 Two features never name each other's routes. The box view reaches Settings through a
 callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view

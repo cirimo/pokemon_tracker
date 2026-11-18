@@ -70,7 +70,7 @@ ones I care about.
   hour" need. The log is also what makes history honest; the integer is what is cheap.
 - **Durability of a count.** Write-through on every tap, or batched? The rule is that a killed app
   loses nothing I counted. Say how you prove that.
-- **The `user.db` migration.** New tables, v6 to v7, a `MigrationTestHelper` test, proven on
+- **The `user.db` migration.** New tables, v7 to v8 (prompt 11 took v7 for prep ticks), a `MigrationTestHelper` test, proven on
   `net.pokedex.debug` with real-shaped data before the real install moves. No foreign key into
   reference data; a hunt outlives a game or method the dataset drops.
 - **Backups.** Are hunts in the backup file? If yes, additive (`hunts` as a new key) or a bump?
@@ -116,7 +116,7 @@ Tell me which are worth it now, which later, and which not at all.
 
 In priority order:
 
-1. The hunt's shape in `:core:model`, the `user.db` v7 migration and its test, repository and
+1. The hunt's shape in `:core:model`, the `user.db` v8 migration and its test, repository and
    mapper. Prove the migration on `net.pokedex.debug` with real-shaped data first.
 2. Counting: the write path, its durability test (a count survives process death), undo.
 3. Odds with a count, in `:core:model`, with JVM tests against the tables the curated rows cite.

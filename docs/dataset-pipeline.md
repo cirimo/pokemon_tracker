@@ -21,6 +21,9 @@ npm run validate               # validate the checked-in asset
 npm run validate -- --sprites  # also check every sprite is present and none is shared
 npm run coverage -- la --list  # how much of one game is curated, and what is left
 npm test                       # pipeline unit tests
+
+python tools/curation/draft_swsh.py --species  # draft Sword rows and Max Lair guides into tools/curation/out/
+python tools/curation/learnsets.py             # refresh data/derived/learnsets-swsh.json after editing a build
 ```
 
 Outputs land in `core/data/src/main/assets/`:
@@ -51,6 +54,11 @@ from. It is pipeline state, not an asset, so it stays out of the APK.
 That regenerates `core/data/schemas/…/N.json`, which carries both the exact `CREATE`
 statements and the `identityHash` Room validates the asset against. Skipping it produces
 a database Room refuses to open on the device, with no useful message.
+
+**If the schema version did not move, delete that `N.json` first.** Room rewrites an existing
+file's tables but keeps its old `identityHash`, so the pipeline would copy a hash the app no
+longer has, and `room-identity` cannot see it (the asset and the JSON still agree). Prompt 11
+shipped such an asset for three commits; `ReferenceAssetTest` on a device is what caught it.
 
 ---
 
@@ -160,6 +168,36 @@ A missing row means "no method recorded yet", and the app says exactly that. It 
 means "not in this game": upstream's `obtainableIn` decides that, and
 `encounter-obtainable` refuses a row for a variant the game does not offer.
 
+### `availability-overrides.yaml` — where upstream is wrong about a game
+
+Upstream 6.8.2 separates the versions of every pair except Sword and Shield, where it lists
+the same 830 variants for both. A row here, cited, corrects that for one (variant, game):
+
+- `version-exclusive` clears `obtainable` and names the version that has it (`exclusiveTo`).
+- `online-only` only labels: the version reaches it through another player's game online (a
+  Crown Tundra legendary in the other version's Max Lair), so it stays obtainable.
+- `trade-only` clears `obtainable`: neither version can catch it (Zygarde 10% Forme).
+
+An override may only narrow upstream. The builder refuses a row on a game upstream already
+calls unobtainable, and `override-narrows` refuses an exclusive the other version lacks too.
+
+### `guides/<gameSet>.yaml` — how to hunt it, step by step
+
+The guide layer (prompt 11, `docs/adr/0016-guide-layer.md`), one file per game family:
+`locations` (with their DLC, so a step's DLC is derived), `requirements` (DLC, story, items,
+services, with a farm chain), `builds` (a Pokémon and each part of it with why it is there,
+plus a farm chain), `procedures` (shared step lists: a Dynamax Adventure, a soft reset) and
+`guides` (the variants they target, the method, the procedure they follow, their own steps,
+builds, requirements and rental advice). Every step, part, advice line and farm link carries a
+`source`; the schema refuses one without. A guide names variants, never slots, and one build
+serves every guide that links it.
+
+### `data/derived/` — generated from a pinned outside source
+
+Not curated by hand: `learnsets-<gameSet>.json` holds the moves and abilities each build's
+species can have in that game, written by `tools/curation/learnsets.py` from PokeAPI's CSVs at a
+pinned commit. Commit it with the build that needed it.
+
 ### `odds-modifiers.yaml` — the arithmetic
 
 Every Switch game rolls 1/4096, so the base is implicit. A row adds rolls or replaces the
@@ -181,6 +219,11 @@ rate, and names every game and method it applies to:
   or 60 cleared, Sparkling Power 1/2/3) and only the best counts.
 - `inherent: true` comes with the method itself (a Legends Arceus outbreak's 25 rolls), so
   it is part of the method's plain odds rather than something you set up.
+- `skipsBaseRoll: true` removes the method's own roll while the row is active: the
+  Generation VIII egg bug, which makes Sword's Shiny Charm alone hatch at 1/2048.
+- An encounter row's `oddsExclude` lists modifier ids that do not apply to it: Sword's
+  Shiny Charm does nothing for the legendary giants. Every game's charm row is `shiny-charm`,
+  so the app can show odds with and without it.
 
 Exactly one of `rollsAdded` and `denominator` per row; the schema enforces it. The table
 in the app holds one row per (game, method).
@@ -208,7 +251,15 @@ missing is zero.
 **Legends Arceus is curated** (M4, 2026-09-24): 310 of its 347 shiny-obtainable variants
 have a method, 23 are locked, and 14 have no source that places them (see the header of
 `encounters/la.yaml` for which and why). Odds are curated for Legends Arceus, Scarlet/Violet
-and Sword/Shield. Every other game's encounters and locks are still seeded, not complete:
+and Sword/Shield.
+
+**Sword is curated** (prompt 11, 2026-11-18): 709 of its 778 shiny-obtainable variants have a
+method, 26 are locked, and 43 have no source that places them (trades, breeding-only, events,
+the Therian Formes). The 56 legendary rows came from Bulbapedia's Dynamax Adventure page and
+Sword/Shield event list; the other 1654 from each species page's "Game locations", drafted by
+`tools/curation/draft_swsh.py` (see the header of `encounters/swsh-sw.yaml`). The guide layer
+has a guide for every Max Lair boss and the five legendary giants. Every other game's
+encounters and locks are still seeded, not complete:
 fill them one game at a time, from `npm run coverage -- <game> --list`.
 
 Two things you do **not** have to curate, because upstream already answers them:
@@ -239,6 +290,15 @@ is worse than one that refuses to ship.
 | `evolution-from` | An evolution row names a variant the same game does not offer |
 | `lock-contradiction` | A game-wide shiny lock beside an encounter not marked `shinyLocked` |
 | `lock-sanity` | A shiny lock on a variant that has no shiny released at all |
+| `override-narrows` | A version exclusive whose other version does not offer it either |
+| `odds-exclude-known` | An encounter excludes a modifier its game and method do not have |
+| `guide-ref` | A guide, link, step, part or farm source names something that does not exist |
+| `location-exists` | A step or farm source is at a location its game family has none of |
+| `build-farmed` | A guide needs a build, item or service with no farm chain |
+| `guide-target-offered` | A guide targets a variant its game family does not offer unlocked |
+| `guide-method-curated` | A guide's method has no unlocked encounter or no odds for its target |
+| `build-learnable` | A build names a move its species cannot learn in that game |
+| `build-ability` | A build names an ability its species cannot have in that game |
 | `dataset-meta` | The metadata row is missing or duplicated |
 | `display-name-unique` | Two variants share a display name, so search shows rows nobody can tell apart |
 | `sprite-present` | A variant has no sprite file (only with `--sprites`) |
