@@ -3,6 +3,7 @@ package net.pokedex.core.model.backup
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.PrepTick
 import net.pokedex.core.model.VariantId
 import java.time.Instant
 import java.time.format.DateTimeFormatter
@@ -47,6 +48,11 @@ fun RecordInfo.toCatchRecord() = CatchRecord(
     updatedAt = updatedAt?.let(::parseInstant) ?: UNKNOWN_UPDATED_AT,
     regular = regular,
 )
+
+fun PrepTick.toPrepInfo() = PrepInfo(gameId = gameId.value, refId = refId, doneAt = isoInstant(doneAt))
+
+/** Null for a tick the file cannot date, which a hand edit is the only way to produce. */
+fun PrepInfo.toPrepTick(): PrepTick? = parseInstant(doneAt)?.let { PrepTick(GameId(gameId), refId, it) }
 
 /**
  * The records a merge import must write: per key, whichever side was changed last.

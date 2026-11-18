@@ -69,7 +69,7 @@ class BackupWriter(private val prefix: String) {
     }
 
     /**
-     * Records, games and their order: the things a user chooses. The rest of the file (the
+     * Records, games, their order and the prep ticks: the things a user chooses. The rest of the file (the
      * export time, the app version) changes on every write and says nothing new.
      */
     private fun sameContent(folder: BackupFolder, name: BackupName, file: BackupFile): Boolean {
@@ -77,7 +77,8 @@ class BackupWriter(private val prefix: String) {
         return existing is Outcome.Ok &&
             existing.value.records == file.records &&
             existing.value.settings.myGames == file.settings.myGames &&
-            existing.value.settings.gameOrder == file.settings.gameOrder
+            existing.value.settings.gameOrder == file.settings.gameOrder &&
+            existing.value.settings.prep.orEmpty() == file.settings.prep.orEmpty()
     }
 
     private fun prune(folder: BackupFolder, keepAuto: Int?) {

@@ -4,6 +4,7 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Ownership
+import net.pokedex.core.model.PrepTick
 import java.time.Instant
 
 enum class ImportMode { MERGE, REPLACE }
@@ -76,20 +77,26 @@ data class RestorePreview(
  * @property clearFirst replace mode: the table is emptied in the same transaction.
  * @property myGames the games to hold afterwards, each with its farm order, or null to
  *   leave them as they are.
+ * @property prep the prep ticks to hold afterwards, or null to leave them as they are.
  */
 data class ImportPlan(
     val snapshotFirst: Boolean,
     val write: List<CatchRecord>,
     val clearFirst: Boolean,
     val myGames: Map<GameId, Int>?,
+    val prep: Set<PrepTick>? = null,
 ) {
     companion object {
-        /** @param localGames my games here, with their stored farm order. */
+        /**
+         * @param localGames my games here, with their stored farm order.
+         * @param localPrep the prep ticks here.
+         */
         fun of(
             local: Map<CatchKey, CatchRecord>,
             localGames: Map<GameId, Int>,
             file: BackupFile,
             mode: ImportMode,
+            localPrep: Set<PrepTick> = emptySet(),
         ): ImportPlan {
             val incoming = file.records.map { it.toCatchRecord() }
             val snapshot = local.isNotEmpty() || localGames.isNotEmpty()
@@ -99,12 +106,14 @@ data class ImportPlan(
                     write = mergeRecords(local, incoming),
                     clearFirst = false,
                     myGames = gamesAfterImport(localGames, file, mode),
+                    prep = prepAfterImport(localPrep, file, mode),
                 )
                 ImportMode.REPLACE -> ImportPlan(
                     snapshotFirst = snapshot,
                     write = incoming,
                     clearFirst = true,
                     myGames = gamesAfterImport(localGames, file, mode),
+                    prep = prepAfterImport(localPrep, file, mode),
                 )
             }
         }
@@ -132,6 +141,23 @@ data class ImportPlan(
                     incoming.associateWith { game -> fileOrder.indexOf(game).takeIf { it >= 0 } ?: fileOrder.size }
                 mode == ImportMode.REPLACE -> appended(local.filterKeys { it in incoming }, incoming, fileOrder)
                 else -> appended(local, incoming, fileOrder)
+            }
+            return after.takeIf { it != local }
+        }
+
+        /**
+         * A file without the key says nothing, so the ticks here stay. Replace takes the file's
+         * ticks; merge takes both, keeping this device's date where both have one, because a
+         * merge should never quietly untick something done.
+         */
+        private fun prepAfterImport(local: Set<PrepTick>, file: BackupFile, mode: ImportMode): Set<PrepTick>? {
+            val incoming = file.settings.prep?.mapNotNull { it.toPrepTick() } ?: return null
+            val after = when (mode) {
+                ImportMode.REPLACE -> incoming.toSet()
+                ImportMode.MERGE -> {
+                    val here = local.mapTo(HashSet()) { it.gameId to it.refId }
+                    local + incoming.filter { (it.gameId to it.refId) !in here }
+                }
             }
             return after.takeIf { it != local }
         }

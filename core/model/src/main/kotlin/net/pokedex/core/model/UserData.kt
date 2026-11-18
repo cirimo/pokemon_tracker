@@ -94,3 +94,11 @@ data class UserSettings(
         )
     }
 }
+
+/**
+ * A step of a game's preparation I have done: a build made, the Shiny Charm earned, a DLC
+ * owned. [refId] is a requirement or build id from the guide layer, a plain string with no
+ * foreign key, because the guides live in the other database file (ADR 0002). Per game, not
+ * per family: the Shiny Charm in Sword is not the Shiny Charm in Shield.
+ */
+data class PrepTick(val gameId: GameId, val refId: String, val doneAt: Long)

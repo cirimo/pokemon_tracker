@@ -60,6 +60,10 @@ data class DatasetInfo(
  * without a bump. It is a key of its own rather than [myGames] reordered because every file
  * written before it has [myGames] in alphabetical order, which a newer build could not tell
  * from a chosen one. Missing means "says nothing about the order".
+ *
+ * [prep] is the preparation ticked per game (prompt 11): builds made, the Shiny Charm, DLC.
+ * Additive again. Nullable rather than empty by default, because an empty list is a real
+ * answer ("nothing ticked") and a missing key, in every older file, says nothing at all.
  */
 @Serializable
 data class SettingsInfo(
@@ -68,6 +72,15 @@ data class SettingsInfo(
     val autoBackupKeepCount: Int = 10,
     val myGames: List<String> = emptyList(),
     val gameOrder: List<String> = emptyList(),
+    val prep: List<PrepInfo>? = null,
+)
+
+/** One prep tick. [doneAt] is ISO-8601 UTC, like every timestamp in the file. */
+@Serializable
+data class PrepInfo(
+    val gameId: String,
+    val refId: String,
+    val doneAt: String,
 )
 
 /**
