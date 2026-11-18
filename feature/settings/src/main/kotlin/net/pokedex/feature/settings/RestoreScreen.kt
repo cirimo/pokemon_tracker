@@ -4,9 +4,13 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +26,7 @@ import net.pokedex.designsystem.component.ScreenScaffold
 import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SettingRow
 import net.pokedex.designsystem.component.SkeletonBox
+import net.pokedex.designsystem.component.StatBlock
 import net.pokedex.designsystem.theme.PokedexTheme
 
 @Composable
@@ -164,11 +169,21 @@ private fun PreviewContent(phase: RestorePhase.Preview, onEvent: (RestoreEvent) 
 
 @Composable
 private fun DoneContent(phase: RestorePhase.Done, onDone: () -> Unit) {
-    NoticeCard(
-        title = "Restored",
-        body = recordsLabel(phase.written) + " written." +
-            (phase.snapshot?.let { " What was here before is saved as \"$it\"." } ?: ""),
-    )
+    // A restore is the collection coming back: its shiny count is the figure, in gold because
+    // it counts shinies, and the records written are the receipt under it.
+    ScreenSection(title = "Restored") {
+        Row(horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceXl)) {
+            if (phase.shiny > 0) StatBlock(value = phase.shiny.toString(), label = "shiny in the backup", accent = true)
+            StatBlock(value = phase.written.toString(), label = "records written")
+        }
+        phase.snapshot?.let {
+            Text(
+                text = "What was here before is saved as \"$it\".",
+                style = MaterialTheme.typography.bodyMedium,
+                color = PokedexTheme.colors.onCaseMuted,
+            )
+        }
+    }
     ActionButton(label = "Done", onClick = onDone)
 }
 

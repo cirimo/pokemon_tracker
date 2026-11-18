@@ -40,7 +40,8 @@ sealed interface RestorePhase {
     data class Preview(val source: String, val preview: RestorePreview) : RestorePhase
     data class Refused(val error: AppError) : RestorePhase
     data object Working : RestorePhase
-    data class Done(val written: Int, val snapshot: String?) : RestorePhase
+    /** [shiny] is the backup's shiny count, from its preview: what came back into the case. */
+    data class Done(val written: Int, val snapshot: String?, val shiny: Int = 0) : RestorePhase
 }
 
 sealed interface RestoreEvent {
@@ -127,11 +128,12 @@ class RestoreViewModel @Inject constructor(
 
     private fun restore(mode: ImportMode) {
         val loaded = text ?: return
+        val shiny = (_state.value.phase as? RestorePhase.Preview)?.preview?.caughtCount ?: 0
         launchStep {
             when (val result = backups.import(loaded, mode)) {
                 is Outcome.Err -> phase(RestorePhase.Refused(result.error))
                 is Outcome.Ok -> phase(
-                    RestorePhase.Done(result.value.written, result.value.snapshot?.let(::backupLabel)),
+                    RestorePhase.Done(result.value.written, result.value.snapshot?.let(::backupLabel), shiny),
                 )
             }
         }
