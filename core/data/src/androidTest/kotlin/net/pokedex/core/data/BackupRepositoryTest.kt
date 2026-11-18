@@ -12,6 +12,7 @@ import net.pokedex.core.data.backup.BackupRepository
 import net.pokedex.core.data.reference.ReferenceDatabase
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.PrepRepository
 import net.pokedex.core.data.repository.ReferenceRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.data.user.UserDatabase
@@ -20,6 +21,7 @@ import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Outcome
+import net.pokedex.core.model.PrepTick
 import net.pokedex.core.model.VariantId
 import net.pokedex.core.model.backup.AppInfo
 import net.pokedex.core.model.backup.BackupCodec
@@ -53,6 +55,7 @@ class BackupRepositoryTest {
     private lateinit var settings: SettingsRepository
     private lateinit var location: BackupLocation
     private lateinit var backups: BackupRepository
+    private lateinit var prep: PrepRepository
     private val backupDir get() = File(context.filesDir, "backups")
 
     @Before
@@ -67,6 +70,7 @@ class BackupRepositoryTest {
         val referenceRepository = ReferenceRepository(reference, io)
         catches = CatchRepository(user.catchRecordDao(), io)
         location = BackupLocation(context, settings, io)
+        prep = PrepRepository(user.prepTickDao(), io)
         backups = BackupRepository(
             context = context,
             db = user,
@@ -77,6 +81,7 @@ class BackupRepositoryTest {
             location = location,
             log = user.backupLogDao(),
             myGames = user.myGameDao(),
+            prep = prep,
             appInfo = AppInfo("test", 1),
             io = io,
         )
@@ -132,6 +137,23 @@ class BackupRepositoryTest {
         backups.import(exported, ImportMode.REPLACE, now)
 
         assertThat(catches.allRecords()).containsExactlyElementsIn(original)
+    }
+
+    @Test
+    fun prepTicksTravelWithAnExportAndAnOlderFileLeavesThemAlone() = runTest {
+        catches.merge(listOf(record("bulbasaur", true, tonight)))
+        prep.setDone(GameId("swsh-sw"), "shiny-charm", done = true, now = tonight)
+        val exported = BackupCodec.encode(backups.currentFile(now))
+        prep.setDone(GameId("swsh-sw"), "shiny-charm", done = false)
+
+        backups.import(exported, ImportMode.REPLACE, now)
+        assertThat(prep.all()).containsExactly(PrepTick(GameId("swsh-sw"), "shiny-charm", tonight))
+
+        // A file written before prompt 11 has no prep key; restoring it unticks nothing.
+        val older = backups.currentFile(now).let { it.copy(settings = it.settings.copy(prep = null)) }
+        prep.setDone(GameId("swsh-sw"), "false-swipe-catcher", done = true, now = tonight)
+        backups.import(BackupCodec.encode(older), ImportMode.REPLACE, now)
+        assertThat(prep.all()).hasSize(2)
     }
 
     @Test

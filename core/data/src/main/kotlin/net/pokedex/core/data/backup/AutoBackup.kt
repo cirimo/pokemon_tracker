@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.pokedex.core.data.repository.CatchRepository
+import net.pokedex.core.data.repository.PrepRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.Outcome
 import java.util.concurrent.TimeUnit
@@ -49,6 +50,7 @@ class BackupScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
+    private val prep: PrepRepository,
 ) {
     private val pending = AtomicBoolean(false)
     private val work get() = WorkManager.getInstance(context)
@@ -63,6 +65,10 @@ class BackupScheduler @Inject constructor(
         scope.launch {
             // The first emission is the table as it stands at launch, not a change.
             catches.observeRecords().distinctUntilChanged().drop(1).collect { afterChange() }
+        }
+        scope.launch {
+            // Prep ticks are in the file too (prompt 11), so ticking one is a change to back up.
+            prep.observe().drop(1).collect { afterChange() }
         }
         ProcessLifecycleOwner.get().lifecycle.addObserver(
             object : DefaultLifecycleObserver {

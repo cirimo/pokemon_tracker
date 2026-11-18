@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import net.pokedex.core.data.di.IoDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.PrepRepository
 import net.pokedex.core.data.repository.ReferenceRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.data.user.BackupLogDao
@@ -29,6 +30,7 @@ import net.pokedex.core.model.backup.ImportMode
 import net.pokedex.core.model.backup.ImportPlan
 import net.pokedex.core.model.backup.RestorePreview
 import net.pokedex.core.model.backup.SettingsInfo
+import net.pokedex.core.model.backup.toPrepInfo
 import net.pokedex.core.model.backup.toRecordInfo
 import net.pokedex.core.model.farmOrderOf
 import net.pokedex.core.model.getOrNull
@@ -56,6 +58,7 @@ class BackupRepository @Inject constructor(
     private val location: BackupLocation,
     private val log: BackupLogDao,
     private val myGames: MyGameDao,
+    private val prep: PrepRepository,
     private val appInfo: AppInfo,
     @IoDispatcher private val io: CoroutineDispatcher,
 ) {
@@ -86,6 +89,10 @@ class BackupRepository @Inject constructor(
                 autoBackupKeepCount = settings.autoBackupKeepCount,
                 myGames = ranks.keys.map { it.value }.sorted(),
                 gameOrder = gameOrderOf(ranks).map { it.value },
+                // Always written, empty or not: an empty list says "nothing ticked".
+                prep = prep.all()
+                    .sortedWith(compareBy({ it.gameId.value }, { it.refId }))
+                    .map { it.toPrepInfo() },
             ),
             // Sorted so two exports of the same data are byte-identical and diffable.
             records = catchRepository.allRecords()
@@ -152,7 +159,7 @@ class BackupRepository @Inject constructor(
                     val folder = location.current()
                     db.withTransaction {
                         val local = catchRepository.allRecords().associateBy { it.key }
-                        val plan = ImportPlan.of(local, settingsRepository.farmRanks(), parsed.value, mode)
+                        val plan = ImportPlan.of(local, settingsRepository.farmRanks(), parsed.value, mode, prep.all())
                         val snapshot = if (plan.snapshotFirst) {
                             val current = currentFile(now)
                             writer.writeSnapshot(folder, current, now).also { record(it, current, "pre-import") }
@@ -165,6 +172,7 @@ class BackupRepository @Inject constructor(
                             catchRepository.merge(plan.write)
                         }
                         plan.myGames?.let { games -> myGames.replaceAll(games.mapKeys { it.key.value }) }
+                        plan.prep?.let { ticks -> prep.replaceAll(ticks) }
                         ImportResult(written = plan.write.size, snapshot = snapshot)
                     }
                 }

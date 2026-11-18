@@ -259,6 +259,63 @@ class UserDatabaseMigrationTest {
     }
 
     @Test
+    fun migration6To7AddsAnEmptyPrepTableAndTouchesNoRecord() {
+        helper.createDatabase(TEST_DB, 6).apply {
+            insertSecondUnown(this)
+            execSQL(
+                "INSERT INTO catch_record (variantId, copyIndex, caught, originGameId, caughtAt, notes, " +
+                    "favourite, priority, updatedAt, regular) " +
+                    "VALUES ('zygarde', 0, 0, NULL, NULL, NULL, 0, 1, 1763000000000, 1)",
+            )
+            execSQL("INSERT INTO my_game (gameId, farmOrder) VALUES ('lgpe-lge', 0), ('swsh-sw', 1)")
+            close()
+        }
+
+        val migrated = helper.runMigrationsAndValidate(TEST_DB, 7, true, UserDatabase.MIGRATION_6_7)
+
+        migrated.query(
+            "SELECT variantId, copyIndex, caught, priority, updatedAt, regular FROM catch_record ORDER BY variantId",
+        ).use { cursor ->
+            val rows = buildList {
+                while (cursor.moveToNext()) {
+                    add(
+                        listOf(
+                            cursor.getString(0),
+                            cursor.getInt(1),
+                            cursor.getInt(2),
+                            cursor.getInt(3),
+                            cursor.getLong(4),
+                            cursor.getInt(5),
+                        ),
+                    )
+                }
+            }
+            assertThat(rows).containsExactly(
+                listOf("unown", 1, 1, 0, 1700000000000L, 0),
+                listOf("zygarde", 0, 0, 1, 1763000000000L, 1),
+            ).inOrder()
+        }
+        migrated.query("SELECT COUNT(*) FROM my_game").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(2)
+        }
+        migrated.query("SELECT COUNT(*) FROM prep_tick").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(0)
+        }
+        // The key is (game, ref): the Shiny Charm in Sword and in Shield are two ticks.
+        migrated.execSQL(
+            "INSERT INTO prep_tick (gameId, refId, doneAt) VALUES " +
+                "('swsh-sw', 'shiny-charm', 1), ('swsh-sh', 'shiny-charm', 2)",
+        )
+        migrated.query("SELECT COUNT(*) FROM prep_tick").use { cursor ->
+            cursor.moveToFirst()
+            assertThat(cursor.getInt(0)).isEqualTo(2)
+        }
+        migrated.close()
+    }
+
+    @Test
     fun everyMigrationInOrderTakesVersion1ToCurrent() {
         helper.createDatabase(TEST_DB, 1).apply {
             insertSecondUnown(this)

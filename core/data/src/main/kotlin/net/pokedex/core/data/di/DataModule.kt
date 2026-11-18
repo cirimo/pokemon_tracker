@@ -66,6 +66,9 @@ object DataModule {
     fun myGameDao(db: UserDatabase) = db.myGameDao()
 
     @Provides
+    fun prepTickDao(db: UserDatabase) = db.prepTickDao()
+
+    @Provides
     @IoDispatcher
     fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
 

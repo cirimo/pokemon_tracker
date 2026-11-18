@@ -82,3 +82,16 @@ data class BackupLogEntity(
     val sizeBytes: Long,
     val reason: String,
 )
+
+/**
+ * A step of one game's preparation done (prompt 11): a build made, the Shiny Charm earned, a
+ * DLC owned. [refId] is a requirement or build id from the guide layer in reference.db, a
+ * plain string with no foreign key, like [MyGameEntity.gameId]. Per game, because the Shiny
+ * Charm in Sword is not the one in Shield. Added in version 7.
+ */
+@Entity(tableName = "prep_tick", primaryKeys = ["gameId", "refId"])
+data class PrepTickEntity(
+    val gameId: String,
+    val refId: String,
+    val doneAt: Long,
+)

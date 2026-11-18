@@ -19,6 +19,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         UserSettingsEntity::class,
         BackupLogEntity::class,
         MyGameEntity::class,
+        PrepTickEntity::class,
     ],
     version = UserDatabase.VERSION,
     exportSchema = true,
@@ -29,9 +30,10 @@ abstract class UserDatabase : RoomDatabase() {
     abstract fun userSettingsDao(): UserSettingsDao
     abstract fun backupLogDao(): BackupLogDao
     abstract fun myGameDao(): MyGameDao
+    abstract fun prepTickDao(): PrepTickDao
 
     companion object {
-        const val VERSION = 6
+        const val VERSION = 7
         const val FILE_NAME = "user.db"
 
         /**
@@ -97,6 +99,19 @@ abstract class UserDatabase : RoomDatabase() {
         }
 
         /**
+         * 6 -> 7: prep_tick, the preparation done per game (prompt 11). A new, empty table:
+         * nothing existing is read or rewritten, and catch_record is not touched.
+         */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `prep_tick` (`gameId` TEXT NOT NULL, `refId` TEXT NOT NULL, " +
+                        "`doneAt` INTEGER NOT NULL, PRIMARY KEY(`gameId`, `refId`))",
+                )
+            }
+        }
+
+        /**
          * Migrations, in order.
          *
          * When you add one, add a MigrationTestHelper test alongside it. An untested
@@ -108,6 +123,7 @@ abstract class UserDatabase : RoomDatabase() {
             MIGRATION_3_4,
             MIGRATION_4_5,
             MIGRATION_5_6,
+            MIGRATION_6_7,
         )
     }
 }

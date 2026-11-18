@@ -126,3 +126,32 @@ interface BackupLogDao {
     )
     suspend fun trim(keep: Int)
 }
+
+@Dao
+interface PrepTickDao {
+
+    @Query("SELECT * FROM prep_tick ORDER BY gameId, refId")
+    fun observe(): Flow<List<PrepTickEntity>>
+
+    @Query("SELECT * FROM prep_tick ORDER BY gameId, refId")
+    suspend fun all(): List<PrepTickEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(tick: PrepTickEntity)
+
+    @Query("DELETE FROM prep_tick WHERE gameId = :gameId AND refId = :refId")
+    suspend fun delete(gameId: String, refId: String)
+
+    @Query("DELETE FROM prep_tick")
+    suspend fun deleteAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(ticks: List<PrepTickEntity>)
+
+    /** An import's ticks, all at once. */
+    @Transaction
+    suspend fun replaceAll(ticks: List<PrepTickEntity>) {
+        deleteAll()
+        insertAll(ticks)
+    }
+}
