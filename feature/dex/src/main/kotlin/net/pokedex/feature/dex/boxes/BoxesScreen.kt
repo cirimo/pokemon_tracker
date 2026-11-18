@@ -17,11 +17,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,13 +41,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
+import net.pokedex.designsystem.component.ActionButton
 import net.pokedex.designsystem.component.BoxPage
 import net.pokedex.designsystem.component.BoxPager
 import net.pokedex.designsystem.component.BoxSummary
+import net.pokedex.designsystem.component.BoxTally
+import net.pokedex.designsystem.component.CollectionStrip
 import net.pokedex.designsystem.component.ErrorState
+import net.pokedex.designsystem.component.HuntCard
 import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.PokedexBottomSheet
-import net.pokedex.designsystem.component.ProgressBar
 import net.pokedex.designsystem.component.ProgressReadout
 import net.pokedex.designsystem.component.SearchTopBar
 import net.pokedex.designsystem.component.SettingRow
@@ -312,7 +313,13 @@ private fun BoxContent(
         if (state.mark.active) {
             MarkHeader(page = state.pages.getOrNull(pager.currentPage), mark = state.mark, onEvent = onEvent)
         } else {
-            OverallHeader(state = state, onOpenOverview = { overviewOpen = true }, onOpenProgress = onOpenProgress)
+            OverallHeader(
+                state = state,
+                current = { pager.currentPage },
+                onPickBox = { index -> scope.launch { pager.scrollToPage(index) } },
+                onOpenOverview = { overviewOpen = true },
+                onOpenProgress = onOpenProgress,
+            )
         }
 
         BoxPager(
@@ -344,18 +351,13 @@ private fun BoxContent(
 
         // Below the pager, outside it: nothing here is per page or per tile.
         if (nextHunt != null && !state.mark.active) {
-            SettingRow(
-                title = "Hunt next",
-                summary = nextHunt.summary,
-                onClick = onOpenHunt,
-                modifier = Modifier.padding(horizontal = dimens.spaceLg),
-            )
+            NextHunt(nextHunt, onOpenHunt, Modifier.padding(horizontal = dimens.spaceLg))
         }
         if (!state.mark.active) {
-            SettingRow(
-                title = "Mark regulars",
-                summary = "Tap the slots you hold in HOME, box by box",
+            ActionButton(
+                label = "Mark regulars",
                 onClick = { onEvent(BoxesEvent.Marking(on = true)) },
+                primary = false,
                 modifier = Modifier.padding(horizontal = dimens.spaceLg),
             )
         }
@@ -373,12 +375,24 @@ private fun BoxContent(
     }
 }
 
+/**
+ * The collection above the box: the shiny count, which opens Progress, and every box as one
+ * bar of a strip, which jumps the pager. The strip reads the pager's page in its draw phase,
+ * so paging redraws it and recomposes nothing.
+ */
 @Composable
-private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpenProgress: () -> Unit) {
+private fun OverallHeader(
+    state: BoxesUiState,
+    current: () -> Int,
+    onPickBox: (Int) -> Unit,
+    onOpenOverview: () -> Unit,
+    onOpenProgress: () -> Unit,
+) {
     val dimens = PokedexTheme.dimens
+    val tallies = remember(state.pages) { state.pages.map { BoxTally(it.name, it.caught, it.filled) } }
     Column(
         modifier = Modifier.padding(horizontal = dimens.spaceLg),
-        verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
+        verticalArrangement = Arrangement.spacedBy(dimens.spaceXs),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // The headline number opens the dashboards: it is the thing you tap when you want
@@ -392,11 +406,9 @@ private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpe
                 ProgressReadout(caught = state.overall.caught, total = state.overall.total, label = "shiny")
                 Icon(PokedexIcons.NextBox, contentDescription = null, tint = PokedexTheme.colors.onCaseMuted)
             }
-            OutlinedButton(onClick = onOpenOverview) {
-                Text("All boxes", style = PokedexTheme.text.badgeLabel)
-            }
+            ActionButton(label = "All boxes", onClick = onOpenOverview, primary = false)
         }
-        ProgressBar(caught = state.overall.caught, total = state.overall.total, label = "Whole dex")
+        CollectionStrip(boxes = tallies, current = current, onSelect = onPickBox)
         // The living dex: a second number, muted, never gold. Shiny stays the headline.
         Text(
             text = "Living dex ${state.living.caught} / ${state.living.total}, regular or shiny",
@@ -404,6 +416,24 @@ private fun OverallHeader(state: BoxesUiState, onOpenOverview: () -> Unit, onOpe
             color = PokedexTheme.colors.onCaseMuted,
         )
     }
+}
+
+/** What to hunt next, as the one featured hunt on the screen, or why there is none. */
+@Composable
+private fun NextHunt(next: NextHuntUi, onOpenHunt: () -> Unit, modifier: Modifier = Modifier) {
+    if (next.name == null) {
+        SettingRow(title = "Hunt next", summary = next.how, onClick = onOpenHunt, modifier = modifier)
+        return
+    }
+    HuntCard(
+        name = next.name,
+        lines = listOf("Hunt next", next.how),
+        odds = next.odds,
+        featured = true,
+        onClick = onOpenHunt,
+        modifier = modifier,
+        sprite = { rendering -> next.spriteFile?.let { DexSprite(it, rendering) } },
+    )
 }
 
 /**
@@ -419,7 +449,7 @@ private fun MarkHeader(page: BoxPage?, mark: MarkUi, onEvent: (BoxesEvent) -> Un
         modifier = Modifier.padding(horizontal = dimens.spaceLg),
         verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
     ) {
-        Text(text = "Marking regulars", style = MaterialTheme.typography.titleMedium, color = colors.onCase)
+        Text(text = "Marking regulars", style = PokedexTheme.text.sectionTitle, color = colors.onCase)
         Text(
             text = "Tap a slot you hold in HOME to mark it; tap again to take it off. Shinies stay as they are.",
             style = MaterialTheme.typography.bodyMedium,
@@ -434,25 +464,20 @@ private fun MarkHeader(page: BoxPage?, mark: MarkUi, onEvent: (BoxesEvent) -> Un
         }
         ChipFlow {
             if (page != null) {
-                OutlinedButton(
+                ActionButton(
+                    label = "Mark all of ${page.name}",
                     onClick = { onEvent(BoxesEvent.MarkBox(page.index)) },
+                    primary = false,
                     enabled = page.owned < page.filled,
-                ) {
-                    Text("Mark all of ${page.name}", style = PokedexTheme.text.badgeLabel)
-                }
-            }
-            OutlinedButton(onClick = { onEvent(BoxesEvent.UndoMarks) }, enabled = mark.changed > 0) {
-                Text(
-                    text = if (mark.changed == 0) "Undo" else "Undo ${mark.changed}",
-                    style = PokedexTheme.text.badgeLabel,
                 )
             }
-            Button(
-                onClick = { onEvent(BoxesEvent.Marking(on = false)) },
-                colors = ButtonDefaults.buttonColors(containerColor = colors.onCase, contentColor = colors.case),
-            ) {
-                Text("Done", style = PokedexTheme.text.badgeLabel)
-            }
+            ActionButton(
+                label = if (mark.changed == 0) "Undo" else "Undo ${mark.changed}",
+                onClick = { onEvent(BoxesEvent.UndoMarks) },
+                primary = false,
+                enabled = mark.changed > 0,
+            )
+            ActionButton(label = "Done", onClick = { onEvent(BoxesEvent.Marking(on = false)) })
         }
     }
 }

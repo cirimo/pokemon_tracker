@@ -51,7 +51,13 @@ data class MarkUi(val active: Boolean = false, val changed: Int = 0)
  * [BoxesUiState]: it changes when a record does, and the pager should not recompose for it.
  */
 @Immutable
-data class NextHuntUi(val summary: String)
+data class NextHuntUi(
+    /** Null when there is no hunt to show, and [how] then says why ("Choose your games..."). */
+    val name: String?,
+    val how: String,
+    val odds: String? = null,
+    val spriteFile: String? = null,
+)
 
 @Immutable
 data class SearchUiState(

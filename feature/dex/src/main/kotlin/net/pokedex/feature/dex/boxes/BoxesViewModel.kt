@@ -333,20 +333,25 @@ class BoxesViewModel @Inject constructor(
         records: Map<CatchKey, CatchRecord>,
         myGames: Set<GameId>,
     ): NextHuntUi {
-        if (myGames.isEmpty()) return NextHuntUi("Choose your games to see what to hunt next")
+        if (myGames.isEmpty()) return NextHuntUi(name = null, how = "Choose your games to see what to hunt next")
         val top = huntPlan(dex, records, myGames, guide).hunts.firstOrNull()
-            ?: return NextHuntUi("Nothing left to hunt in your games")
+            ?: return NextHuntUi(name = null, how = "Nothing left to hunt in your games")
         val names = dex.games.associate { it.id to it.name }
         val way = top.way
         val name = dex.species(top.lead.variant.dexNum)?.name.takeIf { top.key.regionalForm == null }
             ?: top.lead.variant.displayName
         val how = if (way == null) {
-            "shiny in " + top.games.joinToString(", ") { names[it] ?: it.value }
+            "Shiny in " + top.games.joinToString(", ") { names[it] ?: it.value }
         } else {
             val method = guide.method(way.encounter.methodId)?.name ?: way.encounter.methodId
-            "$method in ${names[way.game] ?: way.game.value}" + way.odds?.let { ", ${oddsLabel(it.best)}" }.orEmpty()
+            "$method in ${names[way.game] ?: way.game.value}"
         }
-        return NextHuntUi("$name, $how")
+        return NextHuntUi(
+            name = name,
+            how = how,
+            odds = way?.odds?.let { oddsLabel(it.best) },
+            spriteFile = top.lead.variant.spriteFile,
+        )
     }
 
     private fun searchOf(
