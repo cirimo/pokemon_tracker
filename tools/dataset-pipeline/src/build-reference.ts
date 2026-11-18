@@ -6,6 +6,7 @@ import { loadCuratedLayer } from './curated.js';
 import { emitDdl, emitRoomMasterTable, loadRoomSchema } from './room-schema.js';
 import { ensureUpstream, readGame, readPokemon, readPreset, upstreamSha } from './upstream.js';
 import { contentManifest, writeManifest } from './manifest.js';
+import { insertGuideBooks } from './guide-rows.js';
 
 /**
  * Builds app/src/main/assets/dataset/reference.db.
@@ -227,31 +228,48 @@ export function buildReference(): void {
   const lockIndex = new Map(
     curated.shinyLocks.map((l) => [lockKey(l.variantId, l.gameId), l]),
   );
+  const overrideIndex = new Map(
+    curated.availabilityOverrides.map((o) => [lockKey(o.variantId, o.gameId), o]),
+  );
+  const applied = new Set<string>();
   const availability: unknown[][] = [];
   for (const id of variantIds) {
     const p = pokemon.get(id)!;
     for (const g of games) {
       const gameId = g.curated.id;
-      const obtainable = p.obtainableIn.includes(gameId);
+      const upstreamObtainable = p.obtainableIn.includes(gameId);
       const storable = p.storableIn.includes(gameId);
       // No row at all when the game neither offers nor stores it: an absent row is
       // cheaper and less ambiguous than a row of five falses.
-      if (!obtainable && !storable) continue;
+      if (!upstreamObtainable && !storable) continue;
       const lock = lockIndex.get(lockKey(id, gameId));
+      // An override only ever narrows upstream; one on a row upstream already calls
+      // unobtainable is a curation mistake, and is refused below.
+      const override = upstreamObtainable ? overrideIndex.get(lockKey(id, gameId)) : undefined;
+      if (override) applied.add(lockKey(id, gameId));
       availability.push([
         id,
         gameId,
-        bool(obtainable),
+        bool(upstreamObtainable && !override),
         bool(p.eventOnlyIn.includes(gameId)),
         bool(storable),
         bool(p.transferOnlyIn.includes(gameId)),
         bool(!!lock),
         lock?.reason ?? null,
+        override?.exclusiveTo ?? null,
+        override?.reason ?? null,
       ]);
     }
   }
+  const unapplied = [...overrideIndex.keys()].filter((k) => !applied.has(k));
+  if (unapplied.length > 0) {
+    throw new Error(
+      'availability-overrides.yaml narrows rows upstream does not call obtainable: ' +
+        unapplied.join(', ') + '. An override may only narrow upstream.',
+    );
+  }
   insert(
-    "INSERT INTO game_availability (variantId, gameId, obtainable, eventOnly, storable, transferOnly, shinyLocked, shinyLockReason) VALUES (?,?,?,?,?,?,?,?)",
+    "INSERT INTO game_availability (variantId, gameId, obtainable, eventOnly, storable, transferOnly, shinyLocked, shinyLockReason, exclusiveTo, unavailableReason) VALUES (?,?,?,?,?,?,?,?,?,?)",
     availability.sort(compareRows),
   );
 
@@ -265,7 +283,7 @@ export function buildReference(): void {
 
   const ordinals = new Map<string, number>();
   insert(
-    "INSERT INTO encounter (id, variantId, gameId, methodId, location, prerequisite, notes, shinyLocked, fromVariantId, sourceUrl) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    "INSERT INTO encounter (id, variantId, gameId, methodId, location, prerequisite, notes, shinyLocked, fromVariantId, sourceUrl, oddsExclude) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
     [...curated.encounters]
       .sort(
         (a, x) =>
@@ -288,6 +306,7 @@ export function buildReference(): void {
           bool(e.shinyLocked ?? false),
           e.from ?? null,
           e.source,
+          e.oddsExclude ? [...e.oddsExclude].sort().join(",") : null,
         ];
       }),
   );
@@ -295,7 +314,7 @@ export function buildReference(): void {
   // One curated row names every game and method it applies to; the table holds one row
   // per (game, method) so the app reads a method's modifiers with a single lookup.
   insert(
-    "INSERT INTO odds_modifier (gameId, methodId, id, label, rollsAdded, denominator, tier, inherent, notes, sourceUrl) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    "INSERT INTO odds_modifier (gameId, methodId, id, label, rollsAdded, denominator, tier, inherent, notes, sourceUrl, skipsBaseRoll) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
     curated.oddsModifiers
       .flatMap((m) =>
         m.games.flatMap((gameId) => m.methods.map((methodId) => ({ ...m, gameId, methodId }))),
@@ -317,8 +336,11 @@ export function buildReference(): void {
         bool(m.inherent ?? false),
         m.notes ?? null,
         m.source,
+        bool(m.skipsBaseRoll ?? false),
       ]),
   );
+
+  insertGuideBooks(curated.guideBooks, insert, compareRows);
 
   // Frozen on purpose: a real build timestamp would make every rebuild differ.
   const builtAt = "1970-01-01T00:00:00Z";

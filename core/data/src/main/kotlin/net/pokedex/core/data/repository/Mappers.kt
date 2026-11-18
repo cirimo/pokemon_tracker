@@ -110,6 +110,7 @@ internal fun EncounterEntity.toDomain() = Encounter(
     shinyLocked = shinyLocked,
     fromVariantId = fromVariantId?.let(::VariantId),
     sourceUrl = sourceUrl,
+    oddsExclude = oddsExclude?.split(',')?.toSet().orEmpty(),
 )
 
 internal fun EncounterMethodEntity.toDomain() = EncounterMethod(id = id, name = name, description = description)
@@ -125,6 +126,7 @@ internal fun OddsModifierEntity.toDomain() = OddsModifier(
     inherent = inherent,
     notes = notes,
     sourceUrl = sourceUrl,
+    skipsBaseRoll = skipsBaseRoll,
 )
 
 internal fun GameEntity.toDomain() = Game(
@@ -148,6 +150,8 @@ internal fun GameAvailabilityEntity.toDomain() = GameAvailability(
     transferOnly = transferOnly,
     shinyLocked = shinyLocked,
     shinyLockReason = shinyLockReason,
+    exclusiveTo = exclusiveTo?.let(::GameId),
+    unavailableReason = unavailableReason,
 )
 
 internal fun DatasetMetaEntity.toDomain() = DatasetMeta(

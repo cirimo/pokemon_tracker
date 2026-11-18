@@ -148,6 +148,14 @@ data class GameAvailabilityEntity(
     /** Curated. Nobody publishes shiny locks machine-readably. */
     val shinyLocked: Boolean,
     val shinyLockReason: String?,
+    /**
+     * Curated, from availability-overrides.yaml: the other version of the pair that has it,
+     * when upstream said this one did too and the sources say it does not. [obtainable] is
+     * already false on such a row.
+     */
+    val exclusiveTo: String?,
+    /** Curated: why upstream's "obtainable" was overridden, with the source in the YAML. */
+    val unavailableReason: String?,
 )
 
 @Entity(tableName = "encounter_method")
@@ -175,6 +183,8 @@ data class EncounterEntity(
     /** For the `evolution` method: the variant to hunt and then evolve. */
     val fromVariantId: String?,
     val sourceUrl: String,
+    /** Comma-separated ids of the method's odds modifiers that do not apply here, or null. */
+    val oddsExclude: String?,
 )
 
 @Entity(tableName = "odds_modifier", primaryKeys = ["gameId", "methodId", "id"])
@@ -191,6 +201,8 @@ data class OddsModifierEntity(
     val inherent: Boolean,
     val notes: String?,
     val sourceUrl: String,
+    /** While active, the method's own first roll is not made (the Generation VIII egg bug). */
+    val skipsBaseRoll: Boolean,
 )
 
 @Entity(tableName = "dataset_meta")

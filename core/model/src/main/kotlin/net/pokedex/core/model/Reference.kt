@@ -107,7 +107,10 @@ data class Game(
  * shiny-locked there.
  *
  * obtainable/storable/transferOnly/eventOnly come from upstream. shinyLocked is the
- * curated layer -- nobody publishes it machine-readably.
+ * curated layer -- nobody publishes it machine-readably. So are [exclusiveTo] and
+ * [unavailableReason]: where upstream calls a variant obtainable in both versions of a pair
+ * and the sources say only one has it, the curated override clears [obtainable] here and
+ * says which version does.
  */
 data class GameAvailability(
     val variantId: VariantId,
@@ -118,6 +121,8 @@ data class GameAvailability(
     val transferOnly: Boolean,
     val shinyLocked: Boolean,
     val shinyLockReason: String?,
+    val exclusiveTo: GameId? = null,
+    val unavailableReason: String? = null,
 )
 
 data class EncounterMethod(

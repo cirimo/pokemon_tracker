@@ -1,0 +1,11 @@
+# Where upstream is wrong about which game offers a variant, with the source that says so.
+#
+# Upstream (pokepc/dataset 6.8.2) separates the versions of Let's Go, Brilliant Diamond and
+# Shining Pearl, and Scarlet and Violet, but lists the same 830 variants for Sword and for
+# Shield. So a Shield exclusive read as a Sword farm job. A row here clears `obtainable` for
+# one game; it may only narrow upstream, never widen it (docs/dataset-pipeline.md).
+#
+#   version-exclusive   the other version of the pair has it; `exclusiveTo` names it
+#   trade-only          neither version can catch it; it arrives by trade or HOME
+
+overrides: []

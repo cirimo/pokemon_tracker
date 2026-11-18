@@ -54,6 +54,37 @@ interface ReferenceDao {
     @Query("SELECT * FROM odds_modifier ORDER BY gameId, methodId, id")
     suspend fun oddsModifiers(): List<OddsModifierEntity>
 
+    // The guide layer: small, read once per process by GuideBookRepository, never on cold start.
+    @Query("SELECT * FROM location ORDER BY gameSet, id")
+    suspend fun locations(): List<LocationEntity>
+
+    @Query("SELECT * FROM requirement ORDER BY gameSet, id")
+    suspend fun requirements(): List<RequirementEntity>
+
+    @Query("SELECT * FROM guide ORDER BY id")
+    suspend fun guides(): List<GuideEntity>
+
+    @Query("SELECT * FROM guide_target ORDER BY guideId, variantId")
+    suspend fun guideTargets(): List<GuideTargetEntity>
+
+    @Query("SELECT * FROM guide_step ORDER BY ownerId, ordinal")
+    suspend fun guideSteps(): List<GuideStepEntity>
+
+    @Query("SELECT * FROM build ORDER BY id")
+    suspend fun builds(): List<BuildEntity>
+
+    @Query("SELECT * FROM build_part ORDER BY buildId, ordinal")
+    suspend fun buildParts(): List<BuildPartEntity>
+
+    @Query("SELECT * FROM guide_link ORDER BY guideId, kind, refId")
+    suspend fun guideLinks(): List<GuideLinkEntity>
+
+    @Query("SELECT * FROM guide_advice ORDER BY guideId, ordinal")
+    suspend fun guideAdvice(): List<GuideAdviceEntity>
+
+    @Query("SELECT * FROM farm_source ORDER BY subjectKind, subjectId, ordinal")
+    suspend fun farmSources(): List<FarmSourceEntity>
+
     // Counts used by the asset integrity check and by the M0 smoke screen.
     @Query("SELECT COUNT(*) FROM slot WHERE presetId = :presetId")
     suspend fun slotCount(presetId: String): Int

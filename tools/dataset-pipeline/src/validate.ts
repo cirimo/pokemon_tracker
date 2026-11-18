@@ -6,6 +6,7 @@ import { PRESET, paths } from './config.js';
 import { loadCuratedLayer } from './curated.js';
 import { loadRoomSchema } from './room-schema.js';
 import { sharedSpriteFindings } from './sprite-resolution.js';
+import { guideChecks } from './validate-guides.js';
 
 /**
  * Output validation. Every check here has failed for real at least once in some
@@ -239,6 +240,8 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
     ]) {
       if (!known.has(id)) fail('curated-orphan', 'sprites.yaml names ' + id + ', which is not a variant');
     }
+
+    guideChecks(db, fail);
 
     const metaRows = count(db, 'SELECT COUNT(*) FROM dataset_meta');
     if (metaRows !== 1) fail('dataset-meta', 'expected exactly one row, got ' + metaRows);

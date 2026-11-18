@@ -31,6 +31,16 @@ import androidx.room.RoomDatabase
         EncounterEntity::class,
         OddsModifierEntity::class,
         DatasetMetaEntity::class,
+        LocationEntity::class,
+        RequirementEntity::class,
+        GuideEntity::class,
+        GuideTargetEntity::class,
+        GuideStepEntity::class,
+        BuildEntity::class,
+        BuildPartEntity::class,
+        GuideLinkEntity::class,
+        GuideAdviceEntity::class,
+        FarmSourceEntity::class,
     ],
     version = ReferenceDatabase.VERSION,
     exportSchema = true,
@@ -40,7 +50,7 @@ abstract class ReferenceDatabase : RoomDatabase() {
     abstract fun referenceDao(): ReferenceDao
 
     companion object {
-        const val VERSION = 2
+        const val VERSION = 3
 
         /** Path inside assets/, produced by tools/dataset-pipeline. */
         const val ASSET_PATH = "dataset/reference.db"

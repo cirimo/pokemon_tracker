@@ -63,6 +63,12 @@ const encounterSchema = z
      * in the same game are what decide the odds.
      */
     from: z.string().optional(),
+    /**
+     * Ids of the method's odds modifiers that do not apply to this encounter. Sword's Shiny
+     * Charm does nothing for the legendary giants, fossils or dens, though every other
+     * static encounter gets it. `odds-exclude-known` refuses an id the method does not have.
+     */
+    oddsExclude: z.array(z.string()).min(1).optional(),
     source,
   })
   .refine((e) => (e.methodId === 'evolution') === (e.from !== undefined), {
@@ -91,11 +97,144 @@ const oddsModifierSchema = z
     denominator: z.number().int().positive().optional(),
     tier: z.string().optional(),
     inherent: z.boolean().optional(),
+    /**
+     * While this row is active the method's own first roll is not made. The Generation VIII
+     * and IX egg bug: once any reroll applies, the first roll is skipped.
+     */
+    skipsBaseRoll: z.boolean().optional(),
     notes: z.string().optional(),
     source,
   })
   .refine((m) => (m.rollsAdded === undefined) !== (m.denominator === undefined), {
     message: 'an odds modifier must set exactly one of rollsAdded or denominator',
+  });
+
+/**
+ * Where upstream's per-game obtainability is wrong, and the sources say so.
+ *
+ * Upstream 6.8.2 lists the same variants for Sword and for Shield, although it separates
+ * the versions of every other pair: so a Shield exclusive reads as a Sword farm job. A row
+ * here clears `obtainable` for one game. It may only narrow upstream, never widen it: the
+ * builder refuses a row for a game upstream did not call obtainable, and `override-narrows`
+ * refuses a version exclusive whose other version does not offer it.
+ */
+const availabilityOverrideSchema = z
+  .object({
+    variantId: z.string(),
+    gameId: z.string(),
+    kind: z.enum(['version-exclusive', 'trade-only']),
+    /** For a version exclusive: the version of the pair that does have it. */
+    exclusiveTo: z.string().optional(),
+    reason: z.string(),
+    source,
+  })
+  .refine((o) => (o.kind === 'version-exclusive') === (o.exclusiveTo !== undefined), {
+    message: 'a version-exclusive override names the version that has it, and only one does',
+  });
+
+/** One link of a farm chain: how to get a build or a requirement. */
+const farmSchema = z.object({
+  kind: z.enum(['catch', 'hatch', 'tm', 'tr', 'tutor', 'shop', 'reward', 'trade']),
+  location: z.string().optional(),
+  detail: z.string(),
+  source,
+});
+
+const stepSchema = z.object({
+  section: z.enum(['prepare', 'setup', 'loop', 'check', 'after', 'mistake']),
+  text: z.string(),
+  location: z.string().optional(),
+  source,
+});
+
+const guideSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  method: z.string(),
+  procedure: z.string().optional(),
+  variants: z.array(z.string()).min(1),
+  summary: z.string().optional(),
+  /** Only one of the target can ever be kept on a save file (Dynamax Adventure bosses). */
+  oneInSave: z.boolean().optional(),
+  requires: z.array(z.object({ id: z.string(), role: z.string().optional() })).default([]),
+  builds: z.array(z.object({ id: z.string(), role: z.string().optional() })).default([]),
+  steps: z.array(stepSchema).default([]),
+  advice: z
+    .array(
+      z.object({
+        kind: z.enum(['take', 'avoid', 'note']),
+        subject: z.string(),
+        why: z.string(),
+        source,
+      }),
+    )
+    .default([]),
+});
+
+/**
+ * The guide layer for one game family: step-by-step tutorials, the builds they want and how
+ * to farm them. Every step, build part, piece of advice and farm link carries its source.
+ */
+const guideBookSchema = z
+  .object({
+    gameSet: z.string(),
+    locations: z.array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        dlc: z.enum(['ioa', 'ct']).optional(),
+        source,
+      }),
+    ),
+    requirements: z.array(
+      z.object({
+        id: z.string(),
+        label: z.string(),
+        kind: z.enum(['dlc', 'story', 'item', 'service']),
+        optional: z.boolean().optional(),
+        detail: z.string().optional(),
+        source,
+        farm: z.array(farmSchema).default([]),
+      }),
+    ),
+    builds: z.array(
+      z.object({
+        id: z.string(),
+        variant: z.string(),
+        title: z.string(),
+        purpose: z.string(),
+        parts: z
+          .array(
+            z.object({
+              kind: z.enum(['ability', 'nature', 'move', 'item', 'level', 'evs']),
+              value: z.string(),
+              why: z.string(),
+              source,
+            }),
+          )
+          .min(1),
+        farm: z.array(farmSchema).min(1),
+      }),
+    ),
+    procedures: z.array(
+      z.object({ id: z.string(), title: z.string(), steps: z.array(stepSchema).min(1) }),
+    ),
+    guides: z.array(guideSchema),
+  })
+  .superRefine((book, ctx) => {
+    const ids = [...book.procedures.map((p) => p.id), ...book.guides.map((g) => g.id)];
+    for (const [kind, list] of [
+      ['guide or procedure', ids],
+      ['location', book.locations.map((l) => l.id)],
+      ['requirement', book.requirements.map((r) => r.id)],
+      ['build', book.builds.map((b) => b.id)],
+    ] as const) {
+      const once = new Set<string>();
+      for (const id of list) {
+        if (once.has(id)) ctx.addIssue({ code: 'custom', message: kind + ' id ' + id + ' appears twice' });
+        once.add(id);
+      }
+    }
   });
 
 const spriteOverrideSchema = z.object({
@@ -114,6 +253,8 @@ export const curatedSchemas = {
   encounterMethods: z.object({ methods: z.array(encounterMethodSchema) }),
   encounters: z.object({ gameId: z.string(), encounters: z.array(encounterSchema) }),
   oddsModifiers: z.object({ modifiers: z.array(oddsModifierSchema) }),
+  availabilityOverrides: z.object({ overrides: z.array(availabilityOverrideSchema) }),
+  guideBook: guideBookSchema,
   sprites: z
     .object({ overrides: z.array(spriteOverrideSchema), shared: z.array(sharedSpriteSchema) })
     .superRefine((s, ctx) => {
@@ -138,6 +279,8 @@ export type CuratedEncounterMethod = z.infer<typeof encounterMethodSchema>;
 export type CuratedEncounter = z.infer<typeof encounterSchema> & { gameId: string };
 export type CuratedOddsModifier = z.infer<typeof oddsModifierSchema>;
 export type CuratedSprites = z.infer<typeof curatedSchemas.sprites>;
+export type CuratedAvailabilityOverride = z.infer<typeof availabilityOverrideSchema>;
+export type CuratedGuideBook = z.infer<typeof guideBookSchema>;
 
 export interface CuratedLayer {
   games: CuratedGame[];
@@ -145,10 +288,12 @@ export interface CuratedLayer {
   encounterMethods: CuratedEncounterMethod[];
   encounters: CuratedEncounter[];
   oddsModifiers: CuratedOddsModifier[];
+  availabilityOverrides: CuratedAvailabilityOverride[];
+  guideBooks: CuratedGuideBook[];
   sprites: CuratedSprites;
 }
 
-function readYaml<T>(file: string, schema: z.ZodType<T>): T {
+function readYaml<T>(file: string, schema: z.ZodType<T, z.ZodTypeDef, unknown>): T {
   const full = path.join(paths.curated, file);
   const raw = parseYaml(fs.readFileSync(full, 'utf8'));
   const result = schema.safeParse(raw);
@@ -185,5 +330,29 @@ export function loadCuratedLayer(): CuratedLayer {
     }
   }
 
-  return { games, shinyLocks, encounterMethods, encounters, oddsModifiers, sprites };
+  const availabilityOverrides = readYaml(
+    'availability-overrides.yaml',
+    curatedSchemas.availabilityOverrides,
+  ).overrides;
+
+  const guideDir = path.join(paths.curated, 'guides');
+  const guideBooks: CuratedGuideBook[] = [];
+  if (fs.existsSync(guideDir)) {
+    for (const file of fs.readdirSync(guideDir).sort()) {
+      if (file.endsWith('.yaml')) {
+        guideBooks.push(readYaml(path.join('guides', file), curatedSchemas.guideBook));
+      }
+    }
+  }
+
+  return {
+    games,
+    shinyLocks,
+    encounterMethods,
+    encounters,
+    oddsModifiers,
+    availabilityOverrides,
+    guideBooks,
+    sprites,
+  };
 }
