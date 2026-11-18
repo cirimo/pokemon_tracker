@@ -116,6 +116,9 @@ data class Way(
  */
 data class HuntKey(val dexNum: Int, val regionalForm: String?)
 
+/** The hunt a variant belongs to: its species, and its regional form if it has one. */
+fun huntKeyOf(variant: Variant): HuntKey = HuntKey(variant.dexNum, regionalFormOf(variant))
+
 /**
  * A row of the hunt list, with everything it needs to say why it is where it is.
  *
@@ -246,7 +249,7 @@ fun huntPlan(
 
     val hunts = reachable
         .filter(include)
-        .groupBy { HuntKey(it.variant.dexNum, regionalFormOf(it.variant)) }
+        .groupBy { huntKeyOf(it.variant) }
         .map { (key, slots) ->
             val sorted = slots.sortedBy { it.order }
             val ways = sorted.map { it.variant.id }.distinct()
