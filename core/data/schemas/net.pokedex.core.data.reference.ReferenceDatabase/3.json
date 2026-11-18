@@ -470,7 +470,7 @@
       },
       {
         "tableName": "game_availability",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`variantId` TEXT NOT NULL, `gameId` TEXT NOT NULL, `obtainable` INTEGER NOT NULL, `eventOnly` INTEGER NOT NULL, `storable` INTEGER NOT NULL, `transferOnly` INTEGER NOT NULL, `shinyLocked` INTEGER NOT NULL, `shinyLockReason` TEXT, `exclusiveTo` TEXT, `unavailableReason` TEXT, PRIMARY KEY(`variantId`, `gameId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`variantId` TEXT NOT NULL, `gameId` TEXT NOT NULL, `obtainable` INTEGER NOT NULL, `eventOnly` INTEGER NOT NULL, `storable` INTEGER NOT NULL, `transferOnly` INTEGER NOT NULL, `shinyLocked` INTEGER NOT NULL, `shinyLockReason` TEXT, `exclusiveTo` TEXT, `availabilityNote` TEXT, PRIMARY KEY(`variantId`, `gameId`))",
         "fields": [
           {
             "fieldPath": "variantId",
@@ -525,8 +525,8 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "unavailableReason",
-            "columnName": "unavailableReason",
+            "fieldPath": "availabilityNote",
+            "columnName": "availabilityNote",
             "affinity": "TEXT"
           }
         ],

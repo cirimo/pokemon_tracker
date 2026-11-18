@@ -250,7 +250,7 @@ export function buildReference(): void {
       availability.push([
         id,
         gameId,
-        bool(upstreamObtainable && !override),
+        bool(upstreamObtainable && (!override || override.kind === 'online-only')),
         bool(p.eventOnlyIn.includes(gameId)),
         bool(storable),
         bool(p.transferOnlyIn.includes(gameId)),
@@ -269,7 +269,7 @@ export function buildReference(): void {
     );
   }
   insert(
-    "INSERT INTO game_availability (variantId, gameId, obtainable, eventOnly, storable, transferOnly, shinyLocked, shinyLockReason, exclusiveTo, unavailableReason) VALUES (?,?,?,?,?,?,?,?,?,?)",
+    "INSERT INTO game_availability (variantId, gameId, obtainable, eventOnly, storable, transferOnly, shinyLocked, shinyLockReason, exclusiveTo, availabilityNote) VALUES (?,?,?,?,?,?,?,?,?,?)",
     availability.sort(compareRows),
   );
 

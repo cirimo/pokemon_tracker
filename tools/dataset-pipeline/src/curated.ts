@@ -122,14 +122,18 @@ const availabilityOverrideSchema = z
   .object({
     variantId: z.string(),
     gameId: z.string(),
-    kind: z.enum(['version-exclusive', 'trade-only']),
-    /** For a version exclusive: the version of the pair that does have it. */
+    /**
+     * `version-exclusive` and `trade-only` clear `obtainable`. `online-only` only labels: the
+     * version reaches it through another player's game online, so it stays obtainable.
+     */
+    kind: z.enum(['version-exclusive', 'online-only', 'trade-only']),
+    /** The version of the pair that has it in its own game. */
     exclusiveTo: z.string().optional(),
     reason: z.string(),
     source,
   })
-  .refine((o) => (o.kind === 'version-exclusive') === (o.exclusiveTo !== undefined), {
-    message: 'a version-exclusive override names the version that has it, and only one does',
+  .refine((o) => (o.kind !== 'trade-only') === (o.exclusiveTo !== undefined), {
+    message: 'a version-exclusive or online-only override names the version that has it; trade-only does not',
   });
 
 /** One link of a farm chain: how to get a build or a requirement. */

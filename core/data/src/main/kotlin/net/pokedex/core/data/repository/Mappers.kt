@@ -151,7 +151,7 @@ internal fun GameAvailabilityEntity.toDomain() = GameAvailability(
     shinyLocked = shinyLocked,
     shinyLockReason = shinyLockReason,
     exclusiveTo = exclusiveTo?.let(::GameId),
-    unavailableReason = unavailableReason,
+    availabilityNote = availabilityNote,
 )
 
 internal fun DatasetMetaEntity.toDomain() = DatasetMeta(

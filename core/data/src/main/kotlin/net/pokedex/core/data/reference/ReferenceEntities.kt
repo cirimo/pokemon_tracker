@@ -149,13 +149,13 @@ data class GameAvailabilityEntity(
     val shinyLocked: Boolean,
     val shinyLockReason: String?,
     /**
-     * Curated, from availability-overrides.yaml: the other version of the pair that has it,
-     * when upstream said this one did too and the sources say it does not. [obtainable] is
-     * already false on such a row.
+     * Curated, from availability-overrides.yaml: the version of the pair that has it in its
+     * own game. A version exclusive also has [obtainable] cleared; an online-only one (a
+     * Crown Tundra legendary met in another player's Max Lair) keeps it.
      */
     val exclusiveTo: String?,
-    /** Curated: why upstream's "obtainable" was overridden, with the source in the YAML. */
-    val unavailableReason: String?,
+    /** Curated: what the override says about this row, with the source in the YAML. */
+    val availabilityNote: String?,
 )
 
 @Entity(tableName = "encounter_method")
