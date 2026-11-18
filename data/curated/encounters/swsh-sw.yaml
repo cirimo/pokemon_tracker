@@ -1,0 +1,418 @@
+# How to catch things in Sword.
+#
+# Curated 2026-11-18 for the game being played (prompt 11). Drafted by
+# tools/curation/draft_swsh.py and read through by hand. Sources:
+#
+#   Dynamax_Adventure      the special Pokemon at the end of a Dynamax Adventure, with the
+#                          rules for keeping one, noting its path, and the 1/300 (1/100 with
+#                          the charm) rate in odds-modifiers.yaml
+#   List_of_in-game_event_Pokemon_in_Pokemon_Sword_and_Shield
+#                          the Crown Tundra statics and whether each can be shiny
+#   Version-exclusive_Pokemon
+#                          which Crown Tundra legendaries are Shield's (online-only here; the
+#                          override is in availability-overrides.yaml)
+#
+# Locked in Sword (shiny-locks.yaml): Zacian, Zamazenta, Eternatus, the Galarian birds,
+# Keldeo, Type: Null, Silvally, Poipole, Naganadel. Not curated, on purpose: the Therian
+# Formes of Tornadus, Thundurus and Landorus and Giratina's Origin Forme, because no source
+# read places the item that changes them in Sword; and the random, untargetable Dynamax
+# Adventure catches of ordinary species, which are a bonus per adventure rather than a way
+# to hunt one. `npm run coverage -- swsh-sw --list` shows what is left.
+
+gameId: swsh-sw
+
+encounters:
+  # --- Legendary Pokemon and Ultra Beasts ---------------------------------------
+  - variantId: articuno
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: zapdos
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: moltres
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: mewtwo
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: raikou
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: entei
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: suicune
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: lugia
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: hooh
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: regirock
+    methodId: static
+    location: Rock Peak Ruins, Giant's Bed
+    prerequisite: The Crown Tundra, after Legendary Clue 2. A party Pokemon must hold an Everstone to enter.
+    oddsExclude: [shiny-charm]
+    notes: The Shiny Charm does nothing for the legendary giants (Bulbapedia, Shiny Charm).
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: regice
+    methodId: static
+    location: Iceberg Ruins, Snowslide Slope
+    prerequisite: The Crown Tundra, after Legendary Clue 2. Your walking Pokemon must be a Cryogonal to enter.
+    oddsExclude: [shiny-charm]
+    notes: The Shiny Charm does nothing for the legendary giants (Bulbapedia, Shiny Charm).
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: registeel
+    methodId: static
+    location: Iron Ruins, Giant's Bed
+    prerequisite: The Crown Tundra, after Legendary Clue 2. Whistle near the door to enter.
+    oddsExclude: [shiny-charm]
+    notes: The Shiny Charm does nothing for the legendary giants (Bulbapedia, Shiny Charm).
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: latias
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: latios
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: kyogre
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: groudon
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: rayquaza
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: uxie
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: mesprit
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: azelf
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: dialga
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: palkia
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: heatran
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: regigigas
+    methodId: raid
+    location: Pokemon Den, Giant's Bed
+    prerequisite: "The Crown Tundra: bring all five legendary giants to the den, which wakes Regigigas in a solo Max Raid Battle."
+    notes: "Unresolved: the same page says only one of Regieleki and Regidrago can be caught on a save, so a second save or a trade seems needed for the fifth giant. Dens are not helped by the Shiny Charm."
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: giratina
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: cresselia
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: cobalion
+    methodId: static
+    location: Frigid Sea
+    prerequisite: "The Crown Tundra, after the main story: collect Cobalion's 50 footprints for Sonia."
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: terrakion
+    methodId: static
+    location: Lakeside Cave
+    prerequisite: "The Crown Tundra, after the main story: collect Terrakion's 50 footprints for Sonia."
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: virizion
+    methodId: static
+    location: Giant's Bed
+    prerequisite: "The Crown Tundra, after the main story: collect Virizion's 50 footprints for Sonia."
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: tornadus
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: thundurus
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: reshiram
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: zekrom
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: landorus
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: kyurem
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: xerneas
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: yveltal
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: zygarde
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: tapukoko
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: tapulele
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: tapubulu
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: tapufini
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: solgaleo
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: lunala
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Not in Sword's own Max Lair: join a Dynamax Adventure hosted on Shield, online. Once met, its path stays unlocked."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: nihilego
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: buzzwole
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: pheromosa
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: xurkitree
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: celesteela
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: kartana
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: guzzlord
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: necrozma
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: stakataka
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: blacephalon
+    methodId: dynamax-adventure
+    location: Max Lair
+    prerequisite: "The Crown Tundra: a Dynamax Adventure from the Max Lair on Slippery Slope. Ultra Beasts and Necrozma appear only after reading the Legendary Clue?, left on the Freeze Inn doormat once every Legendary Clue is done."
+    notes: Only one can ever be kept on a save file. Declining it at the end keeps it catchable, and the scientist notes its path for free (three notes at a time).
+    source: https://bulbapedia.bulbagarden.net/wiki/Dynamax_Adventure
+
+  - variantId: regieleki
+    methodId: static
+    location: Split-Decision Ruins, Three-Point Pass
+    prerequisite: The Crown Tundra, with Regirock, Regice and Registeel in the party. Light the floor in Regieleki's eye pattern.
+    oddsExclude: [shiny-charm]
+    notes: Only one of Regieleki and Regidrago can be caught on a save file, chosen by the pattern. The Shiny Charm does nothing for the legendary giants (Bulbapedia, Shiny Charm).
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
+  - variantId: regidrago
+    methodId: static
+    location: Split-Decision Ruins, Three-Point Pass
+    prerequisite: The Crown Tundra, with Regirock, Regice and Registeel in the party. Light the floor in Regidrago's eye pattern.
+    oddsExclude: [shiny-charm]
+    notes: Only one of Regieleki and Regidrago can be caught on a save file, chosen by the pattern. The Shiny Charm does nothing for the legendary giants (Bulbapedia, Shiny Charm).
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
