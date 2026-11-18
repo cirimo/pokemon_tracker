@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
-import net.pokedex.core.data.repository.GuideRepository
+import net.pokedex.core.data.repository.CurationRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
@@ -25,7 +25,7 @@ import net.pokedex.core.model.Dex
 import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameId
 import net.pokedex.core.model.Hunt
-import net.pokedex.core.model.HuntGuide
+import net.pokedex.core.model.Curation
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Priority
 import net.pokedex.core.model.farmOrderOf
@@ -110,14 +110,14 @@ sealed interface HuntEvent {
 @HiltViewModel
 class HuntViewModel @Inject constructor(
     private val dexRepository: DexRepository,
-    private val guides: GuideRepository,
+    private val guides: CurationRepository,
     catches: CatchRepository,
     settings: SettingsRepository,
     private val savedState: SavedStateHandle,
     @DefaultDispatcher default: CoroutineDispatcher,
 ) : ViewModel() {
 
-    private val loaded = MutableStateFlow<Outcome<Pair<Dex, HuntGuide>>?>(null)
+    private val loaded = MutableStateFlow<Outcome<Pair<Dex, Curation>>?>(null)
 
     private val view = combine(
         savedState.getStateFlow<String?>(KEY_GAME, null),
@@ -155,7 +155,7 @@ class HuntViewModel @Inject constructor(
         viewModelScope.launch {
             loaded.value = null
             val dex = dexRepository.dex()
-            val guide = guides.guide()
+            val guide = guides.curation()
             loaded.value = when {
                 dex is Outcome.Err -> dex
                 guide is Outcome.Err -> guide
@@ -169,7 +169,7 @@ class HuntViewModel @Inject constructor(
 
     private fun build(
         dex: Dex,
-        guide: HuntGuide,
+        guide: Curation,
         records: Map<CatchKey, CatchRecord>,
         ranks: Map<GameId, Int>,
         view: View,
@@ -240,7 +240,7 @@ class HuntViewModel @Inject constructor(
         Priority.Later -> "Later: ${split.lowercase()}"
     }
 
-    private fun row(dex: Dex, hunt: Hunt, guide: HuntGuide, names: Map<GameId, String>): HuntRowUi {
+    private fun row(dex: Dex, hunt: Hunt, guide: Curation, names: Map<GameId, String>): HuntRowUi {
         val lead = hunt.lead
         val variant = lead.variant
         val way = hunt.way

@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
-import net.pokedex.core.data.repository.GuideRepository
+import net.pokedex.core.data.repository.CurationRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
@@ -41,7 +41,7 @@ import net.pokedex.core.model.FarmFilter
 import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameId
-import net.pokedex.core.model.HuntGuide
+import net.pokedex.core.model.Curation
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
@@ -78,7 +78,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BoxesViewModel @Inject constructor(
     private val dexRepository: DexRepository,
-    private val guides: GuideRepository,
+    private val guides: CurationRepository,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
     private val savedState: SavedStateHandle,
@@ -132,7 +132,7 @@ class BoxesViewModel @Inject constructor(
         if (loaded == null || plan == null) SearchUiState() else searchOf(loaded, records, plan, active, filter)
     }.flowOn(default)
 
-    private val guide = MutableStateFlow<HuntGuide?>(null)
+    private val guide = MutableStateFlow<Curation?>(null)
 
     /**
      * The top of the hunt list, as one line. Derived from the same ranking as the hunt screen,
@@ -236,7 +236,7 @@ class BoxesViewModel @Inject constructor(
                     val lastBox = settings.get().lastBoxIndex.coerceIn(0, dex.boxes.lastIndex)
                     loaded.value = Loaded.of(dex, lastBox)
                     // After the dex, never before it: the guide is not needed to draw a box.
-                    launch { (guides.guide() as? Outcome.Ok)?.let { guide.value = it.value } }
+                    launch { (guides.curation() as? Outcome.Ok)?.let { guide.value = it.value } }
                     // The number the cold-start budget is about: process start to a box you can
                     // read, not just to the first frame (which is a skeleton).
                     val sinceStart = SystemClock.uptimeMillis() - Process.getStartUptimeMillis()
@@ -329,7 +329,7 @@ class BoxesViewModel @Inject constructor(
 
     private fun nextHuntOf(
         dex: Dex,
-        guide: HuntGuide,
+        guide: Curation,
         records: Map<CatchKey, CatchRecord>,
         myGames: Set<GameId>,
     ): NextHuntUi {

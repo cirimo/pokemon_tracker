@@ -27,8 +27,11 @@ enum class Priority(val value: Int) {
 /**
  * The curated "how": encounters and odds, indexed for lookup. Built once per dataset; the
  * reference data does not change while the app runs.
+ *
+ * Named for the curated layer it indexes, not "guide": a guide is the step-by-step tutorial
+ * for a hunt (prompt 11), and one word should mean one thing.
  */
-class HuntGuide(
+class Curation(
     encounters: List<Encounter>,
     modifiers: List<OddsModifier>,
     methods: List<EncounterMethod>,
@@ -221,7 +224,7 @@ fun huntPlan(
     dex: Dex,
     records: Map<CatchKey, CatchRecord>,
     myGames: Set<GameId>,
-    guide: HuntGuide,
+    guide: Curation,
     include: (DexEntry) -> Boolean = { true },
 ): HuntPlan {
     val needed = dex.entries.filter { statusOf(it, records) == SlotStatus.Needed }
@@ -283,7 +286,7 @@ fun huntPlanFor(
     farmOrder: List<GameId>,
     selected: GameId?,
     scope: FarmScope?,
-    guide: HuntGuide,
+    guide: Curation,
 ): HuntPlan {
     val myGames = farmOrder.toSet()
     val game = selected?.takeIf { it in myGames }

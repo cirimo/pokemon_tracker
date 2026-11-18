@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.DexRepository
-import net.pokedex.core.data.repository.GuideRepository
+import net.pokedex.core.data.repository.CurationRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.Browse
@@ -31,7 +31,7 @@ import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.Encounter
 import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.GameId
-import net.pokedex.core.model.HuntGuide
+import net.pokedex.core.model.Curation
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.Priority
@@ -218,7 +218,7 @@ sealed interface SlotDetailEvent {
 @HiltViewModel
 class SlotDetailViewModel @Inject constructor(
     private val dexRepository: DexRepository,
-    private val guides: GuideRepository,
+    private val guides: CurationRepository,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
     private val savedState: SavedStateHandle,
@@ -241,8 +241,8 @@ class SlotDetailViewModel @Inject constructor(
 
     // A guide that fails to load costs the "how" section, not the screen: the rest of the
     // slot comes from the dex, which is the part that must work.
-    private val guide = MutableStateFlow<HuntGuide?>(null)
-    private val guideTried = CompletableDeferred<HuntGuide?>()
+    private val guide = MutableStateFlow<Curation?>(null)
+    private val guideTried = CompletableDeferred<Curation?>()
 
     /** Frozen once, when the detail opens; null until then. */
     private val keys = MutableStateFlow<List<CatchKey>?>(null)
@@ -300,7 +300,7 @@ class SlotDetailViewModel @Inject constructor(
     private fun load() {
         viewModelScope.launch { dex.value = dexRepository.dex() }
         viewModelScope.launch {
-            val loaded = (guides.guide() as? Outcome.Ok)?.value
+            val loaded = (guides.curation() as? Outcome.Ok)?.value
             if (loaded != null) guide.value = loaded
             guideTried.complete(loaded)
         }
@@ -326,7 +326,7 @@ class SlotDetailViewModel @Inject constructor(
         val dex: Outcome<Dex>?,
         val records: Map<CatchKey, CatchRecord>,
         val farm: FarmPlan?,
-        val guide: HuntGuide?,
+        val guide: Curation?,
     )
 
     private fun pagesOf(dex: Dex, inputs: Inputs, keys: List<CatchKey>, current: CatchKey): SlotDetailPagesState {
@@ -353,7 +353,7 @@ class SlotDetailViewModel @Inject constructor(
         dex: Dex,
         records: Map<CatchKey, CatchRecord>,
         farm: FarmPlan,
-        guide: HuntGuide?,
+        guide: Curation?,
         key: CatchKey,
     ): SlotDetailUiState {
         val myGames = farm.games
@@ -422,7 +422,7 @@ class SlotDetailViewModel @Inject constructor(
      * the variant appears in, so the screen is still useful before setup. My games are in my
      * farm order, so the game the farm line names comes first among those that have it.
      */
-    private fun huntingFor(dex: Dex, variant: VariantId, farmOrder: List<GameId>, guide: HuntGuide?): List<GameHuntUi> {
+    private fun huntingFor(dex: Dex, variant: VariantId, farmOrder: List<GameId>, guide: Curation?): List<GameHuntUi> {
         val byId = dex.games.associateBy { it.id }
         val games = if (farmOrder.isEmpty()) {
             dex.games.filter { it.gameSet != Dex.HOME_GAME_SET && standingOf(dex, variant, it.id) != Standing.Absent }
@@ -443,7 +443,7 @@ class SlotDetailViewModel @Inject constructor(
         }
     }
 
-    private fun wayUi(dex: Dex, guide: HuntGuide, encounter: Encounter): WayUi {
+    private fun wayUi(dex: Dex, guide: Curation, encounter: Encounter): WayUi {
         val from = encounter.fromVariantId
         val source = from?.let { guide.bestWay(it, listOf(encounter.gameId)) }
         val odds = if (from == null) guide.odds(encounter.gameId, encounter.methodId) else source?.odds

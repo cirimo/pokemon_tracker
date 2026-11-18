@@ -15,7 +15,7 @@ class BrowseTest {
 
     private val dex = DexFixtures.dex
     private val scarletViolet = listOf(GameId("sv-s"), GameId("sv-v"))
-    private val noGuide = HuntGuide(emptyList(), emptyList(), emptyList())
+    private val noGuide = Curation(emptyList(), emptyList(), emptyList())
 
     private fun caught(vararg keys: CatchKey, priority: Int = 0) =
         keys.associateWith { CatchRecord.empty(it, now = 0).copy(caught = true, priority = priority) }

@@ -71,7 +71,7 @@ fun browseKeys(
     dex: Dex,
     records: Map<CatchKey, CatchRecord>,
     farmOrder: List<GameId>,
-    guide: HuntGuide?,
+    guide: Curation?,
     keep: CatchKey,
 ): List<CatchKey> {
     val keys = when (browse) {

@@ -13,7 +13,7 @@ import org.junit.Test
 class HuntsTest {
 
     private val scarletViolet = setOf(GameId("sv-s"), GameId("sv-v"))
-    private val noGuide = HuntGuide(emptyList(), emptyList(), emptyList())
+    private val noGuide = Curation(emptyList(), emptyList(), emptyList())
 
     private fun encounter(
         variant: String,
@@ -80,7 +80,7 @@ class HuntsTest {
 
     @Test
     fun `a recorded method beats a nearer box`() {
-        val guide = HuntGuide(listOf(encounter("raichu", "sv-v")), emptyList(), emptyList())
+        val guide = Curation(listOf(encounter("raichu", "sv-v")), emptyList(), emptyList())
 
         val plan = huntPlan(DexFixtures.dex, emptyMap(), scarletViolet, guide)
 
@@ -92,7 +92,7 @@ class HuntsTest {
 
     @Test
     fun `a method in a game I do not own does not count`() {
-        val guide = HuntGuide(listOf(encounter("pikachu", "swsh-sw")), emptyList(), emptyList())
+        val guide = Curation(listOf(encounter("pikachu", "swsh-sw")), emptyList(), emptyList())
 
         val plan = huntPlan(DexFixtures.dex, emptyMap(), scarletViolet, guide)
 
@@ -101,14 +101,14 @@ class HuntsTest {
 
     @Test
     fun `a shiny-locked encounter is not a way`() {
-        val guide = HuntGuide(listOf(encounter("raichu", "sv-v", locked = true)), emptyList(), emptyList())
+        val guide = Curation(listOf(encounter("raichu", "sv-v", locked = true)), emptyList(), emptyList())
 
         assertThat(guide.bestWay(VariantId("raichu"), listOf(GameId("sv-v")))).isNull()
     }
 
     @Test
     fun `the best way is the one with the best odds, then one with odds at all`() {
-        val guide = HuntGuide(
+        val guide = Curation(
             listOf(encounter("pikachu", "sv-s", "static"), encounter("pikachu", "sv-s", "wild")),
             listOf(charm("sv-s", "wild")),
             emptyList(),
@@ -122,7 +122,7 @@ class HuntsTest {
 
     @Test
     fun `an evolution takes the odds of hunting what it evolves from`() {
-        val guide = HuntGuide(
+        val guide = Curation(
             listOf(encounter("raichu", "sv-s", "evolution", from = "pikachu"), encounter("pikachu", "sv-s")),
             listOf(charm("sv-s")),
             emptyList(),
@@ -138,7 +138,7 @@ class HuntsTest {
     @Test
     fun `an evolution from something with no way to find it is not a way`() {
         val evolution = encounter("raichu", "sv-s", "evolution", from = "pikachu")
-        val guide = HuntGuide(listOf(evolution), emptyList(), emptyList())
+        val guide = Curation(listOf(evolution), emptyList(), emptyList())
 
         assertThat(guide.bestWay(VariantId("raichu"), listOf(GameId("sv-s")))).isNull()
     }
@@ -161,7 +161,7 @@ class HuntsTest {
             if (it.id.value == "raichu-alola") it.copy(isRegional = false) else it
         }
         val dex = assemble(DexFixtures.availability + available("raichu-alola", "sv-v"), variants)
-        val guide = HuntGuide(listOf(encounter("raichu", "sv-v")), emptyList(), emptyList())
+        val guide = Curation(listOf(encounter("raichu", "sv-v")), emptyList(), emptyList())
 
         val raichu = huntPlan(dex, emptyMap(), scarletViolet, guide).hunts.single { it.key.dexNum == 26 }
 
