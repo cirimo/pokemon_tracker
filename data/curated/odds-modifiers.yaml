@@ -74,12 +74,25 @@ modifiers:
   # --- Sword / Shield ---------------------------------------------------------
   # Rates table, and Gen VIII "Pokemon Sword and Shield". Number Battled only improves
   # Brilliant Pokemon; ordinary encounters get nothing from it.
+  # Bulbapedia, Shiny Charm (Generation VIII): no effect on the legendary giants, Motostoke
+  # Stadium, revived fossils, curry, dens or scripted encounters. Fossils and dens have no row
+  # here; the giants and scripted statics exclude it on their encounter (oddsExclude).
   - games: [swsh-sw, swsh-sh]
     id: shiny-charm
     label: Shiny Charm
-    methods: [wild, brilliant, fishing, static, breeding]
+    methods: [wild, brilliant, fishing, static]
     rollsAdded: 2
-    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Charm
+  # The egg bug (Bulbapedia, Masuda method and Shiny Charm): once any reroll applies, the egg's
+  # first roll is skipped. Charm alone is 2 rolls (1/2048), Masuda alone 6 (1/683.08), both 8
+  # (1/512.44). Masuda's six rerolls are one more than earlier generations gave.
+  - games: [swsh-sw, swsh-sh]
+    id: shiny-charm
+    label: Shiny Charm
+    methods: [breeding]
+    rollsAdded: 2
+    skipsBaseRoll: true
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Charm
   - games: [swsh-sw, swsh-sh]
     id: battled-1
     label: Number battled 1+
@@ -126,8 +139,10 @@ modifiers:
     id: masuda
     label: Masuda method
     methods: [breeding]
-    rollsAdded: 5
-    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+    rollsAdded: 6
+    skipsBaseRoll: true
+    notes: Parents from different-language games.
+    source: https://bulbapedia.bulbagarden.net/wiki/Masuda_method
   - games: [swsh-sw, swsh-sh]
     id: dynamax-adventure
     label: Dynamax Adventure
@@ -136,7 +151,7 @@ modifiers:
     inherent: true
     source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
   - games: [swsh-sw, swsh-sh]
-    id: dynamax-adventure-charm
+    id: shiny-charm
     label: Shiny Charm
     methods: [dynamax-adventure]
     denominator: 100

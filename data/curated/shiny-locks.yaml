@@ -52,6 +52,84 @@ locks:
     reason: Story-locked at the Tower Summit.
     source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
 
+  # Bulbapedia, Shiny Pokemon, Generation VIII "In-game Shiny Pokemon": the Galarian legendary
+  # birds, Keldeo, Calyrex and its steeds can never be shiny, and neither can any in-game gift
+  # except a revived fossil. Calyrex, Glastrier, Spectrier, Kubfu, Urshifu, Cosmog and Cosmoem
+  # have no shiny released at all, so they need no row (lock-sanity refuses one). Gifts that
+  # can also be bred (the first partners, Toxel) are locked on the gift encounter only.
+  - variantId: articuno-galar
+    gameId: swsh-sw
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: articuno-galar
+    gameId: swsh-sh
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: zapdos-galar
+    gameId: swsh-sw
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: zapdos-galar
+    gameId: swsh-sh
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: moltres-galar
+    gameId: swsh-sw
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: moltres-galar
+    gameId: swsh-sh
+    reason: Galarian legendary birds are never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: keldeo
+    gameId: swsh-sw
+    reason: Keldeo is never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: keldeo
+    gameId: swsh-sh
+    reason: Keldeo is never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: keldeo-resolute
+    gameId: swsh-sw
+    reason: Keldeo is never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: keldeo-resolute
+    gameId: swsh-sh
+    reason: Keldeo is never shiny in Sword and Shield.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: typenull
+    gameId: swsh-sw
+    reason: Only a gift (Battle Tower, after becoming Champion), and gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: typenull
+    gameId: swsh-sh
+    reason: Only a gift (Battle Tower, after becoming Champion), and gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: silvally
+    gameId: swsh-sw
+    reason: "Only by evolving Type: Null, which is a shiny-locked gift."
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: silvally
+    gameId: swsh-sh
+    reason: "Only by evolving Type: Null, which is a shiny-locked gift."
+    source: https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon
+  - variantId: poipole
+    gameId: swsh-sw
+    reason: Only a gift (Max Lair, after five Ultra Beasts), and gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - variantId: poipole
+    gameId: swsh-sh
+    reason: Only a gift (Max Lair, after five Ultra Beasts), and gifts are never shiny.
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - variantId: naganadel
+    gameId: swsh-sw
+    reason: Only by evolving Poipole, which is a shiny-locked gift.
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+  - variantId: naganadel
+    gameId: swsh-sh
+    reason: Only by evolving Poipole, which is a shiny-locked gift.
+    source: https://bulbapedia.bulbagarden.net/wiki/List_of_in-game_event_Pok%C3%A9mon_in_Pok%C3%A9mon_Sword_and_Shield
+
   # --- Legends Arceus ---------------------------------------------------------
   # Worth knowing: PLA locks the story legendaries but NOT the overworld nobles,
   # which is the kind of asymmetry that makes this file worth having.

@@ -5,7 +5,729 @@
 # Shield. So a Shield exclusive read as a Sword farm job. A row here clears `obtainable` for
 # one game; it may only narrow upstream, never widen it (docs/dataset-pipeline.md).
 #
-#   version-exclusive   the other version of the pair has it; `exclusiveTo` names it
+#   version-exclusive   the other version of the pair has it; `exclusiveTo` names it, and
+#                       this one gets it only by trade
+#   online-only         labelled, not narrowed: this version reaches it only through another
+#                       player's game online (a Crown Tundra legendary in their Max Lair), so
+#                       `obtainable` stays and `exclusiveTo` says whose it is
 #   trade-only          neither version can catch it; it arrives by trade or HOME
+#
+# Sword and Shield rows: Bulbapedia's version-exclusive tables for the base game, The Isle of
+# Armor and The Crown Tundra, all forms of each listed species (Galarian forms only where the
+# table says Galarian, and Red- or Blue-Striped Basculin as listed). Species the notes under
+# those tables say both versions get some other way are not here: Ninetales, Hitmonlee,
+# Arcanine and Hitmonchan (raids), both Indeedee and Meowstic (breeding, evolution), Sawk and
+# Throh (an in-game trade in Circhester), and Escavalier, Accelgor, Passimian and Oranguru
+# (both versions with the Expansion Pass). The version-exclusive Crown Tundra legendaries are
+# online-only: Bulbapedia's note under that table says another player's Dynamax Adventure
+# offers them, and that the path stays unlocked once met.
 
-overrides: []
+overrides:
+  # --- Sword exclusives (not in Shield) ---
+  - variantId: farfetchd-galar
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: pinsir
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: omanyte
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: omastar
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: hooh
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: seedot
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: nuzleaf
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: nuzleaf-f
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: shiftry
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: shiftry-f
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: mawile
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: solrock
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: bagon
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: shelgon
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: salamence
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: latios
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: groudon
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: dialga
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: basculin
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: darumaka-galar
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: darmanitan-galar
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: scraggy
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: scrafty
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gothita
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gothorita
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gothitelle
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: rufflet
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: braviary
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: deino
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: zweilous
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: hydreigon
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: tornadus
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: tornadus-therian
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: reshiram
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: swirlix
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: clauncher
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: clawitzer
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: xerneas
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: turtonator
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: jangmoo
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: hakamoo
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: kommoo
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: solgaleo
+    gameId: swsh-sh
+    kind: online-only
+    exclusiveTo: swsh-sw
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: flapple
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: sirfetchd
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: stonjourner
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: zacian
+    gameId: swsh-sh
+    kind: version-exclusive
+    exclusiveTo: swsh-sw
+    reason: Sword exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  # --- Shield exclusives (not in Sword) ---
+  - variantId: ponyta-galar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: rapidash-galar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: kabuto
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: kabutops
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: heracross
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: heracross-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: corsola-galar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: larvitar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: pupitar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: tyranitar
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: lugia
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: lotad
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: lombre
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: ludicolo
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: ludicolo-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: sableye
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: lunatone
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: latias
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: kyogre
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gible
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gible-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gabite
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: gabite-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: garchomp
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: garchomp-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Crown Tundra); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: croagunk
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: croagunk-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: toxicroak
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: toxicroak-f
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: palkia
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: basculin-blue-striped
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: solosis
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: duosion
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: reuniclus
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: vullaby
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: mandibuzz
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: thundurus
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: thundurus-therian
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: zekrom
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: spritzee
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: skrelp
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: dragalge
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (The Isle of Armor); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: goomy
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: sliggoo
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: goodra
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: yveltal
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: drampa
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: lunala
+    gameId: swsh-sw
+    kind: online-only
+    exclusiveTo: swsh-sh
+    reason: Not in this version's Max Lair (The Crown Tundra); met by joining a Dynamax Adventure hosted on the other version, online.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: appletun
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: cursola
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: eiscue
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  - variantId: zamazenta
+    gameId: swsh-sw
+    kind: version-exclusive
+    exclusiveTo: swsh-sh
+    reason: Shield exclusive (Sword and Shield); the other version gets it only by trade.
+    source: https://bulbapedia.bulbagarden.net/wiki/Version-exclusive_Pok%C3%A9mon
+
+  # --- trade only -------------------------------------------------------------
+  # Bulbapedia's Zygarde availability for Sword and Shield: trade only (version 1.3.0 on);
+  # the Max Lair has only the 50% Forme with Power Construct.
+  - variantId: zygarde-10
+    gameId: swsh-sw
+    kind: trade-only
+    reason: The Max Lair has only the 50% Forme; the 10% Forme arrives by trade or HOME.
+    source: https://bulbapedia.bulbagarden.net/wiki/Zygarde_(Pok%C3%A9mon)
+  - variantId: zygarde-10
+    gameId: swsh-sh
+    kind: trade-only
+    reason: The Max Lair has only the 50% Forme; the 10% Forme arrives by trade or HOME.
+    source: https://bulbapedia.bulbagarden.net/wiki/Zygarde_(Pok%C3%A9mon)
