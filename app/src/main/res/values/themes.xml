@@ -1,12 +1,12 @@
 <resources>
     <!--
       A launch theme only. The real theming is PokedexTheme in :design-system.
-      The background is @color/pokedex_case_black from :design-system — the same token
-      PokedexColors.case uses — so the cold-start frame does not flash white before
-      Compose draws, and cannot drift away from the theme it is standing in for.
+      The background is @color/pokedex_launch from :design-system: the paper case in light
+      and the black case in night, the same tokens PokedexColors.case uses in each theme,
+      so the cold-start frame is already the colour Compose is about to draw.
     -->
     <style name="Theme.Pokedex" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/pokedex_case_black</item>
+        <item name="android:windowBackground">@color/pokedex_launch</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>

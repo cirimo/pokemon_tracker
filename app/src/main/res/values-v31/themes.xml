@@ -1,0 +1,17 @@
+<resources>
+    <!--
+      Android 12+ draws its own splash before the first frame. Without these it took the
+      launcher's defaults: a grey plate on a system background. Here it is the case colour
+      for the system theme and the app's own slot, so the splash is the first frame of the
+      app rather than of the launcher. No library: below API 31 there is no system splash,
+      and the window background above already covers that start.
+    -->
+    <style name="Theme.Pokedex" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/pokedex_launch</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowSplashScreenBackground">@color/pokedex_launch</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/pokedex_case_black</item>
+    </style>
+</resources>

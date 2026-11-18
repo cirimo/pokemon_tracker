@@ -1,37 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The app's own atom: a display case slot with a caught-shiny rim and pip.
+  The app's own atom: a display case slot with a caught-shiny rim and pip, set in a lit
+  plate of the case, the way every box sits in the app.
 
   Deliberately not a Poke Ball. That is Nintendo's mark, and docs/design-decisions.md rules
   out official branding entirely; the slot is also the more distinctive choice, because it
   is the thing the whole app is built out of.
 
-  Geometry notes, both learned by looking at it on a launcher:
+  Geometry notes, learned by looking at it on a launcher:
 
    * Adaptive icons have a 108x108 viewport but only the centre 66x66 survives every mask,
-     so the artwork sits inside 21..87.
+     so the plate sits inside 21..87 and the slot well inside that.
    * The pip must clear the rim by a visible margin. A first version placed it at the same
      radius the grid uses and it merged into the stroke at launcher size, reading as a bite
      out of the corner rather than as a mark.
+   * The plate's light is the app's LitSurface at icon size: caseSurfaceHigh falling to
+     caseSurface, and a hairline of caseHighlight along its top edge.
 
   Gold appears here exactly as the design system allows: a caught slot rim and its pip.
+  This drawable is also the Android 12+ splash icon (values-v31/themes.xml).
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- The recess, darker than the case behind it so the slot reads as a well. -->
-    <path android:fillColor="#0E0C0D" android:pathData="M37,28h34a9,9 0 0 1 9,9v34a9,9 0 0 1 -9,9h-34a9,9 0 0 1 -9,-9v-34a9,9 0 0 1 9,-9z" />
+    <!-- The lit plate. -->
+    <path android:pathData="M31,23h46a8,8 0 0 1 8,8v46a8,8 0 0 1 -8,8h-46a8,8 0 0 1 -8,-8v-46a8,8 0 0 1 8,-8z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="54"
+                android:startY="23"
+                android:endX="54"
+                android:endY="85"
+                android:startColor="#FF232021"
+                android:centerColor="#FF1A1718"
+                android:endColor="#FF1A1718" />
+        </aapt:attr>
+    </path>
+
+    <!-- The light along the plate's top edge, fading towards both corners. -->
+    <path
+        android:strokeWidth="1"
+        android:pathData="M33,23.5h42">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:type="linear"
+                android:startX="33"
+                android:startY="23.5"
+                android:endX="75"
+                android:endY="23.5"
+                android:startColor="#004A4546"
+                android:centerColor="#FF4A4546"
+                android:endColor="#004A4546" />
+        </aapt:attr>
+    </path>
+
+    <!-- The recess, darker than the plate so the slot reads as a well. -->
+    <path android:fillColor="#0E0C0D" android:pathData="M39,31h30a8,8 0 0 1 8,8v30a8,8 0 0 1 -8,8h-30a8,8 0 0 1 -8,-8v-30a8,8 0 0 1 8,-8z" />
 
     <!-- The caught rim. Heavier than the grid's 2dp, because 2dp vanishes at 48px. -->
     <path
         android:strokeColor="#D8B26A"
-        android:strokeWidth="4.5"
+        android:strokeWidth="4"
         android:fillColor="#00000000"
-        android:pathData="M37,28h34a9,9 0 0 1 9,9v34a9,9 0 0 1 -9,9h-34a9,9 0 0 1 -9,-9v-34a9,9 0 0 1 9,-9z" />
+        android:pathData="M39,31h30a8,8 0 0 1 8,8v30a8,8 0 0 1 -8,8h-30a8,8 0 0 1 -8,-8v-30a8,8 0 0 1 8,-8z" />
 
     <!-- The pip: the second, non-colour signal that a slot is filled. -->
-    <path android:fillColor="#D8B26A" android:pathData="M66,42m-7,0a7,7 0 1,0 14,0a7,7 0 1,0 -14,0z" />
+    <path android:fillColor="#D8B26A" android:pathData="M65,43m-6,0a6,6 0 1,0 12,0a6,6 0 1,0 -12,0z" />
 </vector>

@@ -9,4 +9,12 @@
       LaunchColorTest asserts this value still matches it.
     -->
     <color name="pokedex_case_black">#FF121011</color>
+    <color name="pokedex_case_paper">#FFF5F2ED</color>
+
+    <!--
+      The cold-start window and the Android 12+ splash, per system theme: the paper case in
+      light, the black case in night (values-night). Without it a light-theme start flashed
+      the dark case before Compose drew the paper one.
+    -->
+    <color name="pokedex_launch">@color/pokedex_case_paper</color>
 </resources>

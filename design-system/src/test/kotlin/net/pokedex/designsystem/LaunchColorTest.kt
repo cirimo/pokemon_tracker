@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertWithMessage
 import net.pokedex.designsystem.theme.DarkCase
+import net.pokedex.designsystem.theme.LightCase
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -35,5 +36,31 @@ class LaunchColorTest {
                 "icon background. It must equal PokedexColors.case for the dark theme, or the " +
                 "app flashes the wrong colour before Compose draws.",
         ).that(resource).isEqualTo(DarkCase.case)
+    }
+
+    @Test
+    fun paperMatchesTheLightCase() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        assertWithMessage("@color/pokedex_case_paper must equal PokedexColors.case for the light theme.")
+            .that(Color(context.getColor(R.color.pokedex_case_paper)))
+            .isEqualTo(LightCase.case)
+    }
+
+    @Test
+    @Config(qualifiers = "notnight")
+    fun launchIsTheLightCaseInLightTheme() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        assertWithMessage("@color/pokedex_launch in light theme is the cold-start and splash colour.")
+            .that(Color(context.getColor(R.color.pokedex_launch)))
+            .isEqualTo(LightCase.case)
+    }
+
+    @Test
+    @Config(qualifiers = "night")
+    fun launchIsTheDarkCaseInNightTheme() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        assertWithMessage("@color/pokedex_launch in night theme is the cold-start and splash colour.")
+            .that(Color(context.getColor(R.color.pokedex_launch)))
+            .isEqualTo(DarkCase.case)
     }
 }

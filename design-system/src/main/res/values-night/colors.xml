@@ -1,0 +1,4 @@
+<resources>
+    <!-- The launch colour in night: the dark case. See values/colors.xml. -->
+    <color name="pokedex_launch">@color/pokedex_case_black</color>
+</resources>
