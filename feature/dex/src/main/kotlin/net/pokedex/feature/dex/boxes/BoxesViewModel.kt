@@ -28,12 +28,13 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
-import net.pokedex.core.data.repository.DexRepository
 import net.pokedex.core.data.repository.CurationRepository
+import net.pokedex.core.data.repository.DexRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.CatchKey
 import net.pokedex.core.model.CatchRecord
+import net.pokedex.core.model.Curation
 import net.pokedex.core.model.Dex
 import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.DexFilter
@@ -41,7 +42,6 @@ import net.pokedex.core.model.FarmFilter
 import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.FarmScope
 import net.pokedex.core.model.GameId
-import net.pokedex.core.model.Curation
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Progress
 import net.pokedex.core.model.SlotStatus
