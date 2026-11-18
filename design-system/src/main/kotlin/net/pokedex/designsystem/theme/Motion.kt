@@ -55,6 +55,14 @@ data class PokedexMotion(
 
     /** The caught rim and pip arriving. Slightly softer, still interruptible. */
     fun <T> stateChange(): FiniteAnimationSpec<T> = stateSpring.spec()
+
+    /**
+     * One screen giving way to the next: the container's duration and easing, typed for
+     * whatever the transition animates (an offset as well as an alpha). A snap when the
+     * user has asked for no animation, like everything else here.
+     */
+    fun <T> screen(): FiniteAnimationSpec<T> =
+        if (reduced) snap() else tween(CONTAINER_MILLIS, easing = CaseEasing)
 }
 
 @Immutable

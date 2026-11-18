@@ -4,7 +4,10 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import net.pokedex.designsystem.theme.PokedexTheme
@@ -35,18 +38,21 @@ import net.pokedex.feature.settings.settingsGraph
 @Composable
 fun PokedexNavHost() {
     val navController = rememberNavController()
-    // The NavHost's own default is a 700ms tween, which ignores the system's animation
-    // setting. PokedexTheme.motion is already resolved for reduce-motion, so routing the
-    // screen fade through it is what makes navigation obey that setting too.
-    val fade = PokedexTheme.motion.container
+    // A shared axis: forward moves the new screen in from the end and the old one out to
+    // the start, back reverses it, both while fading. One space you move through rather than
+    // cards swapping in place. The NavHost's own default is a 700ms tween that ignores the
+    // system's animation setting; PokedexTheme.motion is already resolved for reduce-motion,
+    // so routing through it is what makes navigation obey that setting too.
+    val motion = PokedexTheme.motion
+    val shift = with(LocalDensity.current) { PokedexTheme.dimens.screenShift.roundToPx() }
     SharedTransitionLayout {
         NavHost(
             navController = navController,
             startDestination = BoxesRoute,
-            enterTransition = { fadeIn(fade) },
-            exitTransition = { fadeOut(fade) },
-            popEnterTransition = { fadeIn(fade) },
-            popExitTransition = { fadeOut(fade) },
+            enterTransition = { slideInHorizontally(motion.screen()) { shift } + fadeIn(motion.screen()) },
+            exitTransition = { slideOutHorizontally(motion.screen()) { -shift } + fadeOut(motion.screen()) },
+            popEnterTransition = { slideInHorizontally(motion.screen()) { -shift } + fadeIn(motion.screen()) },
+            popExitTransition = { slideOutHorizontally(motion.screen()) { shift } + fadeOut(motion.screen()) },
         ) {
             dexGraph(
                 navController = navController,

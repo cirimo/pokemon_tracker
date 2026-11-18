@@ -65,6 +65,12 @@ data class PokedexDimens(
     /** Android's minimum, and non-negotiable for anything tappable. */
     val touchTargetMin: Dp = 48.dp,
 
+    /**
+     * How far a screen travels as it enters or leaves: a shared axis, short enough to read as
+     * "forward" and "back" rather than as a slide, and the same both ways.
+     */
+    val screenShift: Dp = 24.dp,
+
     val progressRingStroke: Dp = 4.dp,
     val progressBarHeight: Dp = 6.dp,
     val iconSm: Dp = 16.dp,
