@@ -21,6 +21,7 @@ import net.pokedex.core.model.FarmScope
 import net.pokedex.designsystem.component.EmptyState
 import net.pokedex.designsystem.component.ErrorState
 import net.pokedex.designsystem.component.FilterChip
+import net.pokedex.designsystem.component.HuntCard
 import net.pokedex.designsystem.component.LoadingState
 import net.pokedex.designsystem.component.ScreenScaffold
 import net.pokedex.designsystem.component.ScreenSection
@@ -157,13 +158,11 @@ private fun HuntList(
                 ScreenSection(title = section.title, body = section.body)
             }
             items(section.rows, key = { it.key }, contentType = { "hunt" }) { row ->
-                SpeciesCard(
+                HuntCard(
                     name = row.name,
-                    dexNumber = row.dexNumber,
+                    lines = listOf(row.where) + row.reasons,
+                    odds = row.odds,
                     types = typesOf(row.type1, row.type2),
-                    state = SlotState.Needed,
-                    formName = row.where,
-                    details = row.reasons,
                     onClick = { onOpenHunt(row.lead) },
                     sprite = { rendering -> DexSprite(row.spriteFile, rendering) },
                 )

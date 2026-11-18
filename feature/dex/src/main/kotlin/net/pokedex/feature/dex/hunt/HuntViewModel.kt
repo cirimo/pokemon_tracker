@@ -77,6 +77,8 @@ data class HuntRowUi(
     val where: String,
     /** Why it is here, one line each: the method or the games, then slots and box. */
     val reasons: List<String>,
+    /** The best curated odds for its method, "1 in 128", or null where none are curated. */
+    val odds: String? = null,
 )
 
 @Immutable
@@ -246,8 +248,7 @@ class HuntViewModel @Inject constructor(
             "Shiny in " + hunt.games.joinToString(", ") { names[it] ?: it.value }
         } else {
             val method = guide.method(way.encounter.methodId)?.name ?: way.encounter.methodId
-            val odds = way.odds?.let { ", ${oddsLabel(it.best)}" }.orEmpty()
-            "$method in ${names[way.game] ?: way.game.value}$odds"
+            "$method in ${names[way.game] ?: way.game.value}"
         }
         val box = hunt.box
         val boxLine = if (box.finishes) "Finishes ${box.name}" else "${box.name}: ${box.remaining} to go"
@@ -276,6 +277,7 @@ class HuntViewModel @Inject constructor(
                 "${locationOf(lead)} and ${hunt.slots.size - 1} more"
             },
             reasons = listOfNotNull(how, fills + boxLine, upgradeLine(hunt)),
+            odds = way?.odds?.let { oddsLabel(it.best) },
         )
     }
 
