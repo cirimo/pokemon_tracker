@@ -37,9 +37,9 @@ class Curation(
     methods: List<EncounterMethod>,
 ) {
     private val byVariantGame = encounters.groupBy { it.variantId to it.gameId }
-    private val oddsByMethod: Map<Pair<GameId, String>, MethodOdds?> = modifiers
-        .groupBy { it.gameId to it.methodId }
-        .mapValues { (_, rows) -> oddsFor(rows) }
+    private val modifiersByMethod = modifiers.groupBy { it.gameId to it.methodId }
+    private val oddsByMethod: Map<Pair<GameId, String>, MethodOdds?> =
+        modifiersByMethod.mapValues { (_, rows) -> oddsFor(rows) }
     private val methodsById = methods.associateBy { it.id }
 
     fun encounters(variant: VariantId, game: GameId): List<Encounter> = byVariantGame[variant to game].orEmpty()
@@ -47,6 +47,16 @@ class Curation(
     fun method(id: String): EncounterMethod? = methodsById[id]
 
     fun odds(game: GameId, methodId: String): MethodOdds? = oddsByMethod[game to methodId]
+
+    /** The method's odds, less any modifier that does not apply to this one encounter. */
+    fun odds(encounter: Encounter): MethodOdds? {
+        if (encounter.oddsExclude.isEmpty()) return odds(encounter.gameId, encounter.methodId)
+        val rows = modifiersByMethod[encounter.gameId to encounter.methodId] ?: return null
+        // The method's odds are curated; excluding every row leaves the base rate, which is a
+        // claim the data does make, not "odds not recorded".
+        return oddsFor(rows.filterNot { it.id in encounter.oddsExclude })
+            ?: Odds.ofRolls(1).let { base -> MethodOdds(plain = base, best = base, assumed = emptyList()) }
+    }
 
     /**
      * The best recorded way to get [variant] shiny in any of [games]: the unlocked encounter
@@ -69,7 +79,7 @@ class Curation(
         encounters(variant, game).filterNot { it.shinyLocked }.mapNotNull { encounter ->
             val from = encounter.fromVariantId
             if (from == null) {
-                Way(game, encounter, odds(game, encounter.methodId), via = null)
+                Way(game, encounter, odds(encounter), via = null)
             } else if (depth < MAX_EVOLUTION_DEPTH) {
                 // Evolving is a way only if the thing it evolves from can be found shiny.
                 val source = waysIn(from, game, depth + 1)

@@ -143,6 +143,12 @@ data class Encounter(
     /** For the `evolution` method: hunt this variant, then evolve it. */
     val fromVariantId: VariantId?,
     val sourceUrl: String,
+    /**
+     * Ids of the method's odds modifiers that do not apply to this one encounter. In Sword and
+     * Shield the Shiny Charm does nothing for the legendary giants, fossils or dens, though it
+     * does for every other static and wild encounter.
+     */
+    val oddsExclude: Set<String> = emptySet(),
 )
 
 /**
@@ -166,6 +172,11 @@ data class OddsModifier(
     val inherent: Boolean,
     val notes: String?,
     val sourceUrl: String,
+    /**
+     * While this row is active the method's own first roll is not made. Only the Generation
+     * VIII and IX egg bug needs it; see [oddsFor].
+     */
+    val skipsBaseRoll: Boolean = false,
 )
 
 data class DatasetMeta(

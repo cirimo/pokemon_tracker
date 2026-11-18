@@ -21,6 +21,7 @@ class HuntsTest {
         method: String = "wild",
         from: String? = null,
         locked: Boolean = false,
+        exclude: Set<String> = emptySet(),
     ) = Encounter(
         id = "$variant:$game:$method",
         variantId = VariantId(variant),
@@ -32,6 +33,7 @@ class HuntsTest {
         shinyLocked = locked,
         fromVariantId = from?.let(::VariantId),
         sourceUrl = "https://example.org/$variant",
+        oddsExclude = exclude,
     )
 
     private fun charm(game: String, method: String = "wild", rolls: Int = 2) = OddsModifier(
@@ -319,5 +321,17 @@ class HuntsTest {
         assertThat(after.hunts.map { it.box }).isEqualTo(before.hunts.map { it.box })
         assertThat(after.hunts.associate { it.lead.variant.id.value to it.regular })
             .containsExactly("flabebe", 1, "pikachu", 1, "raichu", 0)
+    }
+
+    @Test
+    fun `a modifier an encounter excludes is left out of its odds, and only of its odds`() {
+        // Sword's legendary giants are static encounters the Shiny Charm does nothing for.
+        val regirock = encounter("pikachu", "swsh-sw", method = "static", exclude = setOf(SHINY_CHARM))
+        val other = encounter("raichu", "swsh-sw", method = "static")
+        val curation = Curation(listOf(regirock, other), listOf(charm("swsh-sw", method = "static")), emptyList())
+
+        assertThat(curation.odds(regirock)!!.best).isEqualTo(Odds.ofRolls(1))
+        assertThat(curation.odds(regirock)!!.withCharm).isNull()
+        assertThat(curation.odds(other)!!.best).isEqualTo(Odds.ofRolls(3))
     }
 }

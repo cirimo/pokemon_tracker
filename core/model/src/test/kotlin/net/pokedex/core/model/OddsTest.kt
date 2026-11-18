@@ -15,6 +15,7 @@ class OddsTest {
         denominator: Int? = null,
         tier: String? = null,
         inherent: Boolean = false,
+        skipsBaseRoll: Boolean = false,
     ) = OddsModifier(
         gameId = GameId("la"),
         methodId = "mass-outbreak",
@@ -26,6 +27,7 @@ class OddsTest {
         inherent = inherent,
         notes = null,
         sourceUrl = "https://bulbapedia.bulbagarden.net/wiki/Shiny_Pok%C3%A9mon",
+        skipsBaseRoll = skipsBaseRoll,
     )
 
     private val research10 = mod("research-10", rolls = 1, tier = "research")
@@ -98,5 +100,37 @@ class OddsTest {
     @Test
     fun `nothing curated means no odds, not the base rate`() {
         assertThat(oddsFor(emptyList())).isNull()
+    }
+
+    // Bulbapedia, Masuda method and Shiny Charm (Generation VIII): once any reroll applies to
+    // an egg the first roll is skipped, so the charm alone is 2 rolls, Masuda alone 6, both 8.
+    private val eggCharm = mod(SHINY_CHARM, rolls = 2, skipsBaseRoll = true)
+    private val masuda = mod("masuda", rolls = 6, skipsBaseRoll = true)
+
+    @Test
+    fun `a Sword egg is 1 in 512 with Masuda and the charm, 1 in 683 with Masuda alone`() {
+        assertThat(oddsFor(listOf(eggCharm, masuda))!!.best.oneIn).isWithin(0.01).of(512.44)
+        assertThat(oddsFor(listOf(eggCharm, masuda))!!.best.rolls).isEqualTo(8)
+        assertThat(oddsFor(listOf(masuda))!!.best.rolls).isEqualTo(6)
+        assertThat(oddsFor(listOf(masuda))!!.best.oneIn).isWithin(0.01).of(683.08)
+    }
+
+    @Test
+    fun `the charm alone hatches at 1 in 2048, not 1 in 1365`() {
+        val odds = oddsFor(listOf(eggCharm, masuda))!!
+
+        assertThat(odds.withCharm!!.rolls).isEqualTo(2)
+        assertThat(odds.withCharm!!.oneIn).isWithin(0.01).of(2048.25)
+        // Walking in with neither, the egg still rolls once.
+        assertThat(odds.plain).isEqualTo(Odds.ofRolls(1))
+    }
+
+    @Test
+    fun `with the charm is shown beside the plain rate, and is absent where the charm does nothing`() {
+        val dynamax = mod("dynamax", denominator = 300, inherent = true)
+        val dynamaxCharm = mod(SHINY_CHARM, denominator = 100)
+
+        assertThat(oddsFor(listOf(dynamax, dynamaxCharm))!!.withCharm).isEqualTo(Odds.flat(100))
+        assertThat(oddsFor(listOf(research10))!!.withCharm).isNull()
     }
 }

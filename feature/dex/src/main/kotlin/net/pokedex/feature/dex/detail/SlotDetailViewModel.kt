@@ -446,7 +446,7 @@ class SlotDetailViewModel @Inject constructor(
     private fun wayUi(dex: Dex, guide: Curation, encounter: Encounter): WayUi {
         val from = encounter.fromVariantId
         val source = from?.let { guide.bestWay(it, listOf(encounter.gameId)) }
-        val odds = if (from == null) guide.odds(encounter.gameId, encounter.methodId) else source?.odds
+        val odds = if (from == null) guide.odds(encounter) else source?.odds
         return WayUi(
             method = guide.method(encounter.methodId)?.name ?: encounter.methodId,
             location = encounter.location,

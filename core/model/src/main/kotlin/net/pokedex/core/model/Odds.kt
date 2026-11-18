@@ -43,7 +43,16 @@ data class MethodOdds(
     val plain: Odds,
     val best: Odds,
     val assumed: List<OddsModifier>,
+    /**
+     * What the method gives with the Shiny Charm and nothing else set up, or null when the charm
+     * does not apply to it. Shown beside [plain] because the charm is the one thing every hunt
+     * in a game waits on, and it is earned once, not set up per hunt.
+     */
+    val withCharm: Odds? = null,
 )
+
+/** The id every game's Shiny Charm row carries, so "with the charm" can be asked of any method. */
+const val SHINY_CHARM = "shiny-charm"
 
 /**
  * Combines the curated modifiers for one (game, method).
@@ -52,7 +61,10 @@ data class MethodOdds(
  *  - untiered rows stack, their rolls summed;
  *  - rows sharing a tier are levels of one thing, and only the best level counts;
  *  - inherent rows come with the method, so they are in [MethodOdds.plain] as well;
- *  - a denominator replaces the roll model, and the best applicable one wins.
+ *  - a denominator replaces the roll model, and the best applicable one wins;
+ *  - a row that skips the base roll removes the method's own roll whenever it is active. This
+ *    is the Generation VIII egg bug: once any reroll applies, the first roll is never made, so
+ *    the Shiny Charm alone hatches at 2/4096, not 3/4096 (Bulbapedia, Masuda method).
  *
  * Returns null when nothing is curated for the method. That is "odds not recorded", and it
  * is shown as such -- not as 1/4096, which would be a claim the data does not make.
@@ -61,18 +73,20 @@ fun oddsFor(modifiers: List<OddsModifier>): MethodOdds? {
     if (modifiers.isEmpty()) return null
     val inherent = modifiers.filter { it.inherent }
     val chosen = bestSetup(modifiers)
+    val charm = modifiers.filter { it.id == SHINY_CHARM }
+    return MethodOdds(
+        plain = oddsOf(bestSetup(inherent)),
+        best = oddsOf(chosen),
+        assumed = chosen.filterNot { it.inherent },
+        withCharm = if (charm.isEmpty()) null else oddsOf(bestSetup(inherent + charm)),
+    )
+}
 
-    val flat = chosen.mapNotNull { it.denominator }.minOrNull()
-    val best = if (flat != null) Odds.flat(flat) else Odds.ofRolls(1 + chosen.sumOf { it.rollsAdded ?: 0 })
-
-    val plainFlat = inherent.mapNotNull { it.denominator }.minOrNull()
-    val plain = if (plainFlat != null) {
-        Odds.flat(plainFlat)
-    } else {
-        Odds.ofRolls(1 + bestSetup(inherent).sumOf { it.rollsAdded ?: 0 })
-    }
-
-    return MethodOdds(plain = plain, best = best, assumed = chosen.filterNot { it.inherent })
+/** The odds of exactly [active], which already holds one level per tier. */
+private fun oddsOf(active: List<OddsModifier>): Odds {
+    active.mapNotNull { it.denominator }.minOrNull()?.let { return Odds.flat(it) }
+    val base = if (active.any { it.skipsBaseRoll }) 0 else 1
+    return Odds.ofRolls(base + active.sumOf { it.rollsAdded ?: 0 })
 }
 
 /** Every untiered modifier, plus the best level of each tier. */
