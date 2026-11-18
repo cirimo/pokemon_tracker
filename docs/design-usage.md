@@ -82,6 +82,22 @@ The detekt rules catch the mechanical mistakes. These are the ones that need you
 and arcs, and the catch celebration. Never a background, a header, a nav bar, a badge, or an
 "important" button. If a screen needs emphasis, use `caseSurfaceHigh` and a rim.
 
+**The serif is for numerals and names.** Screen titles, section titles, box and region
+names, counts, a Pokémon's name on its hero. Never body copy, rows, labels or buttons. Use
+`PokedexTheme.text.screenTitle` / `sectionTitle` through `ScreenScaffold` and `ScreenSection`
+rather than setting them by hand.
+
+**No kicker above a heading.** A small uppercase label above a title ("HUNT NEXT", "PALDEA ·
+BOX 49") is a template habit. The heading carries its own weight; context goes under it.
+
+**Light is for what frames the collection.** `LitSurface` goes on the box case and on the
+one thing a screen features. A list of lit cards is a list of cards; rows stay on the plain
+surface with a rim.
+
+**Facts as a table, a figure as a figure.** Several things each with a short state (games,
+methods, settings) go in an `InfoTable`, not a paragraph each. A number the user compares
+(odds, counts) goes in a `StatBlock` or a `HuntCard`'s figure, not mid-sentence.
+
 **No type colour in the grid.** Types live on badges and the detail screen. Eighteen hues
 across thirty tiles is noise, and it competes with the one gold the grid depends on.
 

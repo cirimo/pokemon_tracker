@@ -164,9 +164,16 @@ light/dark setting.
 
 - **`PokedexSans` is Inter.** Neutral, high x-height, and — the reason it was chosen — it
   has real tabular figures rather than synthesised ones.
-- **`PokedexNumerals` is Instrument Serif**, and appears in exactly two places: large
-  progress numerals and box headers. That restraint is where the premium reads from. A
-  serif everywhere is a costume; a serif on "412 / 1394" is a label on a case.
+- **`PokedexNumerals` is Instrument Serif**, and appears only on large numerals and on
+  names: progress numerals, box and region names, screen and section titles, and a
+  Pokémon's name on its detail hero. Never in body copy, rows, labels or controls. That
+  restraint is where the premium reads from. A serif everywhere is a costume; a serif on
+  "412 / 1394" is a label on a case.
+
+The scale reads screen, then section, then row: `screenTitle` 28sp, `sectionTitle` 24sp,
+then Inter 16sp. Until prompt 10 a screen's title was a small Inter title above serif section
+headings, which put the hierarchy upside down. Nothing sits above a heading as a kicker or
+eyebrow: where a box is, or what a card is for, goes under the heading or in its own line.
 
 Both are bundled (no network at runtime), both are SIL OFL, and both are **subset**:
 
@@ -218,6 +225,12 @@ Expressive. Tweens for what is not interruptible. One easing curve (`CaseEasing`
 everything that is not a spring, because one easing used consistently reads as more
 considered than five used approximately.
 
+**Screens move on a shared axis** (prompt 10). Forward slides the new screen in by
+`screenShift` (24dp) from the end while the old one leaves towards the start, back reverses
+it, both fading over the container duration. Short enough to read as direction rather than
+as a slide; `PokedexMotion.screen()` types the spec for offsets and alpha and snaps under
+reduce-motion. It replaced a plain cross-fade that made every screen arrive from nowhere.
+
 ---
 
 ## Signature moments
@@ -239,14 +252,55 @@ only kind worth having.
 fires only on the *transition* into complete, never on arriving at an already-complete box —
 otherwise swiping through a finished region would be a parade.
 
-Both are draw-phase animations: the animated value is read inside the draw lambda, so
-neither recomposes anything.
+**Region completion** (prompt 10). The same rule, under a region's shelf on Progress, when
+its last box fills: a generation's acknowledgement, the same gesture and the same size as a
+box's, on the same transition-only terms.
+
+All three are draw-phase animations: the animated value is read inside the draw lambda, so
+none recomposes anything.
 
 **Slot → detail.** One shared element on the sprite, keyed by `slotSharedElementKey`. The
 key scheme lives in `:design-system` because a shared element whose two sides disagree
 silently does nothing, which is the worst failure mode an animation can have. Compose's own
 guidance is that shared elements are costly and the API is still experimental, so: exactly
 one per navigation, on the sprite, and nothing else.
+
+---
+
+## The case, lit (prompt 10)
+
+Prompt 10 asked for the app to feel livelier without becoming a costume or touching the
+pager. Two directions were rendered on the real collection and compared: this one, which
+keeps the Display case and puts life on the surfaces around the grid, and a sticker album,
+which would have replaced it. The album was rejected because it renamed the product's
+language, saturated every screen with region colour that competed with the sprites, and had
+to restyle the thirty tiles. Everything below leaves the tiles byte-identical.
+
+- **Light without elevation.** `LitSurface` / `litBackground`: the case's tone falls from
+  `caseSurfaceHigh` at the top edge to `caseSurface`, and a hairline of `caseHighlight`
+  catches that edge and fades towards both corners. Two brushes cached in `drawWithCache`,
+  drawn behind the content: the box case, the featured hunt. Reserved for what frames or
+  features the collection; a screen of lit surfaces is a screen of cards again.
+- **The plinth.** `SpeciesHeader` grows the slot to screen width. The type's container
+  colour rises from the base, a soft light in the type's text colour sits behind the sprite,
+  and a shadow pools under it. Caught keeps the grid's 2dp gold rim and pip at hero scale.
+  It is one surface rather than thirty, which is what lets it afford three brushes.
+- **The collection, drawn.** `CollectionStrip` (every box as one bar, above the pager),
+  `BoxPlate` (a box as thirty dots in slot order: a gold disc for a shiny, a grey disc for
+  a regular, a hollow ring for a needed slot, so status is shape as well as colour),
+  `CollectionShelf` (a region's plates), `TrophyTile` (a recent catch on its own small
+  plinth) and `CollectionTrophy` (the whole dex as one arc with the count inside, in
+  `heroNumerals`). Each plate is one Canvas, so 52 of them cost what one box costs.
+- **The pieces for "how".** `HuntCard` (a hunt with its odds as the figure on the right;
+  `featured` lights it for the one hunt a screen puts forward), `StatBlock` (a figure and its
+  name), `InfoTable` / `InfoRow` (facts as a table, which replaced a paragraph per game on
+  slot detail) and `StepList` (numbered guide steps, done ticked, current ringed). The hunt
+  counter (prompt 9) and the Sword guides (prompt 11) compose these. The counter's large tap
+  target is still to be built, in the same language: one full-width surface, the count in
+  serif numerals, no gold until a shiny.
+- **First frame.** The launch colour follows the system theme (`pokedex_launch`), and on
+  Android 12+ the splash is the case with the app's own slot instead of a launcher default.
+  The icon's slot sits on a lit plate, the same light as the boxes.
 
 ---
 

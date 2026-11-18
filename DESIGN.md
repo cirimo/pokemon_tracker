@@ -290,8 +290,28 @@ cases at 12dp, dialogs at 16dp, sheets at 20dp on top. A pressed slot morphs its
   under 300ms, inside the tile's own bounds, with one haptic.
 
 ### Box case and header
-- Case surface at 12dp with a rim; Instrument Serif box name, title numerals and a ring.
+- A lit case at 12dp with a rim: the tone falls from case surface high at the top edge,
+  and a hairline of case highlight catches that edge. Screen-title serif box name, title
+  numerals and a ring.
 - A gold rule under the header draws itself once when the box becomes complete.
+
+### Detail plinth
+- The slot at screen width (20dp corners): the type's container colour rising from the
+  base, a soft light behind the sprite, a shadow pooled under it. Caught keeps the 2dp gold
+  rim and the pip. The name sits under it in the hero title serif.
+
+### The collection
+- **Strip:** every box as one bar above the pager, gold to the height it is filled, the
+  open box ringed. **Plate:** a box as thirty dots in slot order (gold disc shiny, grey disc
+  regular, hollow ring needed). **Shelf:** a region's plates under its section title; a gold
+  rule draws when the region completes. **Trophy:** a recent catch in a 96dp well with the
+  caught rim; the whole dex as a 232dp three-quarter arc with the count in hero numerals.
+
+### Hunts, figures, facts, steps
+- **Hunt card:** sprite well, name, reasons, odds as the figure on the right; lit only when
+  it is the one hunt the screen features. **Stat block:** screen-title serif figure with a
+  label. **Info table:** rows of title and state with hairlines between, a padlock beside a
+  lock. **Step list:** numbered markers joined by a line; done ticked, current ringed.
 
 ### Caught toggle
 - A full-width 56dp button, not a switch: catching is an event, not a setting.
@@ -305,8 +325,14 @@ cases at 12dp, dialogs at 16dp, sheets at 20dp on top. A pressed slot morphs its
   with a glyph.
 
 ### Loading and empty
-- Skeletons in the real layout rather than spinners; empty and error states as a titled
-  block with an optional action.
+- Skeletons in the real layout rather than spinners; empty and error states as a block with
+  a section-title heading and an optional action, and a slot's silhouette in place of the
+  glyph when the empty screen is about a slot.
+
+### Motion between screens
+- A shared axis: forward slides in 24dp from the end and fades, back reverses it, 240ms on
+  the case easing, a snap under reduce-motion. One shared element per navigation, the
+  sprite, rides on top.
 
 ## Do's and Don'ts
 
@@ -317,7 +343,11 @@ cases at 12dp, dialogs at 16dp, sheets at 20dp on top. A pressed slot morphs its
 - **Do** animate through `PokedexTheme.motion`, which is already resolved for reduce-motion.
 - **Do** read animated values in the draw phase and allocate brushes in `drawWithCache`.
 
+- **Do** put a screen's or section's context under its heading, never above it.
+
 ### Don't:
+- **Don't** set the serif on body copy, rows, labels or buttons.
+- **Don't** light every card; light is for the case and the one featured thing.
 - **Don't** put gold on anything that is not a shiny, a progress numeral or arc, or the
   catch celebration.
 - **Don't** put type colour, text, shadow, ripple or a shader inside the grid.
