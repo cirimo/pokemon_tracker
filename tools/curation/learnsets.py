@@ -1,0 +1,125 @@
+"""Writes the Sword/Shield moves and abilities of every Pokemon a guide build uses.
+
+    python tools/curation/learnsets.py
+
+The pipeline's `build-learnable` and `build-ability` checks read the output, so a build that
+names a move its species cannot learn in Sword, or an ability it cannot have there, refuses
+to ship. Run it after adding or changing a build in data/curated/guides/, and commit the
+output with the build.
+
+Source: PokeAPI's CSV export at a pinned commit, cached in tools/curation/.cache/:
+
+    pokemon_moves.csv           every (pokemon, version group, move) a Pokemon learns
+    moves.csv                   move ids to identifiers
+    pokemon_abilities.csv       a Pokemon's abilities today
+    pokemon_abilities_past.csv  abilities it had up to an earlier generation
+    abilities.csv               ability ids to identifiers
+
+Version group 20 is sword-shield. Abilities are today's set with each slot replaced by its
+past ability where the past entry still held in Generation VIII: Gallade gained Sharpness
+only in Generation IX, so in Sword its second ability is none.
+
+Variants are matched to PokeAPI through upstream's refs.pkApiId (a pokemon id, which is what
+these files are keyed by). Reads the upstream clone the pipeline keeps, so run
+`npm run build:dataset` first. Python 3.10+, standard library only.
+"""
+import csv
+import io
+import json
+import pathlib
+import re
+import urllib.request
+
+HERE = pathlib.Path(__file__).resolve().parent
+ROOT = HERE.parent.parent
+UPSTREAM = ROOT / 'tools/dataset-pipeline/.upstream/data/pokemon'
+GUIDES = ROOT / 'data/curated/guides'
+OUT = ROOT / 'data/derived/learnsets-swsh.json'
+
+POKEAPI_COMMIT = 'e98f2ad82fc61c46036689ecb10c3aa89d562d6b'
+BASE = 'https://raw.githubusercontent.com/PokeAPI/pokeapi/' + POKEAPI_COMMIT + '/data/v2/csv/'
+CACHE = HERE / '.cache' / ('pokeapi-' + POKEAPI_COMMIT[:12])
+SWORD_SHIELD = '20'
+GENERATION = 8
+
+
+def table(name: str) -> list[dict]:
+    path = CACHE / name
+    if not path.exists():
+        request = urllib.request.Request(BASE + name, headers={'User-Agent': 'pokedex-curation (personal, low volume)'})
+        with urllib.request.urlopen(request) as response:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(response.read())
+    return list(csv.DictReader(io.StringIO(path.read_text(encoding='utf-8'))))
+
+
+def build_variants() -> list[str]:
+    """Every `variant:` under a guide book's builds. The schema keeps it on its own line."""
+    found = set()
+    for file in sorted(GUIDES.glob('*.yaml')):
+        text = file.read_text(encoding='utf-8')
+        start = text.find('\nbuilds:')
+        if start < 0:
+            continue
+        end = re.search(r'\n[a-z]+:', text[start + 1:])
+        block = text[start:start + 1 + end.start()] if end else text[start:]
+        found.update(re.findall(r'^\s+variant:\s*(\S+)\s*$', block, re.M))
+    return sorted(found)
+
+
+def main() -> None:
+    variants = build_variants()
+    pk_ids = {}
+    for v in variants:
+        pk_ids[v] = json.loads((UPSTREAM / (v + '.json')).read_text(encoding='utf-8'))['refs']['pkApiId']
+    wanted = set(pk_ids.values())
+
+    moves = {r['id']: r['identifier'] for r in table('moves.csv')}
+    abilities = {r['id']: r['identifier'] for r in table('abilities.csv')}
+
+    learned: dict[str, set] = {p: set() for p in wanted}
+    for r in table('pokemon_moves.csv'):
+        if r['version_group_id'] == SWORD_SHIELD and r['pokemon_id'] in wanted:
+            learned[r['pokemon_id']].add(moves[r['move_id']])
+
+    slots: dict[str, dict] = {p: {} for p in wanted}
+    for r in table('pokemon_abilities.csv'):
+        if r['pokemon_id'] in wanted:
+            slots[r['pokemon_id']][r['slot']] = r['ability_id']
+    # A past row says the slot held this ability up to and including its generation. The
+    # earliest such generation still at or after VIII is the one Sword used.
+    past: dict[tuple, tuple] = {}
+    for r in table('pokemon_abilities_past.csv'):
+        if r['pokemon_id'] in wanted and int(r['generation_id']) >= GENERATION:
+            key = (r['pokemon_id'], r['slot'])
+            if key not in past or int(r['generation_id']) < past[key][0]:
+                past[key] = (int(r['generation_id']), r['ability_id'])
+    for (pid, slot), (_, ability) in past.items():
+        if ability:
+            slots[pid][slot] = ability
+        else:
+            slots[pid].pop(slot, None)
+
+    species = {}
+    for v in variants:
+        p = pk_ids[v]
+        if not learned[p]:
+            raise SystemExit(v + ' learns nothing in sword-shield; it is probably not in the game')
+        species[v] = {
+            'pkApiId': p,
+            'abilities': sorted(abilities[a] for a in slots[p].values()),
+            'moves': sorted(learned[p]),
+        }
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    document = {
+        'about': 'Generated by tools/curation/learnsets.py. Do not edit by hand.',
+        'source': {'repo': 'https://github.com/PokeAPI/pokeapi', 'commit': POKEAPI_COMMIT, 'versionGroup': 'sword-shield'},
+        'species': species,
+    }
+    OUT.write_text(json.dumps(document, indent=1, sort_keys=True) + '\n', encoding='utf-8', newline='\n')
+    print('%d build species written to %s' % (len(species), OUT.relative_to(ROOT)))
+
+
+if __name__ == '__main__':
+    main()

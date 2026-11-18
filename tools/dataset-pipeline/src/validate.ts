@@ -6,7 +6,7 @@ import { PRESET, paths } from './config.js';
 import { loadCuratedLayer } from './curated.js';
 import { loadRoomSchema } from './room-schema.js';
 import { sharedSpriteFindings } from './sprite-resolution.js';
-import { guideChecks } from './validate-guides.js';
+import { guideChecks, learnsetChecks } from './validate-guides.js';
 
 /**
  * Output validation. Every check here has failed for real at least once in some
@@ -242,6 +242,7 @@ export function validate(options: { requireSprites?: boolean } = {}): Finding[] 
     }
 
     guideChecks(db, fail);
+    learnsetChecks(loadCuratedLayer().guideBooks, paths.derived, fail);
 
     const metaRows = count(db, 'SELECT COUNT(*) FROM dataset_meta');
     if (metaRows !== 1) fail('dataset-meta', 'expected exactly one row, got ' + metaRows);

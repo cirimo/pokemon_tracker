@@ -58,6 +58,8 @@ export const SPRITES = {
 export const paths = {
   upstream: path.join(pipelineRoot, '.upstream'),
   curated: path.join(repoRoot, 'data/curated'),
+  /** Generated from a pinned outside source by a tools/curation script, never by hand. */
+  derived: path.join(repoRoot, 'data/derived'),
   roomSchema: path.join(
     repoRoot,
     'core/data/schemas/net.pokedex.core.data.reference.ReferenceDatabase',

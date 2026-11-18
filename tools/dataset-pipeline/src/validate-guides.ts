@@ -1,4 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
+import type { CuratedGuideBook } from './curated.js';
 
 /**
  * Checks on the prompt 11 additions: the guide layer, availability overrides and per-encounter
@@ -146,5 +149,42 @@ export function guideChecks(db: DatabaseSync, fail: Fail): void {
       'guide ' + String(r.guideId) + ' hunts ' + String(r.variantId) + ' by ' + String(r.methodId) +
         ', but ' + String(r.gameSet) + ' has no unlocked encounter or no odds for that method',
     );
+  }
+}
+
+/**
+ * A build that names a move its species cannot learn in the game, or an ability it cannot
+ * have there, is a build nobody can make. Checked against data/derived/learnsets-<set>.json,
+ * which tools/curation/learnsets.py writes from PokeAPI at a pinned commit.
+ */
+export function learnsetChecks(books: CuratedGuideBook[], derivedDir: string, fail: Fail): void {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const book of books) {
+    if (book.builds.length === 0) continue;
+    const file = path.join(derivedDir, 'learnsets-' + book.gameSet + '.json');
+    if (!fs.existsSync(file)) {
+      fail('build-learnable', file + ' is missing; run python tools/curation/learnsets.py');
+      continue;
+    }
+    const species = (JSON.parse(fs.readFileSync(file, 'utf8')) as {
+      species: Record<string, { abilities: string[]; moves: string[] }>;
+    }).species;
+    for (const b of book.builds) {
+      const known = species[b.variant];
+      if (!known) {
+        fail('build-learnable', b.variant + ' (build ' + b.id + ') is not in ' + path.basename(file) + '; rerun learnsets.py');
+        continue;
+      }
+      const moves = new Set(known.moves.map(norm));
+      const abilities = new Set(known.abilities.map(norm));
+      for (const p of b.parts) {
+        if (p.kind === 'move' && !moves.has(norm(p.value))) {
+          fail('build-learnable', 'build ' + b.id + ': ' + b.variant + ' cannot learn ' + p.value + ' in ' + book.gameSet);
+        }
+        if (p.kind === 'ability' && !abilities.has(norm(p.value))) {
+          fail('build-ability', 'build ' + b.id + ': ' + b.variant + ' cannot have ' + p.value + ' in ' + book.gameSet);
+        }
+      }
+    }
   }
 }
