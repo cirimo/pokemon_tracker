@@ -411,6 +411,7 @@ read immediately before each run.
 | 7. After prompt 6, **warm, provisional** (2026-09-26; see below) | speed-profile, install-dm | 192–244 ms | 3.7–4.1% | 9 ms | 13–20 ms |
 | 8. After prompt 7, default run (2026-09-30; see below) | speed-profile, install-dm | 205–247 ms | 3.1–3.3% | 8–9 ms | 11–12 ms |
 | 9. After prompt 8, `user.db` v6 (2026-09-30; see below) | speed-profile, install-dm | 239–290 ms | 3.2–3.9% | 7–9 ms | 12–13 ms |
+| 10. After prompt 10, profiling build, 766 shiny (2026-11-19; see below) | speed-profile, install-dm | 161–253 ms | 3.2–3.6% | 9 ms | 12 ms |
 
 State 4 is the M3 build after regenerating the profile with the journey extended to the catch
 sheet, Progress and Settings, same phone and protocol. Cold start is a little faster than
@@ -664,6 +665,54 @@ inside the "mark caught → UI settled ≤ 100 ms" budget, and a tap in mark mod
 record write a catch toggle is. What it spends is not attributed. The likely cause is that a
 record change rebuilds the page's tile callbacks, so all thirty tiles recompose rather than
 the one that changed; that predates prompt 8 and is a question for a trace, not a guess.
+
+### Measured after prompt 10 (2026-11-19)
+
+Prompt 10 (the lit case) left the tiles alone but put three things on the box view's screen:
+the collection strip above the pager, a lit case behind each page's grid, and a lit hunt card
+below. All of it is drawn, and none of it is on the main thread during a swipe, so the question
+was RenderThread.
+
+Measured on the profiling build (`net.pokedex.profiling`), not the real install: prompt 10 does
+not ship until the release is installed by hand. The profiling build holds the real records' latest
+automatic backup, from 15 Nov (766 shiny, restored from a file), which is 305 more
+caught sprites than state 9 was measured over. So state 9's row is not this one's baseline. The
+pre-prompt-10 commit (`54ba522`), built as the same profiling build over the same data, is, and
+it was measured in the same session. Phone on USB with a full battery, thermal status 0
+throughout, every run on profile `speed-profile, install-dm`. The battery warmed across the
+session, so each row gives its temperatures.
+
+| Profiling build, 766 shiny | Battery | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| Prompt 10 as first built, default | 31.9–32.4 °C | 3.1–3.3% | 9–10 ms | 12–18 ms | 18–21 | 28–32 |
+| Prompt 10 as first built, tight | 32.4–32.7 °C | 2.9–3.6% | 7 ms | 12–14 ms | 20–24 | 6–8 |
+| Base, `54ba522`, default | 31.8–32.7 °C | 3.0–3.2% | 8–9 ms | 12–17 ms | 17–23 | 22–24 |
+| Base, `54ba522`, tight | 32.7–33.2 °C | 2.3–2.7% | 6 ms | 11–12 ms | 21–26 | 2–4 |
+| Strip in its own layer (state 10), default | 33.4–33.6 °C | 3.2–3.6% | 9 ms | 12 ms | 16–26 | 26–28 |
+| Strip in its own layer (state 10), tight | 33.6–33.9 °C | 3.1–3.3% | 7–8 ms | 10–12 ms | 22–24 | 3–7 |
+| Ablation: state 10 with a plain case, default | 33.1–34.1 °C | 3.2% | 9 ms | 12–17 ms | 18–23 | 29–30 |
+| Ablation: state 10 with a plain case, tight | 34.1–34.6 °C | 2.5–2.9% | 7 ms | 11 ms | 20–25 | 3–6 |
+
+The first build was worse than the base on RenderThread alone: 6–8 more slow-draw frames a run
+in the default run and about 4 in the tight run, P90 up 1 ms, tight P99 up 1–2 ms, and slow UI
+unchanged. It was measured no warmer than the base, so that is not heat. The pager redraws the whole
+window on every frame of a swipe, and the strip's 52 bars, as a hundred-odd rounded rects, were
+replayed in every one of them. Drawn as an offscreen layer (`CompositingStrategy.Offscreen`), the
+strip is one texture that re-renders only when the open box changes. With that, P99 is the base
+build's in both runs (default 12 ms in all three, tight 10–12 ms), on a phone about 1 °C warmer than
+the base was measured on.
+
+The lit case is not a cost. Ablating it, a plain `caseSurface` background behind each grid, measured
+no better on slow draw (29–30 against 26–28) on a phone warmer still, so it stays.
+
+What is left: state 10's default slow draw, 26–28, is 2–6 frames over the base's 22–24, and P90
+is 9 ms against 8–9. It is not attributed. The base was measured about 1 °C cooler, and §8's
+earlier tables show heat moving these numbers by that much. Cold start is unchanged (161–253 ms
+against 160–229 ms) and inside its 600 ms budget.
+
+Open: re-run state 10 and the base, each alone on a cool phone, before reading the 2–6 frames as
+code. Then install the release (`installRelease`, by hand, after a fresh backup) and measure it as
+the real install's state 10.
 
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
