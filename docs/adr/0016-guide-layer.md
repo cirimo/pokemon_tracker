@@ -80,8 +80,9 @@ legendary, citing Bulbapedia's tables. It may never widen upstream.
 
 ## Consequences
 
-- The legendary ranking for a game (`legendaryPlan`) is odds first, then where the game stands
-  in my farm order, then slots and preset order, explained per row as ADR 0012's list is. Time
+- The legendary ranking for a game (`legendaryPlan`) is odds first, then one the game reaches on
+  its own before one that needs another player's game online, then where the game stands in my
+  farm order, then slots and preset order, explained per row as ADR 0012's list is. Time
   per attempt and risk are said on the guide, not ranked: no source gives the first.
 - Rental advice is drafted by `tools/curation/draft_swsh.py` from each boss's moves and the
   rental pool against the type chart, and read before it is committed.

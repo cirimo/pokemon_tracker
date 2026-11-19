@@ -244,6 +244,8 @@ Boxes (start; search is a mode) ──→ SlotDetail(catchKey, browse?) ──�
 Boxes ──→ Progress ──→ (back to Boxes, on a box or on a search: "Needed in <game>",
                          or a farm-plan count, handed over as an encoded DexFilter)
 Boxes ──→ Hunt(gameId?) ──→ SlotDetail          (M4; Hunt ⇄ Progress link both ways)
+Progress (farm plan row), Hunt (one game) ──→ Game(gameId) ──→ Guide(guideId, gameId)
+SlotDetail ("In your games" row with a guide) ──→ Guide       (prompt 11)
 Boxes ──→ Settings ──→ BackupRestore(fileUri?)
 Settings ──→ MyGames ←── Hunt and SlotDetail, before any game is chosen (via :app)
 RestoreOffer: a sheet beside the NavHost, shown only on an empty database ──→ BackupRestore
@@ -285,6 +287,13 @@ needed legendaries by odds per attempt, then where the game stands in my farm or
 encounter and odds index, called `HuntGuide` before prompt 11). What I have prepared lives in
 `user.db` as `prep_tick` (version 7), keyed by guide-layer ids with no foreign key, and travels
 in backups as `settings.prep`, additively.
+
+The game page (`feature/dex/game`) and the guide screen (`feature/dex/guide`) are generic over
+games: a game with no curated guides has an empty prep list and still ranks its legendaries.
+`prepListOf` orders the checklist independently of the ticks, so ticking never moves a row;
+`leadingOdds` picks which figure a single-figure card carries once the Shiny Charm is ticked,
+and the guide always shows both. A prep row is an `InfoRow` with `checked`: one toggleable,
+named node for TalkBack.
 
 Two features never name each other's routes. The box view reaches Settings through a
 callback `:app` passes to `dexGraph`, and "Done" after a restore returns to the box view
