@@ -36,8 +36,10 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
@@ -110,6 +112,12 @@ fun CollectionStrip(
                     onSelect(index)
                 }
             }
+            // Its own layer. The pager redraws the whole window every frame of a swipe, and
+            // without a layer RenderThread replayed the strip's hundred-odd rounded rects in
+            // each of those frames; as a layer it is one texture, re-rendered only when the
+            // open box changes. Measured: docs/architecture.md section 8, state 10. It sits
+            // outside the padding, because a layer clips, and the ring reaches into it.
+            .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .padding(vertical = dimens.spaceSm)
             .drawWithCache {
                 val gap = STRIP_GAP.toPx()
