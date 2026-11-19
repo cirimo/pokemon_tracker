@@ -101,6 +101,7 @@ fun CollectionStrip(
                 contentDescription = "Every box: $complete of ${boxes.size} complete"
             }
             .pointerInput(boxes.size) {
+                if (boxes.isEmpty()) return@pointerInput
                 detectTapGestures { offset ->
                     val index = (offset.x / size.width * boxes.size).toInt().coerceIn(0, boxes.lastIndex)
                     onSelect(index)
@@ -114,6 +115,8 @@ fun CollectionStrip(
                 val ring = Stroke(dimens.focusRingWidth.toPx() * HALF)
                 val reach = dimens.spaceXs.toPx()
                 onDrawBehind {
+                    // Empty for the frame before the boxes load, and on a configuration change.
+                    if (boxes.isEmpty()) return@onDrawBehind
                     boxes.forEachIndexed { i, box ->
                         val x = i * (width + gap)
                         val filled = if (box.total == 0) 0f else size.height * box.caught / box.total
