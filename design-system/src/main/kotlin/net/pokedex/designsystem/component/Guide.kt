@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -121,7 +123,8 @@ fun HuntCard(
             if (!stacked) figure()
         }
     }
-    val spoken = (listOf(name) + lines + listOfNotNull(odds?.let { "$oddsLabel $it" }))
+    // Lines that end in their own full stop are not given a second one.
+    val spoken = (listOf(name) + lines.map { it.trimEnd('.') } + listOfNotNull(odds?.let { "$oddsLabel $it" }))
         .plus(types.filterNotNull().map { it.name })
         .joinToString(". ")
     val frame = modifier
@@ -211,6 +214,10 @@ fun InfoTable(
  * One row of an [InfoTable]. [icon] is a second signal beside [value] (a padlock for
  * shiny-locked), never the only one. [details] go under the row, for what needs more than a
  * word -- a recorded method, its location, its source.
+ *
+ * With [checked], the row is a checklist item: a tick box leads it and the whole row toggles,
+ * for prep a guide waits on ("built the catcher"). [value] still says the state in words, so
+ * the box is never the only signal. The box is never gold: a finished chore is not a shiny.
  */
 @Composable
 fun InfoRow(
@@ -222,25 +229,37 @@ fun InfoRow(
     icon: ImageVector? = null,
     /** A row that opens something: the whole row is the target, and it says where it goes. */
     onClick: (() -> Unit)? = null,
+    checked: Boolean? = null,
+    onCheckedChange: ((Boolean) -> Unit)? = null,
     details: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
+    val action = when {
+        checked != null && onCheckedChange != null ->
+            Modifier.toggleable(value = checked, role = Role.Checkbox, onValueChange = onCheckedChange)
+        onClick != null -> Modifier.clickable(onClick = onClick)
+        else -> Modifier
+    }
     Column(modifier = modifier.fillMaxWidth()) {
         if (!first) Box(Modifier.fillMaxWidth().height(dimens.rimWidth).background(colors.rim))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+                .then(action)
                 .heightIn(min = dimens.touchTargetMin)
                 .padding(horizontal = dimens.spaceLg, vertical = dimens.spaceMd),
             verticalArrangement = Arrangement.spacedBy(dimens.spaceSm),
         ) {
             Row(
-                modifier = Modifier.semantics(mergeDescendants = true) {},
+                // A row that does something is merged whole by its click or toggle, so TalkBack
+                // reads its title with its state. Merging here as well would split it into a
+                // nameless "checked, checkbox" and the words beside it.
+                modifier = if (action == Modifier) Modifier.semantics(mergeDescendants = true) {} else Modifier,
                 horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (checked != null) TickBox(checked)
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
@@ -266,6 +285,32 @@ fun InfoRow(
         }
     }
 }
+
+@Composable
+private fun TickBox(checked: Boolean) {
+    val colors = PokedexTheme.colors
+    val dimens = PokedexTheme.dimens
+    val base = Modifier.size(TICK_BOX).clip(PokedexShapes.slot)
+    Box(
+        modifier = if (checked) {
+            base.background(colors.onCaseMuted)
+        } else {
+            base.border(dimens.rimWidth, colors.onCaseMuted, PokedexShapes.slot)
+        },
+        contentAlignment = Alignment.Center,
+    ) {
+        if (checked) {
+            Icon(
+                PokedexIcons.Check,
+                contentDescription = null,
+                tint = colors.case,
+                modifier = Modifier.size(dimens.iconSm)
+            )
+        }
+    }
+}
+
+private val TICK_BOX = 24.dp
 
 /** Where a guide step stands. */
 enum class StepState { Done, Current, Upcoming }
@@ -387,6 +432,16 @@ internal fun GuideSamples() {
             InfoRow(title = "Violet", value = "Shiny", first = true, emphasis = true)
             InfoRow(title = "Legends Z-A", value = "Caught here")
             InfoRow(title = "Sword", value = "Shiny-locked", icon = PokedexIcons.Locked)
+        }
+        InfoTable {
+            InfoRow(title = "The Crown Tundra", value = "Done", first = true, checked = true, onCheckedChange = {})
+            InfoRow(
+                title = "False Swipe catcher",
+                value = "To do",
+                emphasis = true,
+                checked = false,
+                onCheckedChange = {}
+            )
         }
         StepList(
             steps = listOf(

@@ -16,6 +16,7 @@ import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import net.pokedex.designsystem.component.ActionButton
@@ -24,6 +25,8 @@ import net.pokedex.designsystem.component.BoxSlot
 import net.pokedex.designsystem.component.BoxSlotItem
 import net.pokedex.designsystem.component.CaughtToggle
 import net.pokedex.designsystem.component.FilterChip
+import net.pokedex.designsystem.component.InfoRow
+import net.pokedex.designsystem.component.InfoTable
 import net.pokedex.designsystem.component.NoteField
 import net.pokedex.designsystem.component.ProgressRing
 import net.pokedex.designsystem.component.SettingRow
@@ -224,6 +227,34 @@ class AccessibilityTest {
             PokedexTheme { ProgressRing(caught = 29, total = 29, label = "Kanto 2") }
         }
         composeRule.onNodeWithContentDescription("Kanto 2: complete, all 29 caught").assertExists()
+    }
+
+    /**
+     * A prep row is one checkbox with its name and state: ticking "the catcher" must be read as
+     * that, not as a nameless "checked" beside a separate line of text (prompt 11).
+     */
+    @Test
+    fun aChecklistRowIsOneNamedCheckbox() {
+        var ticked = false
+        composeRule.setContent {
+            PokedexTheme {
+                InfoTable {
+                    InfoRow(
+                        title = "False Swipe catcher",
+                        value = "To do",
+                        first = true,
+                        checked = ticked,
+                        onCheckedChange = { ticked = it },
+                    )
+                }
+            }
+        }
+        composeRule.onNode(isToggleable())
+            .assert(hasText("False Swipe catcher", substring = true))
+            .assert(hasText("To do", substring = true))
+            .assertHeightIsAtLeast(MIN_TARGET)
+            .performClick()
+        assertThat(ticked).isTrue()
     }
 
     private companion object {
