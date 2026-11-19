@@ -96,7 +96,8 @@ surface with a rim.
 
 **Facts as a table, a figure as a figure.** Several things each with a short state (games,
 methods, settings) go in an `InfoTable`, not a paragraph each. A number the user compares
-(odds, counts) goes in a `StatBlock` or a `HuntCard`'s figure, not mid-sentence.
+(odds, counts) goes in a `StatBlock` or a `HuntCard`'s figure, not mid-sentence. Several
+`StatBlock`s go in a `StatRow`, never a `Row`.
 
 **No type colour in the grid.** Types live on badges and the detail screen. Eighteen hues
 across thirty tiles is noise, and it competes with the one gold the grid depends on.

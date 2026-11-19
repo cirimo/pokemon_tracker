@@ -293,7 +293,7 @@ to restyle the thirty tiles. Everything below leaves the tiles byte-identical.
   `heroNumerals`). Each plate is one Canvas, so 52 of them cost what one box costs.
 - **The pieces for "how".** `HuntCard` (a hunt with its odds as the figure on the right;
   `featured` lights it for the one hunt a screen puts forward), `StatBlock` (a figure and its
-  name), `InfoTable` / `InfoRow` (facts as a table, which replaced a paragraph per game on
+  name; `StatRow` sets several side by side and wraps them at large text), `InfoTable` / `InfoRow` (facts as a table, which replaced a paragraph per game on
   slot detail) and `StepList` (numbered guide steps, done ticked, current ringed). The hunt
   counter (prompt 9) and the Sword guides (prompt 11) compose these. The counter's large tap
   target is still to be built, in the same language: one full-width surface, the count in

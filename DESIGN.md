@@ -312,8 +312,8 @@ cases at 12dp, dialogs at 16dp, sheets at 20dp on top. A pressed slot morphs its
 - **Hunt card:** sprite well, name, reasons, odds as the figure on the right (under the
   reasons from 150% text, where beside them it squeezes them to a word a line); lit only when
   it is the one hunt the screen features. **Stat block:** screen-title serif figure with a
-  label. **Info table:** rows of title and state with hairlines between, a padlock beside a
-  lock. **Step list:** numbered markers joined by a line; done ticked, current ringed.
+  label; two or more go in a stat row, which wraps them rather than squeezing the last.
+  **Info table:** rows of title and state with hairlines between, a padlock beside a lock. **Step list:** numbered markers joined by a line; done ticked, current ringed.
 
 ### Caught toggle
 - A full-width 56dp button, not a switch: catching is an event, not a setting.

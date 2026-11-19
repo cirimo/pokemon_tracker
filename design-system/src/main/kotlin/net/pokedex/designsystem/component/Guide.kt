@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -165,6 +166,24 @@ fun StatBlock(
         )
         Text(text = label, style = MaterialTheme.typography.labelMedium, color = colors.onCaseMuted)
     }
+}
+
+/**
+ * Figures side by side, wrapping onto the next line when they no longer fit. Put two or more
+ * [StatBlock]s in this rather than in a Row: in a Row the last one is squeezed into what is
+ * left, which at a large font scale breaks its label a letter a line.
+ */
+@Composable
+fun StatRow(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val dimens = PokedexTheme.dimens
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(dimens.spaceXl),
+        verticalArrangement = Arrangement.spacedBy(dimens.spaceMd),
+    ) { content() }
 }
 
 /**
@@ -360,7 +379,7 @@ internal fun GuideSamples() {
             odds = "1 in 128",
             types = listOf(PokemonType.Water),
         ) { DemoSprite(it) }
-        Row(horizontalArrangement = Arrangement.spacedBy(dimens.spaceXl)) {
+        StatRow {
             StatBlock(value = "1 in 512", label = "with the Shiny Charm")
             StatBlock(value = "766", label = "shiny caught", accent = true)
         }

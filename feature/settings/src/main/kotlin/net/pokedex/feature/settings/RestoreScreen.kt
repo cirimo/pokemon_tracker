@@ -4,9 +4,7 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +25,7 @@ import net.pokedex.designsystem.component.ScreenSection
 import net.pokedex.designsystem.component.SettingRow
 import net.pokedex.designsystem.component.SkeletonBox
 import net.pokedex.designsystem.component.StatBlock
+import net.pokedex.designsystem.component.StatRow
 import net.pokedex.designsystem.theme.PokedexTheme
 
 @Composable
@@ -172,7 +171,7 @@ private fun DoneContent(phase: RestorePhase.Done, onDone: () -> Unit) {
     // A restore is the collection coming back: its shiny count is the figure, in gold because
     // it counts shinies, and the records written are the receipt under it.
     ScreenSection(title = "Restored") {
-        Row(horizontalArrangement = Arrangement.spacedBy(PokedexTheme.dimens.spaceXl)) {
+        StatRow {
             if (phase.shiny > 0) StatBlock(value = phase.shiny.toString(), label = "shiny in the backup", accent = true)
             StatBlock(value = phase.written.toString(), label = "records written")
         }
