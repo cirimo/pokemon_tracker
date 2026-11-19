@@ -8,7 +8,8 @@ package net.pokedex.core.model
  *
  *  1. Only what this game offers unlocked is a hunt here. Locked ones are listed apart.
  *  2. Better odds per attempt first. A Dynamax Adventure at 1/100 beats a reset at 1/4096 by a
- *     factor that no difference in time per attempt makes up, so odds lead.
+ *     factor that no difference in time per attempt makes up, so odds lead. At equal odds, one
+ *     this game reaches on its own comes before one that needs another player's game online.
  *  3. Where the game stands in my farm order for it: the only one of my games, then the first,
  *     then a game an earlier one already covers.
  *  4. More slots from one hunt.
@@ -81,6 +82,7 @@ fun legendaryPlan(
             compareBy<LegendaryHunt>(
                 { it.way == null },
                 { it.way?.odds?.best?.oneIn ?: Double.MAX_VALUE },
+                { it.onlineOnly },
                 { it.standing },
                 { -it.slots.size },
                 { it.lead.order },

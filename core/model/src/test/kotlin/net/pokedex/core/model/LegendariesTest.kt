@@ -102,15 +102,16 @@ class LegendariesTest {
     private fun names(p: LegendaryPlan) = p.hunts.map { it.lead.variant.id.value }
 
     @Test
-    fun `odds lead, then where Sword stands in my farm order, then preset order`() {
-        // Max Lair first (1/100): Tornadus and Thundurus only here, Zygarde here first,
-        // Articuno covered earlier by Let's Go. Regirock's reset is 1/4096, so it comes last.
-        assertThat(names(plan())).containsExactly("tornadus", "thundurus", "zygarde", "articuno", "regirock").inOrder()
+    fun `odds lead, then Sword on its own before online, then my farm order, then preset order`() {
+        // Max Lair first (1/100): Tornadus only here, Zygarde here first, Articuno covered
+        // earlier by Let's Go, then Thundurus, which Sword reaches only through a Shield host.
+        // Regirock's reset is 1/4096, so it comes last.
+        assertThat(names(plan())).containsExactly("tornadus", "zygarde", "articuno", "thundurus", "regirock").inOrder()
         assertThat(plan().hunts.map { it.standing }).containsExactly(
-            FarmStanding.OnlyHere,
             FarmStanding.OnlyHere,
             FarmStanding.HereFirst,
             FarmStanding.EarlierElsewhere,
+            FarmStanding.OnlyHere,
             FarmStanding.OnlyHere,
         ).inOrder()
     }

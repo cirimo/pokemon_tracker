@@ -1,5 +1,7 @@
 package net.pokedex.core.model
 
+import kotlin.math.ceil
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
@@ -16,6 +18,16 @@ data class Odds(
     val rolls: Int?,
 ) {
     val chance: Double get() = 1.0 / oneIn
+
+    /**
+     * Attempts until a shiny has appeared with probability [probability]: the smallest n with
+     * 1 - (1 - p)^n >= probability. 69 at 1/100 for even odds, not 50: the figure a guide gives
+     * so "1 in 100" is not read as "by the hundredth".
+     */
+    fun attemptsFor(probability: Double): Int {
+        require(probability > 0.0 && probability < 1.0) { "a probability strictly between 0 and 1, got $probability" }
+        return ceil(ln(1.0 - probability) / ln(1.0 - chance)).toInt()
+    }
 
     companion object {
         /** Every Switch game: one roll at 1/4096. */

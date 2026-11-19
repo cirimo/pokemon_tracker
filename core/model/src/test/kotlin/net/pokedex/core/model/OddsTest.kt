@@ -133,4 +133,12 @@ class OddsTest {
         assertThat(oddsFor(listOf(dynamax, dynamaxCharm))!!.withCharm).isEqualTo(Odds.flat(100))
         assertThat(oddsFor(listOf(research10))!!.withCharm).isNull()
     }
+
+    @Test
+    fun `attempts for even odds are the ln figure, not half the denominator`() {
+        assertThat(Odds.flat(100).attemptsFor(0.5)).isEqualTo(69)
+        assertThat(Odds.flat(300).attemptsFor(0.5)).isEqualTo(208)
+        assertThat(Odds.flat(100).attemptsFor(0.9)).isEqualTo(230)
+        assertThat(Odds.ofRolls(1).attemptsFor(0.5)).isEqualTo(2839)
+    }
 }
