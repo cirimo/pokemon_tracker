@@ -53,6 +53,7 @@ internal fun SlotDetailDestination(
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
     onOpenMyGames: () -> Unit,
+    onOpenGuide: (guideId: String, gameId: String) -> Unit,
     onBrowsed: (String) -> Unit,
     viewModel: SlotDetailViewModel = hiltViewModel(),
 ) {
@@ -65,6 +66,7 @@ internal fun SlotDetailDestination(
         onOpenVariant = onOpenVariant,
         onShowInBox = onShowInBox,
         onOpenMyGames = onOpenMyGames,
+        onOpenGuide = onOpenGuide,
         onBrowsed = onBrowsed,
     )
 }
@@ -85,6 +87,7 @@ internal fun SlotDetailScreen(
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
     onOpenMyGames: () -> Unit,
+    onOpenGuide: (guideId: String, gameId: String) -> Unit = { _, _ -> },
     onBrowsed: (String) -> Unit = {},
 ) {
     val shown = state.current?.let { state.pages[it] }?.slot
@@ -101,7 +104,7 @@ internal fun SlotDetailScreen(
             else -> SlotPager(
                 state = state,
                 page = { page, hero ->
-                    SlotPage(page, hero, onEvent, onOpenSlot, onOpenVariant, onShowInBox, onOpenMyGames)
+                    SlotPage(page, hero, onEvent, onOpenSlot, onOpenVariant, onShowInBox, onOpenMyGames, onOpenGuide)
                 },
                 onEvent = onEvent,
                 onBrowsed = onBrowsed,
@@ -202,6 +205,7 @@ private fun SlotPage(
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
     onOpenMyGames: () -> Unit,
+    onOpenGuide: (guideId: String, gameId: String) -> Unit = { _, _ -> },
 ) {
     val slot = state.slot
     when {
@@ -211,7 +215,9 @@ private fun SlotPage(
             actionLabel = null,
         )
         slot == null -> SkeletonBox(Modifier.fillMaxWidth().aspectRatio(1f))
-        else -> SlotDetailContent(state, slot, hero, onEvent, onOpenSlot, onOpenVariant, onShowInBox, onOpenMyGames)
+        else -> SlotDetailContent(
+            state, slot, hero, onEvent, onOpenSlot, onOpenVariant, onShowInBox, onOpenMyGames, onOpenGuide,
+        )
     }
 }
 
@@ -226,6 +232,7 @@ private fun SlotDetailContent(
     onOpenVariant: (String) -> Unit,
     onShowInBox: (Int) -> Unit,
     onOpenMyGames: () -> Unit,
+    onOpenGuide: (guideId: String, gameId: String) -> Unit = { _, _ -> },
 ) {
     val colors = PokedexTheme.colors
     val caught = slot.status == SlotStatus.Caught
@@ -301,7 +308,7 @@ private fun SlotDetailContent(
 
     if (!caught) PrioritySection(state.priority, onPick = { onEvent(SlotDetailEvent.SetPriority(slot.key, it)) })
 
-    HuntingSection(state.hunting, state.gamesChosen, onOpenMyGames)
+    HuntingSection(state.hunting, state.gamesChosen, onOpenMyGames, onOpenGuide)
 
     // Every game at a glance, once "In your games" has narrowed the section above. Before
     // games are chosen that section already lists every game, so this would repeat it.

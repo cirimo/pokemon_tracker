@@ -56,10 +56,11 @@ internal fun ProgressDestination(
     onShowBox: (Int) -> Unit,
     onShowSearch: (DexFilter) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
+    onOpenGame: (String) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowSearch, onOpenSlot, onOpenHunt)
+    ProgressScreen(state, viewModel::onEvent, onBack, onShowBox, onShowSearch, onOpenSlot, onOpenHunt, onOpenGame)
 }
 
 /**
@@ -78,6 +79,7 @@ internal fun ProgressScreen(
     onShowSearch: (DexFilter) -> Unit,
     onOpenSlot: (CatchKey) -> Unit,
     onOpenHunt: () -> Unit = {},
+    onOpenGame: (String) -> Unit = {},
 ) {
     ScreenScaffold(title = "Progress", onBack = onBack) {
         when {
@@ -101,7 +103,7 @@ internal fun ProgressScreen(
                         Plates(state.closest, onShowBox)
                     }
                 }
-                if (state.farm.isNotEmpty()) FarmPlan(state.farm, onShowSearch)
+                if (state.farm.isNotEmpty()) FarmPlan(state.farm, onShowSearch, onOpenGame)
                 ScreenSection(title = "Still needed, by game", body = NEEDED_BODY) {
                     InfoTable {
                         state.games.forEachIndexed { index, game ->
@@ -160,7 +162,7 @@ private fun Collection(regions: List<RegionRow>, onShowBox: (Int) -> Unit) {
  * rule, which marks a box; this is a to-do list running out.
  */
 @Composable
-private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
+private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit, onOpenGame: (String) -> Unit) {
     val dimens = PokedexTheme.dimens
     ScreenSection(
         title = "Farm plan",
@@ -177,10 +179,11 @@ private fun FarmPlan(rows: List<FarmRow>, onShowSearch: (DexFilter) -> Unit) {
                 )
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(dimens.spaceXs)) {
-                    Text(
-                        text = row.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = PokedexTheme.colors.onCase,
+                    // The game's own page: prep, guides and its legendaries ranked (prompt 11).
+                    SettingRow(
+                        title = row.name,
+                        summary = "Prep, guides and legendaries",
+                        onClick = { onOpenGame(row.gameId) },
                     )
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(dimens.spaceSm),

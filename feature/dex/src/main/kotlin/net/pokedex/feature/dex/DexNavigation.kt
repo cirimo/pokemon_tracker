@@ -11,9 +11,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import net.pokedex.core.model.Browse
 import net.pokedex.core.model.CatchKey
+import net.pokedex.core.model.DexFilter
 import net.pokedex.feature.dex.boxes.BoxesDestination
 import net.pokedex.feature.dex.detail.SlotDetailDestination
 import net.pokedex.feature.dex.detail.VariantDetailDestination
+import net.pokedex.feature.dex.game.GameDestination
+import net.pokedex.feature.dex.guide.GuideDestination
 import net.pokedex.feature.dex.hunt.HuntDestination
 import net.pokedex.feature.dex.progress.ProgressDestination
 
@@ -55,6 +58,14 @@ data class VariantDetailRoute(val variantId: String)
 @Serializable
 data class HuntRoute(val gameId: String? = null)
 
+/** One game: prep, its legendaries ranked, and what it is for in my farm order (prompt 11). */
+@Serializable
+data class GameRoute(val gameId: String)
+
+/** One guide, read for one game: the prep ticks and the charm are that game's. */
+@Serializable
+data class GuideRoute(val guideId: String, val gameId: String)
+
 /** The dashboards: overall, by region, by game, and recent catches. */
 @Serializable
 data object ProgressRoute
@@ -82,6 +93,8 @@ fun NavGraphBuilder.dexGraph(
     val openSlot: (CatchKey) -> Unit = { navController.navigate(SlotDetailRoute(it)) }
     val browseSlot: (CatchKey, Browse) -> Unit = { key, browse -> navController.navigate(SlotDetailRoute(key, browse)) }
     val openVariant: (String) -> Unit = { navController.navigate(VariantDetailRoute(it)) }
+    val openGame: (String) -> Unit = { navController.navigate(GameRoute(it)) }
+    val openGuide: (String, String) -> Unit = { guide, game -> navController.navigate(GuideRoute(guide, game)) }
     val back: () -> Unit = { navController.popBackStack() }
 
     // Leave the request on the box destination's back stack entry, then pop back to it.
@@ -117,6 +130,7 @@ fun NavGraphBuilder.dexGraph(
                 onOpenVariant = openVariant,
                 onShowInBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
                 onOpenMyGames = onOpenMyGames,
+                onOpenGuide = openGuide,
                 // Only while this detail is on top: during its exit transition the entry below
                 // is already current, and writing then would land on the wrong entry.
                 onBrowsed = { slotKey ->
@@ -134,6 +148,7 @@ fun NavGraphBuilder.dexGraph(
             onBrowseSlot = browseSlot,
             onOpenMyGames = onOpenMyGames,
             onOpenProgress = { navController.navigate(ProgressRoute) },
+            onOpenGame = openGame,
             browsedTo = entry.savedStateHandle.getStateFlow<String?>(BROWSED_TO_KEY, null),
             onBrowsedToHandled = { entry.savedStateHandle[BROWSED_TO_KEY] = null },
         )
@@ -145,9 +160,41 @@ fun NavGraphBuilder.dexGraph(
             onShowBox = { boxIndex -> returnToBoxes(SHOW_BOX_KEY, boxIndex) },
             onShowSearch = { filter -> returnToBoxes(SHOW_SEARCH_KEY, Json.encodeToString(filter)) },
             onOpenSlot = openSlot,
+            onOpenGame = openGame,
         )
     }
     composable<VariantDetailRoute> {
         VariantDetailDestination(onBack = back, onOpenSlot = openSlot, onOpenVariant = openVariant)
+    }
+    guideDestinations(
+        navController = navController,
+        openSlot = openSlot,
+        openGuide = openGuide,
+        onShowSearch = { filter -> returnToBoxes(SHOW_SEARCH_KEY, Json.encodeToString(filter)) },
+        onOpenMyGames = onOpenMyGames,
+    )
+}
+
+/** A game's page and its guides (prompt 11). */
+private fun NavGraphBuilder.guideDestinations(
+    navController: NavController,
+    openSlot: (CatchKey) -> Unit,
+    openGuide: (String, String) -> Unit,
+    onShowSearch: (DexFilter) -> Unit,
+    onOpenMyGames: () -> Unit,
+) {
+    val back: () -> Unit = { navController.popBackStack() }
+    composable<GameRoute> {
+        GameDestination(
+            onBack = back,
+            onOpenGuide = openGuide,
+            onOpenSlot = openSlot,
+            onShowSearch = onShowSearch,
+            onOpenHunt = { gameId -> navController.navigate(HuntRoute(gameId)) },
+            onOpenMyGames = onOpenMyGames,
+        )
+    }
+    composable<GuideRoute> {
+        GuideDestination(onBack = back, onOpenSlot = openSlot)
     }
 }

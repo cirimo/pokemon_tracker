@@ -39,7 +39,12 @@ internal fun PrioritySection(priority: Priority, onPick: (Priority) -> Unit) {
  * than in a paragraph repeated under every game.
  */
 @Composable
-internal fun HuntingSection(games: List<GameHuntUi>, gamesChosen: Boolean, onOpenMyGames: () -> Unit) {
+internal fun HuntingSection(
+    games: List<GameHuntUi>,
+    gamesChosen: Boolean,
+    onOpenMyGames: () -> Unit,
+    onOpenGuide: (guideId: String, gameId: String) -> Unit,
+) {
     ScreenSection(
         title = if (gamesChosen) "In your games" else "How to catch it",
         body = when {
@@ -58,6 +63,8 @@ internal fun HuntingSection(games: List<GameHuntUi>, gamesChosen: Boolean, onOpe
                         first = index == 0,
                         emphasis = game.huntable,
                         icon = if (game.locked) PokedexIcons.Locked else null,
+                        // A game with a guide for this slot: the whole row opens it.
+                        onClick = game.guideId?.let { guide -> { onOpenGuide(guide, game.gameId) } },
                         details = explanation(game),
                     )
                 }
@@ -70,7 +77,10 @@ internal fun HuntingSection(games: List<GameHuntUi>, gamesChosen: Boolean, onOpe
 /** What goes under a game's row, or nothing: the ways it records, or the sentence its word stands for. */
 private fun explanation(game: GameHuntUi): (@Composable ColumnScope.() -> Unit)? = when {
     game.ways.isNotEmpty() -> {
-        { game.ways.forEach { WayRow(it) } }
+        {
+            game.ways.forEach { WayRow(it) }
+            if (game.guideId != null) Body("Tap for the step-by-step guide.")
+        }
     }
     !game.huntable && game.label != game.standing.trimEnd('.') && game.standing != "Not in this game." -> {
         { Muted(game.standing) }

@@ -21,6 +21,7 @@ import net.pokedex.core.data.di.DefaultDispatcher
 import net.pokedex.core.data.repository.CatchRepository
 import net.pokedex.core.data.repository.CurationRepository
 import net.pokedex.core.data.repository.DexRepository
+import net.pokedex.core.data.repository.GuideBookRepository
 import net.pokedex.core.data.repository.SettingsRepository
 import net.pokedex.core.model.AppError
 import net.pokedex.core.model.Browse
@@ -32,6 +33,7 @@ import net.pokedex.core.model.DexEntry
 import net.pokedex.core.model.Encounter
 import net.pokedex.core.model.FarmPlan
 import net.pokedex.core.model.GameId
+import net.pokedex.core.model.GuideBook
 import net.pokedex.core.model.Outcome
 import net.pokedex.core.model.Ownership
 import net.pokedex.core.model.Priority
@@ -107,6 +109,7 @@ data class SlotDetailUiState(
 /** One game, for this slot: whether it can be shiny there, and every recorded way. */
 @Immutable
 data class GameHuntUi(
+    val gameId: String,
     val name: String,
     /** A word or two for the table: "Shiny", "Shiny-locked", "Not here". */
     val label: String,
@@ -116,6 +119,8 @@ data class GameHuntUi(
     val locked: Boolean,
     /** Empty for a huntable game means "no method recorded yet", and the screen says so. */
     val ways: List<WayUi>,
+    /** A step-by-step guide for this variant in this game (prompt 11), or null. */
+    val guideId: String? = null,
 )
 
 @Immutable
@@ -219,6 +224,7 @@ sealed interface SlotDetailEvent {
 class SlotDetailViewModel @Inject constructor(
     private val dexRepository: DexRepository,
     private val guides: CurationRepository,
+    private val guideBooks: GuideBookRepository,
     private val catches: CatchRepository,
     private val settings: SettingsRepository,
     private val savedState: SavedStateHandle,
@@ -244,6 +250,9 @@ class SlotDetailViewModel @Inject constructor(
     private val guide = MutableStateFlow<Curation?>(null)
     private val guideTried = CompletableDeferred<Curation?>()
 
+    // The same for the guide book: without it a row only loses its link to a guide.
+    private val book = MutableStateFlow<GuideBook?>(null)
+
     /** Frozen once, when the detail opens; null until then. */
     private val keys = MutableStateFlow<List<CatchKey>?>(null)
 
@@ -252,7 +261,7 @@ class SlotDetailViewModel @Inject constructor(
         (dex as? Outcome.Ok)?.value?.let { FarmPlan(it, farmOrderOf(it.games, ranks)) }
     }
 
-    private val inputs = combine(dex, catches.observeRecords(), farm, guide, ::Inputs)
+    private val inputs = combine(dex, catches.observeRecords(), farm, guide, book, ::Inputs)
 
     val state: StateFlow<SlotDetailPagesState> = combine(inputs, current, keys) { inputs, current, keys ->
         when (val dex = inputs.dex) {
@@ -304,6 +313,7 @@ class SlotDetailViewModel @Inject constructor(
             if (loaded != null) guide.value = loaded
             guideTried.complete(loaded)
         }
+        viewModelScope.launch { book.value = (guideBooks.guideBook() as? Outcome.Ok)?.value }
     }
 
     /**
@@ -327,6 +337,7 @@ class SlotDetailViewModel @Inject constructor(
         val records: Map<CatchKey, CatchRecord>,
         val farm: FarmPlan?,
         val guide: Curation?,
+        val book: GuideBook?,
     )
 
     private fun pagesOf(dex: Dex, inputs: Inputs, keys: List<CatchKey>, current: CatchKey): SlotDetailPagesState {
@@ -337,7 +348,7 @@ class SlotDetailViewModel @Inject constructor(
             keys = keys,
             current = current,
             pages = near.associateWith { key ->
-                build(dex, inputs.records, inputs.farm ?: FarmPlan(dex, emptyList()), inputs.guide, key)
+                build(dex, inputs.records, inputs.farm ?: FarmPlan(dex, emptyList()), inputs.guide, inputs.book, key)
             },
             browse = browse?.takeIf { keys.size > 1 }?.let { browseUiOf(it, dex) },
         )
@@ -354,6 +365,7 @@ class SlotDetailViewModel @Inject constructor(
         records: Map<CatchKey, CatchRecord>,
         farm: FarmPlan,
         guide: Curation?,
+        book: GuideBook?,
         key: CatchKey,
     ): SlotDetailUiState {
         val myGames = farm.games
@@ -408,7 +420,7 @@ class SlotDetailViewModel @Inject constructor(
             },
             origins = originsFor(dex, variant.id),
             priority = Priority.of(records[key]?.priority ?: 0),
-            hunting = huntingFor(dex, variant.id, farm.order, guide),
+            hunting = huntingFor(dex, variant.id, farm.order, guide, book),
             gamesChosen = myGames.isNotEmpty(),
             farmLine = farm.placeOf(entry)
                 ?.takeIf { statusOf(entry, records) == SlotStatus.Needed }
@@ -422,7 +434,13 @@ class SlotDetailViewModel @Inject constructor(
      * the variant appears in, so the screen is still useful before setup. My games are in my
      * farm order, so the game the farm line names comes first among those that have it.
      */
-    private fun huntingFor(dex: Dex, variant: VariantId, farmOrder: List<GameId>, guide: Curation?): List<GameHuntUi> {
+    private fun huntingFor(
+        dex: Dex,
+        variant: VariantId,
+        farmOrder: List<GameId>,
+        guide: Curation?,
+        book: GuideBook?,
+    ): List<GameHuntUi> {
         val byId = dex.games.associateBy { it.id }
         val games = if (farmOrder.isEmpty()) {
             dex.games.filter { it.gameSet != Dex.HOME_GAME_SET && standingOf(dex, variant, it.id) != Standing.Absent }
@@ -433,12 +451,17 @@ class SlotDetailViewModel @Inject constructor(
         return games.map { game ->
             val standing = standingOf(dex, variant, game.id)
             GameHuntUi(
+                gameId = game.id.value,
                 name = game.name,
                 label = standingLabel(standing),
                 standing = standingSentence(standing, lockReasons[game.id]),
                 huntable = standing == Standing.Shiny,
                 locked = standing == Standing.ShinyLocked,
                 ways = guide?.let { g -> g.encounters(variant, game.id).map { wayUi(dex, g, it) } }.orEmpty(),
+                guideId = book?.takeIf { standing == Standing.Shiny }?.guidesFor(
+                    variant,
+                    game.gameSet
+                )?.firstOrNull()?.id,
             )
         }
     }

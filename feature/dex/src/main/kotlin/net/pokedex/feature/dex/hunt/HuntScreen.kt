@@ -47,6 +47,7 @@ internal fun HuntDestination(
     onBrowseSlot: (CatchKey, Browse) -> Unit,
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
+    onOpenGame: (String) -> Unit,
     browsedTo: StateFlow<String?>,
     onBrowsedToHandled: () -> Unit,
     viewModel: HuntViewModel = hiltViewModel(),
@@ -61,6 +62,7 @@ internal fun HuntDestination(
         onBrowseSlot = onBrowseSlot,
         onOpenMyGames = onOpenMyGames,
         onOpenProgress = onOpenProgress,
+        onOpenGame = onOpenGame,
         returnedTo = returnedTo,
         onReturnHandled = onBrowsedToHandled,
     )
@@ -84,6 +86,7 @@ internal fun HuntScreen(
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
     onBrowseSlot: (CatchKey, Browse) -> Unit = { key, _ -> onOpenSlot(key) },
+    onOpenGame: (String) -> Unit = {},
     returnedTo: String? = null,
     onReturnHandled: () -> Unit = {},
 ) {
@@ -113,6 +116,7 @@ internal fun HuntScreen(
                 },
                 onOpenMyGames = onOpenMyGames,
                 onOpenProgress = onOpenProgress,
+                onOpenGame = onOpenGame,
                 returnedTo = returnedTo,
                 onReturnHandled = onReturnHandled,
             )
@@ -120,7 +124,7 @@ internal fun HuntScreen(
     }
 }
 
-@Suppress("LongParameterList") // The list's rows link out three ways.
+@Suppress("LongParameterList") // The list's rows link out four ways.
 @Composable
 private fun HuntList(
     state: HuntUiState,
@@ -129,6 +133,7 @@ private fun HuntList(
     onOpenHunt: (CatchKey) -> Unit,
     onOpenMyGames: () -> Unit,
     onOpenProgress: () -> Unit,
+    onOpenGame: (String) -> Unit,
     returnedTo: String?,
     onReturnHandled: () -> Unit,
 ) {
@@ -171,6 +176,14 @@ private fun HuntList(
         if (state.outOfReach.isNotEmpty()) outOfReach(state, onEvent, onOpenSlot)
         item(key = "links", contentType = "links") {
             ScreenSection(title = "Elsewhere") {
+                // The game picked above has a page of its own: prep, guides, legendaries ranked.
+                state.games.firstOrNull { it.id == state.selectedGame }?.let { game ->
+                    SettingRow(
+                        title = game.name,
+                        summary = "Prep, guides and its legendaries, ranked",
+                        onClick = { onOpenGame(game.id) },
+                    )
+                }
                 SettingRow(
                     title = "Progress",
                     summary = "Where you stand, by box, region and game",
