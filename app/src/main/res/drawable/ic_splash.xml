@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The Android 12+ splash icon: the launcher icon's slot without its plate.
+
+  The splash draws the icon inside a circle of windowSplashScreenIconBackgroundColor, and
+  that circle's mask cuts the plate's corners off, leaving an octagon. The case colour behind
+  the circle already is the plate, so the splash shows the slot alone, the same well, rim and
+  pip as ic_launcher_foreground.xml.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- The recess, darker than the plate so the slot reads as a well. -->
+    <path android:fillColor="#0E0C0D" android:pathData="M39,31h30a8,8 0 0 1 8,8v30a8,8 0 0 1 -8,8h-30a8,8 0 0 1 -8,-8v-30a8,8 0 0 1 8,-8z" />
+
+    <!-- The caught rim. Heavier than the grid's 2dp, because 2dp vanishes at 48px. -->
+    <path
+        android:strokeColor="#D8B26A"
+        android:strokeWidth="4"
+        android:fillColor="#00000000"
+        android:pathData="M39,31h30a8,8 0 0 1 8,8v30a8,8 0 0 1 -8,8h-30a8,8 0 0 1 -8,-8v-30a8,8 0 0 1 8,-8z" />
+
+    <!-- The pip: the second, non-colour signal that a slot is filled. -->
+    <path android:fillColor="#D8B26A" android:pathData="M65,43m-6,0a6,6 0 1,0 12,0a6,6 0 1,0 -12,0z" />
+</vector>

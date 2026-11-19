@@ -18,7 +18,7 @@
      caseSurface, and a hairline of caseHighlight along its top edge.
 
   Gold appears here exactly as the design system allows: a caught slot rim and its pip.
-  This drawable is also the Android 12+ splash icon (values-v31/themes.xml).
+  The Android 12+ splash uses ic_splash.xml, this slot without the plate.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
