@@ -305,10 +305,12 @@ cases at 12dp, dialogs at 16dp, sheets at 20dp on top. A pressed slot morphs its
   open box ringed. **Plate:** a box as thirty dots in slot order (gold disc shiny, grey disc
   regular, hollow ring needed). **Shelf:** a region's plates under its section title; a gold
   rule draws when the region completes. **Trophy:** a recent catch in a 96dp well with the
-  caught rim; the whole dex as a 232dp three-quarter arc with the count in hero numerals.
+  caught rim; the whole dex as a 232dp three-quarter arc with the count in hero numerals,
+  growing with the text at large font scales so the count never spills over the arc.
 
 ### Hunts, figures, facts, steps
-- **Hunt card:** sprite well, name, reasons, odds as the figure on the right; lit only when
+- **Hunt card:** sprite well, name, reasons, odds as the figure on the right (under the
+  reasons from 150% text, where beside them it squeezes them to a word a line); lit only when
   it is the one hunt the screen features. **Stat block:** screen-title serif figure with a
   label. **Info table:** rows of title and state with hairlines between, a padlock beside a
   lock. **Step list:** numbered markers joined by a line; done ticked, current ringed.

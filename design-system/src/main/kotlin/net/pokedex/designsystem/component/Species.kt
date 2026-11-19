@@ -22,9 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
@@ -99,18 +99,22 @@ fun SpeciesHeader(
                         center = Offset(size.width / 2, size.height * LIGHT_Y),
                         radius = size.minDimension * HALF,
                     )
+                    // The pool is a circle of shadow squashed into an ellipse, so it fades out on
+                    // every side. A radial brush in a thin rectangle is cut flat at the rectangle.
+                    val poolCentre = Offset(size.width / 2, size.height * POOL_Y)
+                    val poolRadius = size.width * POOL_RADIUS
                     val pool = Brush.radialGradient(
-                        0f to colors.scrim,
+                        0f to colors.scrim.copy(alpha = colors.scrim.alpha * POOL_DEPTH),
                         1f to Color.Transparent,
-                        center = Offset(size.width / 2, size.height * POOL_Y),
-                        radius = size.width * POOL_RADIUS,
+                        center = poolCentre,
+                        radius = poolRadius,
                     )
-                    val poolTop = size.height * POOL_TOP
-                    val poolSize = Size(size.width, size.height * POOL_HEIGHT)
                     onDrawBehind {
                         drawRect(base)
                         drawRect(light)
-                        drawRect(pool, topLeft = Offset(0f, poolTop), size = poolSize)
+                        scale(scaleX = 1f, scaleY = POOL_SQUASH, pivot = poolCentre) {
+                            drawCircle(pool, radius = poolRadius, center = poolCentre)
+                        }
                     }
                 }
                 .border(
@@ -158,8 +162,8 @@ private const val LIGHT_Y = 0.48f
 private const val HALF = 0.5f
 private const val POOL_Y = 0.86f
 private const val POOL_RADIUS = 0.32f
-private const val POOL_TOP = 0.8f
-private const val POOL_HEIGHT = 0.12f
+private const val POOL_SQUASH = 0.18f
+private const val POOL_DEPTH = 0.8f
 private const val DEX_DIGITS = 4
 
 /**

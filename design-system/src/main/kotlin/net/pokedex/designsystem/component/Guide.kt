@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -67,10 +68,26 @@ fun HuntCard(
 ) {
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
+    // At a large font scale the figure beside the text squeezes the reasons to a word a line,
+    // so it moves under them, where it has the card's width.
+    val stacked = LocalDensity.current.fontScale >= STACK_FIGURE_AT
+    val figure: @Composable () -> Unit = {
+        if (odds != null) {
+            Column(horizontalAlignment = if (stacked) Alignment.Start else Alignment.End) {
+                Text(
+                    text = odds,
+                    style = PokedexTheme.text.statValue,
+                    color = colors.onCase,
+                    textAlign = if (stacked) TextAlign.Start else TextAlign.End,
+                )
+                Text(text = oddsLabel, style = MaterialTheme.typography.labelSmall, color = colors.onCaseMuted)
+            }
+        }
+    }
     val content: @Composable () -> Unit = {
         Row(
             horizontalArrangement = Arrangement.spacedBy(dimens.spaceMd),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = if (stacked) Alignment.Top else Alignment.CenterVertically,
         ) {
             Box(
                 Modifier
@@ -98,18 +115,9 @@ fun HuntCard(
                         modifier = Modifier.padding(top = dimens.spaceXxs),
                     ) { types.forEach { TypeBadge(it) } }
                 }
+                if (stacked) figure()
             }
-            if (odds != null) {
-                Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = odds,
-                        style = PokedexTheme.text.statValue,
-                        color = colors.onCase,
-                        textAlign = TextAlign.End
-                    )
-                    Text(text = oddsLabel, style = MaterialTheme.typography.labelSmall, color = colors.onCaseMuted)
-                }
-            }
+            if (!stacked) figure()
         }
     }
     val spoken = (listOf(name) + lines + listOfNotNull(odds?.let { "$oddsLabel $it" }))
@@ -134,6 +142,7 @@ fun HuntCard(
 }
 
 private val HUNT_WELL = 64.dp
+private const val STACK_FIGURE_AT = 1.5f
 
 /**
  * A figure and its name, set as a figure: the serif numerals the rest of the app uses for

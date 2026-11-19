@@ -12,12 +12,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,6 +39,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -263,10 +266,11 @@ fun TrophyTile(
     val colors = PokedexTheme.colors
     val dimens = PokedexTheme.dimens
     val shape = RoundedCornerShape(dimens.cardRadius)
+    // No clip on the column: the corner radius would bite the first letter off a caption's
+    // last line. The well carries the shape; the ripple is the tile's rectangle.
     Column(
         modifier = modifier
             .width(TROPHY_SIZE)
-            .clip(shape)
             .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
             .clearAndSetSemantics { contentDescription = "$name, caught $caption" },
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -300,7 +304,12 @@ fun TrophyTile(
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
         )
-        Text(text = caption, style = MaterialTheme.typography.labelSmall, color = colors.onCaseMuted)
+        Text(
+            text = caption,
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.onCaseMuted,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -321,9 +330,14 @@ fun CollectionTrophy(
     val dimens = PokedexTheme.dimens
     val target = if (total == 0) 0f else caught.toFloat() / total
     val fraction by animateFloatAsState(target, PokedexTheme.motion.stateChange(), label = "trophy")
+    // The count and its label sit inside the arc, so the arc grows with the text rather than
+    // the text spilling over it at a large font scale, up to the width it is given.
+    val grow = LocalDensity.current.fontScale.coerceIn(1f, TROPHY_MAX_GROW)
     Box(
         modifier = modifier
-            .size(TROPHY_ARC_SIZE)
+            .widthIn(max = TROPHY_ARC_SIZE * grow)
+            .fillMaxWidth()
+            .aspectRatio(1f)
             .clearAndSetSemantics {
                 contentDescription = listOfNotNull(progressSentence(caught, total, label), detail).joinToString(". ")
             }
@@ -367,6 +381,7 @@ private val TROPHY_SIZE = 96.dp
 private val PIP_SIZE = 8.dp
 private val TROPHY_ARC_SIZE = 232.dp
 private val TROPHY_STROKE = 10.dp
+private const val TROPHY_MAX_GROW = 2f
 private const val DOT_SCALE = 0.32f
 private const val HALF = 0.5f
 private const val ARC_FROM = 135f
