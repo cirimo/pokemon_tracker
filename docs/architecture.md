@@ -750,6 +750,29 @@ Open: re-run state 10 and the base, each alone on a cool phone, before reading t
 code. Then install the release (`installRelease`, by hand, after a fresh backup) and measure it as
 the real install's state 10.
 
+### Measured on the real install after prompt 11 (2026-11-20)
+
+Prompt 11 (the Sword game page and guide screen) added screens off the box view and left the
+tiles, the pager, the strip and the lit case alone. The only box-view change is the hunt card's
+spoken sentence. So this is also the real install's state 10, which was still open above.
+
+The release (`7ed1823`) was installed over the real install, migrating `user.db` v6 to v7 (the
+empty `prep_tick` table). It opened on 766 shiny, the count of the latest automatic backup.
+Phone on USB and charging, thermal status 0, profile `speed-profile, install-dm`.
+
+| Real install, 766 shiny | Battery | Pager janky | P90 | P99 | Slow UI | Slow draw |
+|---|---|---|---|---|---|---|
+| State 11, default | 31.1–32.3 °C | 3.1–3.4% | 8–9 ms | 11–12 ms | 17–25 | 25–28 |
+| State 11, tight | 32.3–33.2 °C | 2.8–3.4% | 7 ms | 12–13 ms | 20–26 | 3–5 |
+
+The real install reads like the profiling build's state 10 (default P99 12 ms, slow draw 26–28;
+tight P99 10–12 ms, slow draw 3–7). It is not a regression against state 9 (P99 12–13 ms), which
+was measured over 305 fewer caught sprites. Cold start is 171–267 ms, inside the 600 ms budget.
+
+The 2–6 extra default slow-draw frames against the pre-prompt-10 base are still not attributed.
+This run was not the cool, base-against-state-10 comparison that question needs, and P99 stays
+above the 8.3 ms frame budget as it has since M3.
+
 ### Baseline profile: how it reaches the compiler, and regenerating it
 
 This app is sideloaded, so the profile reaches ART without a store:
